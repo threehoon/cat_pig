@@ -145,13 +145,21 @@
   "body": "也想试试。",
   "parent_id": null,
   "reply_to": null,
+  "sticker_ids": ["blush"],
+  "image_urls": [],
+  "audio_url": null,
+  "audio_duration": 0,
+  "like_count": 0,
+  "liked": false,
   "created_at": "2026-08-24T11:00:00Z"
 }
 ```
 
-`body` 必填，1–200 字。`parent_id` 为所评论的**顶层**评论 id，直接评帖为 `null`。`reply_to` 为被评论的人（Author），直接评帖为 `null`。列表按 `created_at` **旧的在前**（对话顺序），含子评论，扁平返回。  
+`body` 可空字符串，最多 200 字。`sticker_ids` 始终是数组，最多 8 个；取值只能是 `blush` `happy` `cry` `paw` `heart` `sleep` `wow` `kiss`。`image_urls` 始终是数组，最多 9 张。`audio_url` 无语音时为 `null`。`audio_duration` 为整数秒，无语音时为 `0`，有语音时 1–60。`body`、`sticker_ids`、`image_urls`、`audio_url` 不能同时空。`liked` / `like_count`：当前用户是否已点赞及点赞数，再点取消，规则同帖子点赞。艾特写进 `body` 文本（`@昵称 `）。  
 
-谁可删评论：评论作者只能删自己的；帖子作者（贴主）可删该帖下任意一条。删一条只删这一条，子评论改挂到被删条的 `parent_id`。删帖时该帖全部评论一并删除，并回写 `comment_count`。
+`parent_id` 为所评论的**顶层**评论 id，直接评帖为 `null`。`reply_to` 为被评论的人（Author），直接评帖为 `null`。列表按 `created_at` **旧的在前**（对话顺序），含子评论，扁平返回。  
+
+谁可删评论：评论作者只能删自己的；帖子作者（贴主）可删该帖下任意一条。删一条只删这一条，子评论改挂到被删条的 `parent_id`。删帖时该帖全部评论一并删除，并回写 `comment_count`。不能举报自己的评论。
 
 ### Video
 
@@ -279,11 +287,17 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 响应：`{ "data": { "items": [Comment], "total", "page", "page_size" } }`
 
 `POST /api/v1/community/post/{id}/comment`  
-请求：`{ "body", "parent_id" }`。`parent_id` 可 `null` 或省略（直接评帖）。若指向一条子评论，服务端记到该线程的顶层 `parent_id`，`reply_to` 为被点的那条作者。响应：`{ "data": Comment }`
+请求：`{ "body", "parent_id", "sticker_ids", "image_urls", "audio_url", "audio_duration" }`。`parent_id` 可 `null` 或省略（直接评帖）。`sticker_ids` / `image_urls` 可省略（当作 `[]`）。`audio_url` 可 `null` 或省略；有语音时 `audio_duration` 为 1–60。若指向一条子评论，服务端记到该线程的顶层 `parent_id`，`reply_to` 为被点的那条作者。响应：`{ "data": Comment }`
 
 `DELETE /api/v1/community/post/{id}/comment/{comment_id}`  
 评论作者只能删自己的；贴主可删该帖下任意一条。不连带删除别人的评论。响应：`{ "data": { "ok": true, "comment_count": 0 } }`  
 非作者且非贴主：`FORBIDDEN`。
+
+`POST /api/v1/community/post/{id}/comment/{comment_id}/like`  
+请求体空对象 `{}`。再点取消。响应：`{ "data": Comment }`
+
+`POST /api/v1/community/post/{id}/comment/{comment_id}/report`  
+请求：`{ "reason": "spam" | "abuse" | "porn" | "other" }`。不能举报自己的评论：`FORBIDDEN`。响应：`{ "data": { "ok": true } }`
 
 `POST /api/v1/community/follow`  
 请求：`{ "user_id": "..." }` → `{ "data": { "ok": true } }`  

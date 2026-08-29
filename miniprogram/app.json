@@ -73,7 +73,10 @@
   "lazyCodeLoading": "requiredComponents",
   "permission": {
     "scope.camera": {
-      "desc": "用于上传宠物照片到相册、帖子和视频"
+      "desc": "用于上传宠物照片到相册、帖子、评论和视频"
+    },
+    "scope.record": {
+      "desc": "用于录制评论语音"
     }
   }
 }

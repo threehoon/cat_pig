@@ -28,14 +28,41 @@ export type Post = {
   created_at: string
 }
 
+export type CommentStickerId =
+  | 'blush'
+  | 'happy'
+  | 'cry'
+  | 'paw'
+  | 'heart'
+  | 'sleep'
+  | 'wow'
+  | 'kiss'
+
 export type Comment = {
   id: string
   author: Author
   body: string
   parent_id: string | null
   reply_to: Author | null
+  sticker_ids: CommentStickerId[]
+  image_urls: string[]
+  audio_url: string | null
+  audio_duration: number
+  like_count: number
+  liked: boolean
   created_at: string
 }
+
+export type CommentWrite = {
+  body: string
+  parent_id?: string | null
+  sticker_ids?: CommentStickerId[]
+  image_urls?: string[]
+  audio_url?: string | null
+  audio_duration?: number
+}
+
+export type CommentReportReason = 'spam' | 'abuse' | 'porn' | 'other'
 
 export type PostWrite = {
   board: Board

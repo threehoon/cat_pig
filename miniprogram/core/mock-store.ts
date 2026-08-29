@@ -46,6 +46,12 @@ export type MockComment = {
   body: string
   parent_id: string | null
   reply_to: MockAuthor | null
+  sticker_ids: string[]
+  image_urls: string[]
+  audio_url: string | null
+  audio_duration: number
+  like_count: number
+  liked: boolean
   created_at: string
 }
 
@@ -121,7 +127,7 @@ export const store = {
       topic_names: ['日常'],
       status: 'published',
       like_count: 2,
-      comment_count: 2,
+      comment_count: 5,
       favorite_count: 0,
       liked: false,
       favorited: false,
@@ -184,16 +190,73 @@ export const store = {
       body: '也想试试，阳光好的时候拍一组。',
       parent_id: null,
       reply_to: null,
+      sticker_ids: ['paw'],
+      image_urls: [],
+      audio_url: null,
+      audio_duration: 0,
+      like_count: 3,
+      liked: false,
       created_at: '2026-08-24T11:00:00Z',
     },
     {
       id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeef',
       post_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
       author: { ...me },
-      body: '你也去公园拍过吗？',
+      body: '@邻家铲屎官 你也去公园拍过吗？',
       parent_id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
       reply_to: { ...other },
+      sticker_ids: ['happy'],
+      image_urls: [],
+      audio_url: null,
+      audio_duration: 0,
+      like_count: 1,
+      liked: true,
       created_at: '2026-08-24T11:20:00Z',
+    },
+    {
+      id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeef10',
+      post_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+      author: { ...other },
+      body: '',
+      parent_id: null,
+      reply_to: null,
+      sticker_ids: ['blush', 'kiss'],
+      image_urls: [],
+      audio_url: null,
+      audio_duration: 0,
+      like_count: 6,
+      liked: false,
+      created_at: '2026-08-24T12:00:00Z',
+    },
+    {
+      id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeef11',
+      post_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+      author: { ...other },
+      body: '这几张光都很好。',
+      parent_id: null,
+      reply_to: null,
+      sticker_ids: [],
+      image_urls: [mockPhotos.pet1, mockPhotos.pet2, mockPhotos.pet3, mockPhotos.pet1],
+      audio_url: null,
+      audio_duration: 0,
+      like_count: 2,
+      liked: false,
+      created_at: '2026-08-24T12:30:00Z',
+    },
+    {
+      id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeef12',
+      post_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+      author: { ...other },
+      body: '近景这三张更清楚。',
+      parent_id: null,
+      reply_to: null,
+      sticker_ids: [],
+      image_urls: [mockPhotos.pet1, mockPhotos.pet2, mockPhotos.pet3],
+      audio_url: null,
+      audio_duration: 0,
+      like_count: 0,
+      liked: false,
+      created_at: '2026-08-24T13:00:00Z',
     },
   ] as MockComment[],
   videos: [

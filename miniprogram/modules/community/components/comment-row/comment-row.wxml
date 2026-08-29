@@ -1,0 +1,75 @@
+<view class="comment-item {{nested ? 'comment-item--nested' : ''}}">
+  <view class="avatar avatar--sm">
+    <image class="avatar__img" src="{{item.avatar}}" mode="aspectFill" />
+  </view>
+  <view class="comment-item__main">
+    <view class="comment-item__head">
+      <view class="comment-item__who">
+        <text class="comment-item__name">{{item.nickname}}</text>
+        <text wx:if="{{item.isAuthor}}" class="comment-item__badge">作者</text>
+        <text wx:if="{{item.replyToName}}" class="comment-item__to"> 评论 {{item.replyToName}}</text>
+      </view>
+      <view class="comment-item__ops">
+        <view class="comment-like {{item.liked ? 'comment-like--on' : ''}}" catchtap="onLike">
+          <image class="comment-like__icon" src="{{item.liked ? likeIconOn : likeIcon}}" mode="aspectFit" />
+          <text class="comment-like__count">{{item.likeCount}}</text>
+        </view>
+        <view class="comment-more" catchtap="onMore">
+          <text class="comment-more__dot">···</text>
+        </view>
+      </view>
+    </view>
+    <text wx:if="{{item.body}}" class="comment-item__body" space="nbsp">
+      <text
+        wx:for="{{item.bodyParts}}"
+        wx:for-item="part"
+        wx:key="key"
+        class="{{part.mention ? 'mention-mark' : 'comment-item__plain'}}"
+      >{{part.text}}</text>
+    </text>
+    <view wx:if="{{item.audioUrl}}" class="comment-audio {{item.playing ? 'comment-audio--on' : ''}}" catchtap="onPlay">
+      <text class="comment-audio__play">▶</text>
+      <text class="comment-audio__time">{{item.audioDuration}}″</text>
+    </view>
+    <view wx:if="{{item.stickers.length}}" class="comment-stickers">
+      <image
+        wx:for="{{item.stickers}}"
+        wx:for-item="sticker"
+        wx:key="key"
+        class="comment-sticker"
+        src="{{sticker.src}}"
+        mode="aspectFit"
+      />
+    </view>
+    <view
+      wx:if="{{item.previewImages.length}}"
+      class="comment-photos"
+      catchtap="onPreview"
+    >
+      <view wx:if="{{item.showStack}}" class="comment-stack">
+        <view class="comment-stack__card comment-stack__card--back"></view>
+        <view class="comment-stack__card comment-stack__card--mid"></view>
+        <view class="comment-stack__front">
+          <image class="comment-stack__img" src="{{item.previewImages[0]}}" mode="aspectFill" />
+          <view class="comment-stack__badge">
+            <text class="comment-stack__n">+{{item.imageOverflow}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="comment-photos__row">
+        <view
+          wx:for="{{item.previewImages}}"
+          wx:for-item="photo"
+          wx:key="*this"
+          class="comment-photo"
+        >
+          <image class="comment-photo__img" src="{{photo}}" mode="aspectFill" />
+        </view>
+      </view>
+    </view>
+    <view class="comment-item__meta">
+      <text class="comment-item__time">{{item.time}}</text>
+      <text class="comment-item__action" catchtap="onReply">评论</text>
+    </view>
+  </view>
+</view>

@@ -11,7 +11,8 @@
 | 颜色、圆角、阴影、字号 | `miniprogram/styles/tokens.scss` | 页面 scss 里写死 hex |
 | 卡片、按钮、芯片、入口格、顶图框 | `miniprogram/styles/primitives.scss` | 每个页面复制一份 |
 | 首页顶图、空状态、默认头像 | `miniprogram/assets/brand/` + `assets/paths.ts` | 页面写死另一套文件名 |
-| 四个入口图、帖子动作、礼物 | `miniprogram/assets/icon/` + `assets/paths.ts` | 未选中 `react-*.png`，选中 `react-*-active.png`（like / reply / favorite / share） |
+| 四个入口图、帖子动作、礼物、评论输入图标 | `miniprogram/assets/icon/` + `assets/paths.ts` | 未选中 `react-*.png`，选中 `react-*-active.png`（like / reply / favorite / share）；评论底栏 `compose-album` / `emoji` / `at` / `mic` 各一套普通 + `-active` |
+| 评论水彩贴纸 | `miniprogram/assets/icon/sticker-*.jpg` + `assets/paths.ts` | 点开评论不要自动弹出贴纸条；贴纸可跟在已发评论正文后 |
 | 底栏图标 | `miniprogram/assets/tab/`（文件名锁死） | `app.json` 的 icon 路径 |
 | 界面占位照片（接 mock 前） | `miniprogram/assets/mock/` | 当正式素材用 |
 | 空列表 | `components/empty-state` | 页面内再画一套空状态 |
@@ -54,9 +55,13 @@ Skyline：用 flex，不用 grid；滚动用 `scroll-view`；阴影用 `box-shad
 | 默认头像 | `assets/brand/avatar-default.jpg` |
 | 入口 | `assets/icon/entry-*.jpg` |
 | 帖子动作、礼物 | `assets/icon/react-like|reply|favorite|share.png` 与 `-active`、`gift.png` |
+| 评论输入图标 | `assets/icon/compose-album|emoji|at|mic.png` 与 `-active` |
+| 评论贴纸 | `assets/icon/sticker-blush|happy|cry|paw|heart|sleep|wow|kiss.jpg` |
 | 底栏 5×2 | `assets/tab/<name>.png` 与 `<name>-active.png` |
 
-底栏和表态图标用脚本画，保证 81px 清晰、两套颜色一致：
+`.mention-mark` 在 `primitives.scss`：只把艾特这段（`@昵称`）设成 `--color-primary`，不改字重、不加底。输入框不叠高亮层。
+
+底栏、表态图标、评论输入图标用脚本画，保证清晰、两套颜色一致：
 
 ```bash
 python3 -m venv .venv
@@ -74,7 +79,7 @@ python3 -m venv .venv
 - `empty-state` — 插画 + 标题 + 行动
 - `react-row` — 点赞 / 评论 / 收藏 / 转发
 
-帖子卡片属于 `community`，放 `modules/community/components/post-card/`。其它模块不要 import 它。
+帖子卡片属于 `community`，放 `modules/community/components/post-card/`。评论行属于 `community`，放 `modules/community/components/comment-row/`。其它模块不要 import 它们。
 
 ## 明确不做
 

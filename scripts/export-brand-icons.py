@@ -145,6 +145,52 @@ def draw_share(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> 
     d.ellipse((s * 0.62, s * 0.62, s * 0.62 + r * 2, s * 0.62 + r * 2), fill=c)
 
 
+def export_compose(name: str, painter) -> None:
+    ICON_DIR.mkdir(parents=True, exist_ok=True)
+    big = REACT_SIZE * REACT_SCALE
+    for suffix, tint in (("", MUTED), ("-active", ORANGE)):
+        img, draw = new_canvas(big)
+        painter(draw, tint, big)
+        down(img, REACT_SIZE).save(ICON_DIR / f"compose-{name}{suffix}.png")
+
+
+def draw_compose_album(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.rounded_rectangle((s * 0.16, s * 0.22, s * 0.84, s * 0.78), radius=s * 0.12, fill=c)
+    d.ellipse((s * 0.28, s * 0.34, s * 0.44, s * 0.50), fill=CREAM)
+    d.polygon(
+        [
+            (s * 0.22, s * 0.70),
+            (s * 0.42, s * 0.46),
+            (s * 0.56, s * 0.62),
+            (s * 0.70, s * 0.42),
+            (s * 0.82, s * 0.70),
+        ],
+        fill=CREAM,
+    )
+
+
+def draw_compose_emoji(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.ellipse((s * 0.14, s * 0.14, s * 0.86, s * 0.86), fill=c)
+    d.ellipse((s * 0.33, s * 0.34, s * 0.45, s * 0.48), fill=CREAM)
+    d.ellipse((s * 0.55, s * 0.34, s * 0.67, s * 0.48), fill=CREAM)
+    d.arc((s * 0.32, s * 0.40, s * 0.68, s * 0.72), 20, 160, fill=CREAM, width=int(s * 0.07))
+
+
+def draw_compose_at(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.ellipse((s * 0.16, s * 0.16, s * 0.84, s * 0.84), fill=c)
+    d.ellipse((s * 0.30, s * 0.28, s * 0.70, s * 0.72), fill=CREAM)
+    d.ellipse((s * 0.40, s * 0.38, s * 0.60, s * 0.62), fill=c)
+    d.rounded_rectangle((s * 0.54, s * 0.38, s * 0.66, s * 0.78), radius=s * 0.06, fill=c)
+    d.ellipse((s * 0.52, s * 0.62, s * 0.70, s * 0.80), fill=CREAM)
+
+
+def draw_compose_mic(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.rounded_rectangle((s * 0.38, s * 0.12, s * 0.62, s * 0.52), radius=s * 0.12, fill=c)
+    d.arc((s * 0.26, s * 0.30, s * 0.74, s * 0.76), 10, 170, fill=c, width=int(s * 0.07))
+    d.rectangle((s * 0.46, s * 0.70, s * 0.54, s * 0.82), fill=c)
+    d.rounded_rectangle((s * 0.34, s * 0.80, s * 0.66, s * 0.88), radius=s * 0.04, fill=c)
+
+
 def draw_gift(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
     d.rounded_rectangle((s * 0.22, s * 0.38, s * 0.78, s * 0.80), radius=s * 0.08, fill=c)
     d.rounded_rectangle((s * 0.18, s * 0.30, s * 0.82, s * 0.44), radius=s * 0.06, fill=c)
@@ -163,6 +209,10 @@ def main() -> None:
     export_react("reply", draw_reply, REPLY)
     export_react("favorite", draw_favorite, FAVORITE)
     export_react("share", draw_share, SHARE)
+    export_compose("album", draw_compose_album)
+    export_compose("emoji", draw_compose_emoji)
+    export_compose("at", draw_compose_at)
+    export_compose("mic", draw_compose_mic)
     ICON_DIR.mkdir(parents=True, exist_ok=True)
     big = REACT_SIZE * REACT_SCALE
     img, draw = new_canvas(big)

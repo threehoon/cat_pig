@@ -3,6 +3,7 @@
   "enableShareAppMessage": true,
   "usingComponents": {
     "page-shell": "/components/page-shell/page-shell",
-    "react-row": "/components/react-row/react-row"
+    "react-row": "/components/react-row/react-row",
+    "comment-row": "/modules/community/components/comment-row/comment-row"
   }
 }

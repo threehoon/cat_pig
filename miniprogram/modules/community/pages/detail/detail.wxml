@@ -1,6 +1,11 @@
 <page-shell title="帖子详情" back="{{true}}">
   <view class="detail-wrap" wx:if="{{post}}">
-  <scroll-view class="page-scroll page-scroll--docked" scroll-y scroll-into-view="{{scrollInto}}">
+  <scroll-view
+    class="page-scroll page-scroll--docked"
+    type="list"
+    scroll-y
+    scroll-into-view="{{scrollInto}}"
+  >
     <view class="page-pad">
       <view class="card">
         <view class="detail-head">
@@ -46,67 +51,114 @@
         <text class="section-title">评论区 {{post.comment_count}}</text>
         <view wx:if="{{comments.length === 0}}" class="comment-empty">还没有评论，来第一条吧</view>
         <view wx:for="{{comments}}" wx:key="id" class="comment-thread">
-          <view class="comment-item">
-            <view class="avatar avatar--sm">
-              <image class="avatar__img" src="{{item.avatar}}" mode="aspectFill" />
-            </view>
-            <view class="comment-item__main">
-              <text class="comment-item__name">{{item.nickname}}</text>
-              <text class="comment-item__body">{{item.body}}</text>
-              <view class="comment-item__meta">
-                <text class="comment-item__time">{{item.time}}</text>
-                <text class="comment-item__action" data-id="{{item.id}}" data-name="{{item.nickname}}" catchtap="onReplyTo">评论</text>
-                <text
-                  wx:if="{{item.canDelete}}"
-                  class="comment-item__action"
-                  data-id="{{item.id}}"
-                  catchtap="onDeleteComment"
-                >删除</text>
-              </view>
-            </view>
-          </view>
-          <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="comment-item comment-item--nested">
-            <view class="avatar avatar--sm">
-              <image class="avatar__img" src="{{reply.avatar}}" mode="aspectFill" />
-            </view>
-            <view class="comment-item__main">
-              <text class="comment-item__name">
-                {{reply.nickname}}<text wx:if="{{reply.replyToName}}" class="comment-item__to"> 评论 {{reply.replyToName}}</text>
-              </text>
-              <text class="comment-item__body">{{reply.body}}</text>
-              <view class="comment-item__meta">
-                <text class="comment-item__time">{{reply.time}}</text>
-                <text class="comment-item__action" data-id="{{reply.id}}" data-name="{{reply.nickname}}" catchtap="onReplyTo">评论</text>
-                <text
-                  wx:if="{{reply.canDelete}}"
-                  class="comment-item__action"
-                  data-id="{{reply.id}}"
-                  catchtap="onDeleteComment"
-                >删除</text>
-              </view>
-            </view>
-          </view>
+          <comment-row
+            item="{{item}}"
+            bind:like="onLikeComment"
+            bind:reply="onReplyTo"
+            bind:more="onMoreComment"
+            bind:preview="onPreviewComment"
+            bind:play="onPlayComment"
+          />
+          <comment-row
+            wx:for="{{item.replies}}"
+            wx:for-item="reply"
+            wx:key="id"
+            nested="{{true}}"
+            item="{{reply}}"
+            bind:like="onLikeComment"
+            bind:reply="onReplyTo"
+            bind:more="onMoreComment"
+            bind:preview="onPreviewComment"
+            bind:play="onPlayComment"
+          />
         </view>
       </view>
     </view>
   </scroll-view>
-  <view class="comment-dock" wx:if="{{post}}">
+  <view class="comment-dock">
     <view wx:if="{{replyToName}}" class="comment-dock__tip">
       <text>评论 {{replyToName}}</text>
       <text class="comment-dock__cancel" bindtap="onCancelReply">取消</text>
     </view>
-    <view class="comment-compose">
-      <input
+    <view wx:if="{{voiceMode}}" class="comment-compose comment-compose--voice {{recording ? 'comment-compose--rec' : ''}}" bindtouchstart="onVoiceHoldStart" bindtouchend="onVoiceHoldEnd" bindtouchcancel="onVoiceHoldEnd">
+      <text class="comment-voice__label">{{recording ? '松开发送' : '按住 说话'}}</text>
+    </view>
+    <view wx:else class="comment-compose">
+      <textarea
         class="comment-compose__input"
         placeholder="{{commentPlaceholder}}"
         value="{{commentBody}}"
         maxlength="200"
-        focus="{{commentFocus}}"
-        bindinput="onCommentInput"
+        auto-height
+        disable-default-padding
+        show-confirm-bar="{{false}}"
         confirm-type="send"
+        focus="{{commentFocus}}"
+        cursor="{{composerCursor}}"
+        bindinput="onCommentInput"
         bindconfirm="onSendComment"
+        bindfocus="onComposerFocus"
+        bindblur="onComposerBlur"
       />
-      <text class="comment-compose__send" bindtap="onSendComment">发送</text>
+    </view>
+    <view wx:if="{{draftImages.length}}" class="comment-drafts">
+      <view class="comment-drafts__row">
+        <view
+          wx:for="{{draftImages}}"
+          wx:key="*this"
+          wx:for-index="index"
+          class="comment-draft comment-draft--photo"
+        >
+          <image class="comment-draft__img" src="{{item}}" mode="aspectFill" />
+          <view class="comment-draft__x" data-index="{{index}}" catchtap="onRemoveImage">
+            <text class="comment-draft__x-text">×</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="comment-tools">
+      <view class="comment-tools__left">
+        <image class="comment-tool-icon" src="{{iconAlbum}}" bindtap="onPickImage" mode="aspectFit" />
+        <image class="comment-tool-icon" src="{{mentionOpen ? iconAtOn : iconAt}}" catchtap="onToggleMention" mode="aspectFit" />
+        <image class="comment-tool-icon" src="{{emojiOpen ? iconEmojiOn : iconEmoji}}" catchtap="onToggleEmoji" mode="aspectFit" />
+        <image class="comment-tool-icon" src="{{voiceMode ? iconMicOn : iconMic}}" catchtap="onToggleVoice" mode="aspectFit" />
+      </view>
+      <view
+        class="comment-send {{canSend && !sending ? 'comment-send--on' : ''}}"
+        bindtap="onSendComment"
+      >发送</view>
+    </view>
+    <view wx:if="{{mentionOpen}}" class="mention-panel">
+      <view wx:if="{{mentionUsers.length === 0}}" class="mention-empty">
+        <text>这篇还没有其他人</text>
+      </view>
+      <view
+        wx:for="{{mentionUsers}}"
+        wx:key="id"
+        class="mention-row"
+        data-name="{{item.nickname}}"
+        bindtap="onPickMention"
+      >
+        <view class="avatar avatar--sm">
+          <image class="avatar__img" src="{{item.avatar}}" mode="aspectFill" />
+        </view>
+        <text class="mention-row__name">{{item.nickname}}</text>
+      </view>
+    </view>
+    <view wx:if="{{emojiOpen}}" class="emoji-panel">
+      <scroll-view class="emoji-grid" type="list" scroll-y>
+        <view class="emoji-unicode">
+          <view
+            wx:for="{{emojis}}"
+            wx:key="*this"
+            class="emoji-unicode__item"
+            data-emoji="{{item}}"
+            bindtap="onPickEmoji"
+          >
+            <text>{{item}}</text>
+          </view>
+        </view>
+      </scroll-view>
     </view>
   </view>
   </view>

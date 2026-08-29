@@ -20,6 +20,22 @@ export const brandAssets = {
   reactShare: '/assets/icon/react-share.png',
   reactShareOn: '/assets/icon/react-share-active.png',
   gift: '/assets/icon/gift.png',
+  composeAlbum: '/assets/icon/compose-album.png',
+  composeAlbumOn: '/assets/icon/compose-album-active.png',
+  composeEmoji: '/assets/icon/compose-emoji.png',
+  composeEmojiOn: '/assets/icon/compose-emoji-active.png',
+  composeAt: '/assets/icon/compose-at.png',
+  composeAtOn: '/assets/icon/compose-at-active.png',
+  composeMic: '/assets/icon/compose-mic.png',
+  composeMicOn: '/assets/icon/compose-mic-active.png',
+  stickerBlush: '/assets/icon/sticker-blush.jpg',
+  stickerHappy: '/assets/icon/sticker-happy.jpg',
+  stickerCry: '/assets/icon/sticker-cry.jpg',
+  stickerPaw: '/assets/icon/sticker-paw.jpg',
+  stickerHeart: '/assets/icon/sticker-heart.jpg',
+  stickerSleep: '/assets/icon/sticker-sleep.jpg',
+  stickerWow: '/assets/icon/sticker-wow.jpg',
+  stickerKiss: '/assets/icon/sticker-kiss.jpg',
 } as const
 
 export const mockPhotos = {

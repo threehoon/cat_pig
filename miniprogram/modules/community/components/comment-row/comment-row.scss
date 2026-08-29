@@ -1,0 +1,247 @@
+.comment-item {
+  display: flex;
+  flex-direction: row;
+  padding: 20rpx 0;
+}
+
+.comment-item--nested {
+  padding-left: 72rpx;
+}
+
+.comment-item__main {
+  flex: 1;
+  margin-left: 16rpx;
+  min-width: 0;
+}
+
+.comment-item__head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.comment-item__who {
+  flex: 1;
+  min-width: 0;
+  padding-right: 12rpx;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.comment-item__name {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.comment-item__badge {
+  margin-left: 8rpx;
+  padding: 2rpx 10rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 18rpx;
+}
+
+.comment-item__to {
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-size: 22rpx;
+}
+
+.comment-item__ops {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.comment-like {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 56rpx;
+}
+
+.comment-like__icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.comment-like__count {
+  font-size: 18rpx;
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
+.comment-like--on .comment-like__count {
+  color: var(--color-primary);
+}
+
+.comment-more {
+  padding: 4rpx 8rpx 4rpx 16rpx;
+}
+
+.comment-more__dot {
+  color: var(--color-text-muted);
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.comment-item__body {
+  display: block;
+  margin-top: 8rpx;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text);
+}
+
+.comment-item__plain {
+  color: var(--color-text);
+  font-weight: 400;
+}
+
+.comment-audio {
+  margin-top: 12rpx;
+  width: 240rpx;
+  height: 64rpx;
+  padding: 0 24rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.comment-audio--on {
+  background: var(--color-primary);
+}
+
+.comment-audio__play {
+  color: var(--color-primary);
+  font-size: 22rpx;
+}
+
+.comment-audio--on .comment-audio__play {
+  color: var(--color-on-primary);
+}
+
+.comment-audio__time {
+  color: var(--color-primary);
+  font-size: 24rpx;
+}
+
+.comment-audio--on .comment-audio__time {
+  color: var(--color-on-primary);
+}
+
+.comment-stickers {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 12rpx;
+}
+
+.comment-sticker {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 20rpx;
+}
+
+.comment-photos {
+  margin-top: 12rpx;
+}
+
+.comment-photos__row {
+  display: flex;
+  flex-direction: row;
+  gap: 10rpx;
+}
+
+.comment-photo {
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.comment-photo__img {
+  width: 100%;
+  height: 100%;
+}
+
+.comment-stack {
+  position: relative;
+  width: 196rpx;
+  height: 196rpx;
+}
+
+.comment-stack__card {
+  position: absolute;
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 20rpx;
+  background: var(--color-card);
+  box-shadow: var(--shadow);
+}
+
+.comment-stack__card--back {
+  top: 0;
+  right: 0;
+}
+
+.comment-stack__card--mid {
+  top: 10rpx;
+  right: 10rpx;
+}
+
+.comment-stack__front {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.comment-stack__img {
+  width: 100%;
+  height: 100%;
+}
+
+.comment-stack__badge {
+  position: absolute;
+  right: 10rpx;
+  bottom: 10rpx;
+  padding: 4rpx 12rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+}
+
+.comment-stack__n {
+  color: var(--color-on-primary);
+  font-size: 20rpx;
+}
+
+.comment-item__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 8rpx;
+}
+
+.comment-item__time {
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+}
+
+.comment-item__action {
+  font-size: var(--font-caption);
+  color: var(--color-primary);
+}

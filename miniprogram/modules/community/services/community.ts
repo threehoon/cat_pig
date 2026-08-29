@@ -1,5 +1,5 @@
 import { ListResult, request } from '../../../core/request'
-import { Comment, Post, PostStatus, PostTab, PostWrite } from '../types/post'
+import { Comment, CommentReportReason, CommentWrite, Post, PostStatus, PostTab, PostWrite } from '../types/post'
 
 export function listPosts(tab: PostTab = 'recommend', q?: string, page = 1, pageSize = 20) {
   return request<ListResult<Post>>({
@@ -71,11 +71,18 @@ export function listComments(id: string, page = 1, pageSize = 20) {
   })
 }
 
-export function createComment(id: string, body: string, parentId?: string | null) {
+export function createComment(id: string, body: CommentWrite) {
   return request<Comment>({
     method: 'POST',
     path: `/api/v1/community/post/${id}/comment`,
-    data: { body, parent_id: parentId || null },
+    data: {
+      body: body.body,
+      parent_id: body.parent_id || null,
+      sticker_ids: body.sticker_ids || [],
+      image_urls: body.image_urls || [],
+      audio_url: body.audio_url || null,
+      audio_duration: body.audio_duration || 0,
+    },
   })
 }
 
@@ -83,6 +90,22 @@ export function deleteComment(postId: string, commentId: string) {
   return request<{ ok: true; comment_count: number }>({
     method: 'DELETE',
     path: `/api/v1/community/post/${postId}/comment/${commentId}`,
+  })
+}
+
+export function likeComment(postId: string, commentId: string) {
+  return request<Comment>({
+    method: 'POST',
+    path: `/api/v1/community/post/${postId}/comment/${commentId}/like`,
+    data: {},
+  })
+}
+
+export function reportComment(postId: string, commentId: string, reason: CommentReportReason) {
+  return request<{ ok: true }>({
+    method: 'POST',
+    path: `/api/v1/community/post/${postId}/comment/${commentId}/report`,
+    data: { reason },
   })
 }
 

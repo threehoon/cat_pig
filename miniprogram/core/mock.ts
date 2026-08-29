@@ -160,6 +160,9 @@ function findAlbum(id: string): MockAlbum {
   return album
 }
 
+const STICKER_IDS = ['blush', 'happy', 'cry', 'paw', 'heart', 'sleep', 'wow', 'kiss']
+const REPORT_REASONS = ['spam', 'abuse', 'porn', 'other']
+
 function presentComment(item: MockComment) {
   return copy({
     id: item.id,
@@ -167,6 +170,12 @@ function presentComment(item: MockComment) {
     body: item.body,
     parent_id: item.parent_id,
     reply_to: item.reply_to,
+    sticker_ids: item.sticker_ids.slice(),
+    image_urls: item.image_urls.slice(),
+    audio_url: item.audio_url || null,
+    audio_duration: item.audio_duration || 0,
+    like_count: item.like_count,
+    liked: item.liked,
     created_at: item.created_at,
   })
 }
@@ -648,11 +657,31 @@ const routes: { method: string; pattern: string; handle: Handler }[] = [
       const post = findPost(params.id)
       const data = bodyOf(options)
       const body = String(data.body || '').trim()
-      if (!body) {
-        fail('VALIDATION', '评论不能为空')
-      }
       if (body.length > 200) {
         fail('VALIDATION', '评论最多 200 字')
+      }
+      const sticker_ids = asStringArray(data.sticker_ids)
+      if (sticker_ids.length > 8) {
+        fail('VALIDATION', '贴纸最多 8 个')
+      }
+      if (sticker_ids.some((id) => STICKER_IDS.indexOf(id) === -1)) {
+        fail('VALIDATION', '贴纸不存在')
+      }
+      const image_urls = asStringArray(data.image_urls)
+      if (image_urls.length > 9) {
+        fail('VALIDATION', '图片最多 9 张')
+      }
+      const audio_url_raw = data.audio_url
+      const audio_url = typeof audio_url_raw === 'string' && audio_url_raw ? audio_url_raw : null
+      const audio_duration = Math.max(0, Math.floor(Number(data.audio_duration || 0)))
+      if (audio_url && (audio_duration < 1 || audio_duration > 60)) {
+        fail('VALIDATION', '语音时长要在 1 到 60 秒')
+      }
+      if (!audio_url && audio_duration !== 0) {
+        fail('VALIDATION', '没有语音文件')
+      }
+      if (!body && sticker_ids.length === 0 && image_urls.length === 0 && !audio_url) {
+        fail('VALIDATION', '评论不能为空')
       }
       const parentRaw = data.parent_id
       const parentId = typeof parentRaw === 'string' && parentRaw ? parentRaw : undefined
@@ -664,11 +693,49 @@ const routes: { method: string; pattern: string; handle: Handler }[] = [
         body,
         parent_id: thread.parent_id,
         reply_to: thread.reply_to,
+        sticker_ids,
+        image_urls,
+        audio_url,
+        audio_duration: audio_url ? audio_duration : 0,
+        like_count: 0,
+        liked: false,
         created_at: nowIso(),
       }
       store.comments.push(comment)
       syncCommentCount(post)
       return presentComment(comment)
+    },
+  },
+  {
+    method: 'POST',
+    pattern: '/api/v1/community/post/{id}/comment/{comment_id}/like',
+    handle(params) {
+      findPost(params.id)
+      const comment = findComment(params.id, params.comment_id)
+      if (comment.liked) {
+        comment.liked = false
+        comment.like_count = Math.max(0, comment.like_count - 1)
+      } else {
+        comment.liked = true
+        comment.like_count += 1
+      }
+      return presentComment(comment)
+    },
+  },
+  {
+    method: 'POST',
+    pattern: '/api/v1/community/post/{id}/comment/{comment_id}/report',
+    handle(params, options) {
+      findPost(params.id)
+      const comment = findComment(params.id, params.comment_id)
+      if (comment.author.id === CURRENT_USER_ID) {
+        fail('FORBIDDEN', '不能举报自己的评论')
+      }
+      const reason = String(bodyOf(options).reason || '')
+      if (REPORT_REASONS.indexOf(reason) === -1) {
+        fail('VALIDATION', '请选择举报原因')
+      }
+      return { ok: true }
     },
   },
   {

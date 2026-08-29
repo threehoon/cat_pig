@@ -6,7 +6,7 @@
 
 ## 当前工作方式：前端界面先行
 
-五个 tab、二级页、奶油水彩皮、`services/`、mock、帖子评论区已写入。`useMock: true`。不先做 FastAPI 和数据库。进度以 [progress.md](progress.md) 为准。
+五个 tab、二级页、奶油水彩皮、`services/`、mock、帖子评论区（点赞 / 举报 / 配图 / 语音 / 艾特）已写入。`useMock: true`。不先做 FastAPI 和数据库。进度以 [progress.md](progress.md) 为准。
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -27,7 +27,7 @@
 |---|---|---|
 | `auth` | 微信登录、会话 | 无独立页；启动时走 `core/auth` |
 | `me` | 当前用户资料、「我的」页 | 有 |
-| `media` | 图片上传与 URL | 无独立页；被相册、帖子、视频引用 |
+| `media` | 图片 / 语音文件上传与 URL | 无独立页；被相册、帖子、评论、视频引用 |
 | `album` | 独立相册 | 有 |
 | `community` | 首页门户、广场 / 论坛、帖子 | 有 |
 | `video` | 图生视频任务 | 有 |
@@ -96,11 +96,21 @@
 | 动作 | 行为 | 接口 |
 |---|---|---|
 | 点赞 | 独立开关 | `POST /api/v1/community/post/{id}/like` |
-| 评论 | 详情底部输入；点某条可评论该人 | `GET/POST /api/v1/community/post/{id}/comment`，`DELETE .../comment/{comment_id}` |
+| 评论 | 详情底部输入条：相册 / @ / 表情 / 语音 / 发送；点某条可评论该人 | `GET/POST /api/v1/community/post/{id}/comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report` |
 | 收藏 | 独立开关，可与点赞同时亮 | `POST /api/v1/community/post/{id}/favorite` |
 | 转发 | 微信分享，无后端接口 | 页面 `enableShareAppMessage` + `button open-type="share"` |
 
 删评论：评论作者只能删自己的；贴主可删该帖下任意一条。只删点中的那一条，子评论改挂父级，不连带删别人的。删帖才清掉该帖全部评论。删除确认文案：标题「删除评论」，内容「删除后无法恢复」。
+
+评论行右侧：点赞心形；三个点打开复制 / 举报（不能举报自己的）/ 有权限才有删除。举报原因：`spam` 垃圾广告、`abuse` 不友善、`porn` 色情低俗、`other` 其他。阶段 F mock 只提示已收到。
+
+配图最多 9 张；列表同时最多露 3 张，超过则叠放一张并带剩余张数，点开 `previewImage`。贴纸 id 见合同，画在正文后；点开评论**不**自动弹出贴纸条。表情按钮打开系统 Emoji 面板。
+
+语音：点麦克风切到「按住 说话」，松开即发一条语音评论（`audio_url` + `audio_duration` 秒）。电脑端录音可失败并提示。艾特：点 @ 选本帖出现过的其他人，写入 `body` 为 `@昵称 `（后面一个空格）；评论列表里仅这段用主色 `.mention-mark`，正文颜色不变；退格一次删掉整段。输入框本身不叠高亮层。不做 AI 润色。
+
+`body`、贴纸、配图、语音不能同时空。选图：`wx.chooseMedia`，无摄像头时退回只用相册。
+
+评论行 UI 在 `modules/community/components/comment-row/`。艾特切分在 `modules/community/mentions.ts`。贴纸目录在 `modules/community/stickers.ts`。
 
 首页 / 论坛 / 我的发布 / 详情页已开分享。`react-row` 图标：`assets/icon/react-like|reply|favorite|share.png` 与 `-active`（评论按钮文件名仍是 `reply`，界面文案是「评论」）。
 
@@ -108,7 +118,7 @@
 
 五个 tab 必须都有未选中 / 选中两套图标（`miniprogram/assets/tab/`，文件名锁死：`home` / `album` / `create` / `plaza` / `me` 各一套普通 + `-active`）。现为圆润色块，重出用 `scripts/export-brand-icons.py`。颜色写入 `app.json` 的 `tabBar`（选中色橙色）。第三个 tab 用加号图，表示创作。
 
-阶段 F 允许改 `app.json` 的 `pages` 顺序、`tabBar`、以及选图所需的 `permission` / `requiredPrivateInfos`（这是对 [adding-a-module.md](framework/adding-a-module.md)「不改 window」的明确例外）。选图文案用：`用于上传宠物照片到相册、帖子和视频`。不需要定位权限。
+阶段 F 允许改 `app.json` 的 `pages` 顺序、`tabBar`、以及选图 / 录音所需的 `permission` / `requiredPrivateInfos`（这是对 [adding-a-module.md](framework/adding-a-module.md)「不改 window」的明确例外）。选图：`scope.camera` 文案「用于上传宠物照片到相册、帖子、评论和视频」。录音：`scope.record` 文案「用于录制评论语音」。不需要定位权限。微信隐私协议页上线前再补。
 
 首页顶部运营位阶段 F 用本地占位，不新开 banner 接口。
 
@@ -133,9 +143,9 @@
 |---|---|---|
 | `auth`（可放 `core/auth` 内） | 启动登录 | `POST /api/v1/auth/login` |
 | `modules/me/services/` | 当前用户 | `GET/PATCH /api/v1/me` |
-| `modules/media/services/` | 上传图 | `POST /api/v1/media` |
+| `modules/media/services/` | 上传图或评论语音 | `POST /api/v1/media` |
 | `modules/album/services/` | 相册列表 / 详情 / 上传 / 改 / 删 | `GET/POST /api/v1/album`，`GET/PATCH/DELETE /api/v1/album/{id}` |
-| `modules/community/services/` | 广场、发帖、详情、我的发布、点赞、收藏、评论、关注 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST/DELETE /api/v1/community/follow` |
+| `modules/community/services/` | 广场、发帖、详情、我的发布、点赞、收藏、评论、关注 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report`，`POST/DELETE /api/v1/community/follow` |
 | `modules/video/services/` | 创建任务、列表、详情、删 | `GET/POST /api/v1/video`，`GET/DELETE /api/v1/video/{id}` |
 | `modules/points/services/` | 汇总、流水、签到 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin` |
 

@@ -1,12 +1,9 @@
-export function chooseLocalImages(count: number): Promise<string[]> {
-  if (count <= 0) {
-    return Promise.resolve([])
-  }
+function pickImages(count: number, sourceType: Array<'album' | 'camera'>): Promise<string[]> {
   return new Promise((resolve, reject) => {
     wx.chooseMedia({
       count,
       mediaType: ['image'],
-      sourceType: ['album', 'camera'],
+      sourceType,
       success(res) {
         resolve(res.tempFiles.map((file) => file.tempFilePath))
       },
@@ -19,4 +16,11 @@ export function chooseLocalImages(count: number): Promise<string[]> {
       },
     })
   })
+}
+
+export function chooseLocalImages(count: number): Promise<string[]> {
+  if (count <= 0) {
+    return Promise.resolve([])
+  }
+  return pickImages(count, ['album', 'camera']).catch(() => pickImages(count, ['album']))
 }
