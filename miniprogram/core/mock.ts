@@ -4,6 +4,7 @@ import {
   currentAuthor,
   store,
   type MockAlbum,
+  type MockComment,
   type MockPost,
   type MockVideo,
 } from './mock-store'
@@ -157,6 +158,63 @@ function findAlbum(id: string): MockAlbum {
     fail('NOT_FOUND', '相册不存在')
   }
   return album
+}
+
+function presentComment(item: MockComment) {
+  return copy({
+    id: item.id,
+    author: item.author,
+    body: item.body,
+    parent_id: item.parent_id,
+    reply_to: item.reply_to,
+    created_at: item.created_at,
+  })
+}
+
+function reparentChildren(deletedId: string, newParentId: string | null) {
+  store.comments.forEach((item) => {
+    if (item.parent_id === deletedId) {
+      item.parent_id = newParentId
+    }
+  })
+}
+
+function assertCanDeleteComment(post: MockPost, comment: MockComment) {
+  const isCommentAuthor = comment.author.id === CURRENT_USER_ID
+  const isPostOwner = post.author.id === CURRENT_USER_ID
+  if (!isCommentAuthor && !isPostOwner) {
+    fail('FORBIDDEN', '只能删除自己的评论')
+  }
+}
+
+function syncCommentCount(post: MockPost) {
+  post.comment_count = store.comments.filter((item) => item.post_id === post.id).length
+}
+
+function findComment(postId: string, commentId: string): MockComment {
+  const comment = store.comments.find((item) => item.id === commentId && item.post_id === postId)
+  if (!comment) {
+    fail('NOT_FOUND', '评论不存在')
+  }
+  return comment
+}
+
+function resolveCommentParent(postId: string, parentId: string | undefined) {
+  if (!parentId) {
+    return { parent_id: null as string | null, reply_to: null as MockComment['reply_to'] }
+  }
+  const parent = store.comments.find((item) => item.id === parentId && item.post_id === postId)
+  if (!parent) {
+    fail('VALIDATION', '要评论的内容不存在')
+  }
+  return {
+    parent_id: parent.parent_id || parent.id,
+    reply_to: {
+      id: parent.author.id,
+      nickname: parent.author.nickname,
+      avatar_url: parent.author.avatar_url,
+    },
+  }
 }
 
 function findPost(id: string): MockPost {
@@ -535,6 +593,7 @@ const routes: { method: string; pattern: string; handle: Handler }[] = [
     handle(params) {
       const post = findPost(params.id)
       assertOwnPost(post)
+      store.comments = store.comments.filter((item) => item.post_id !== params.id)
       store.posts = store.posts.filter((item) => item.id !== params.id)
       return { ok: true }
     },
@@ -578,14 +637,7 @@ const routes: { method: string; pattern: string; handle: Handler }[] = [
         .filter((item) => item.post_id === params.id)
         .slice()
         .sort((a, b) => (a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0))
-        .map((item) =>
-          copy({
-            id: item.id,
-            author: item.author,
-            body: item.body,
-            created_at: item.created_at,
-          }),
-        )
+        .map(presentComment)
       return paginate(items, options.query)
     },
   },
@@ -594,28 +646,42 @@ const routes: { method: string; pattern: string; handle: Handler }[] = [
     pattern: '/api/v1/community/post/{id}/comment',
     handle(params, options) {
       const post = findPost(params.id)
-      const body = String(bodyOf(options).body || '').trim()
+      const data = bodyOf(options)
+      const body = String(data.body || '').trim()
       if (!body) {
-        fail('VALIDATION', '回复不能为空')
+        fail('VALIDATION', '评论不能为空')
       }
       if (body.length > 200) {
-        fail('VALIDATION', '回复最多 200 字')
+        fail('VALIDATION', '评论最多 200 字')
       }
-      const comment = {
+      const parentRaw = data.parent_id
+      const parentId = typeof parentRaw === 'string' && parentRaw ? parentRaw : undefined
+      const thread = resolveCommentParent(post.id, parentId)
+      const comment: MockComment = {
         id: newId(),
         post_id: post.id,
         author: currentAuthor(),
         body,
+        parent_id: thread.parent_id,
+        reply_to: thread.reply_to,
         created_at: nowIso(),
       }
       store.comments.push(comment)
-      post.comment_count += 1
-      return copy({
-        id: comment.id,
-        author: comment.author,
-        body: comment.body,
-        created_at: comment.created_at,
-      })
+      syncCommentCount(post)
+      return presentComment(comment)
+    },
+  },
+  {
+    method: 'DELETE',
+    pattern: '/api/v1/community/post/{id}/comment/{comment_id}',
+    handle(params) {
+      const post = findPost(params.id)
+      const comment = findComment(params.id, params.comment_id)
+      assertCanDeleteComment(post, comment)
+      reparentChildren(comment.id, comment.parent_id)
+      store.comments = store.comments.filter((item) => item.id !== comment.id)
+      syncCommentCount(post)
+      return { ok: true, comment_count: post.comment_count }
     },
   },
   {

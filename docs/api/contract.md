@@ -39,7 +39,7 @@
 - 帖子正文最多 500 字；标题可空字符串
 - 签到：同一自然日（用户本地时区）只能成功一次，重复调用返回已签到，不重复加分
 - 发帖默认 `status` 为 `pending`（待审核）；存草稿为 `draft`
-- `DELETE` 只删当前用户自己的资源，否则 `FORBIDDEN`
+- `DELETE` 只删当前用户自己的资源，否则 `FORBIDDEN`。例外：帖子作者可删该帖下任意一条评论（一次一条，不连带删别人的）。删帖时该帖全部评论一并删除。
 
 `GET /health` → `{ "data": { "ok": true } }`。
 
@@ -143,11 +143,15 @@
     "avatar_url": "https://example.com/a.jpg"
   },
   "body": "也想试试。",
+  "parent_id": null,
+  "reply_to": null,
   "created_at": "2026-08-24T11:00:00Z"
 }
 ```
 
-`body` 必填，1–200 字。列表按 `created_at` **旧的在前**（对话顺序）。
+`body` 必填，1–200 字。`parent_id` 为所评论的**顶层**评论 id，直接评帖为 `null`。`reply_to` 为被评论的人（Author），直接评帖为 `null`。列表按 `created_at` **旧的在前**（对话顺序），含子评论，扁平返回。  
+
+谁可删评论：评论作者只能删自己的；帖子作者（贴主）可删该帖下任意一条。删一条只删这一条，子评论改挂到被删条的 `parent_id`。删帖时该帖全部评论一并删除，并回写 `comment_count`。
 
 ### Video
 
@@ -275,7 +279,11 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 响应：`{ "data": { "items": [Comment], "total", "page", "page_size" } }`
 
 `POST /api/v1/community/post/{id}/comment`  
-请求：`{ "body" }`。响应：`{ "data": Comment }`
+请求：`{ "body", "parent_id" }`。`parent_id` 可 `null` 或省略（直接评帖）。若指向一条子评论，服务端记到该线程的顶层 `parent_id`，`reply_to` 为被点的那条作者。响应：`{ "data": Comment }`
+
+`DELETE /api/v1/community/post/{id}/comment/{comment_id}`  
+评论作者只能删自己的；贴主可删该帖下任意一条。不连带删除别人的评论。响应：`{ "data": { "ok": true, "comment_count": 0 } }`  
+非作者且非贴主：`FORBIDDEN`。
 
 `POST /api/v1/community/follow`  
 请求：`{ "user_id": "..." }` → `{ "data": { "ok": true } }`  

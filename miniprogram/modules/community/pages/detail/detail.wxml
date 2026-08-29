@@ -1,5 +1,6 @@
 <page-shell title="帖子详情" back="{{true}}">
-  <scroll-view class="page-scroll" scroll-y wx:if="{{post}}">
+  <view class="detail-wrap" wx:if="{{post}}">
+  <scroll-view class="page-scroll page-scroll--docked" scroll-y scroll-into-view="{{scrollInto}}">
     <view class="page-pad">
       <view class="card">
         <view class="detail-head">
@@ -24,18 +25,89 @@
           </view>
         </view>
         <react-row
-          heart="{{post.react_heart}}"
-          bone="{{post.react_bone}}"
-          star="{{post.react_star}}"
-          my-reacts="{{post.my_reacts}}"
+          post-id="{{post.id}}"
+          like-count="{{post.like_count}}"
+          comment-count="{{post.comment_count}}"
+          favorite-count="{{post.favorite_count}}"
+          liked="{{post.liked}}"
+          favorited="{{post.favorited}}"
           interactive="{{true}}"
-          bind:react="onReact"
+          bind:like="onLike"
+          bind:favorite="onFavorite"
+          bind:reply="onReply"
         />
       </view>
       <view wx:if="{{isOwn}}" class="btn-row">
         <view class="btn btn--ghost" bindtap="onEdit">编辑</view>
         <view class="btn btn--ghost" bindtap="onDelete">删除</view>
       </view>
+
+      <view id="comments" class="comment-block">
+        <text class="section-title">评论区 {{post.comment_count}}</text>
+        <view wx:if="{{comments.length === 0}}" class="comment-empty">还没有评论，来第一条吧</view>
+        <view wx:for="{{comments}}" wx:key="id" class="comment-thread">
+          <view class="comment-item">
+            <view class="avatar avatar--sm">
+              <image class="avatar__img" src="{{item.avatar}}" mode="aspectFill" />
+            </view>
+            <view class="comment-item__main">
+              <text class="comment-item__name">{{item.nickname}}</text>
+              <text class="comment-item__body">{{item.body}}</text>
+              <view class="comment-item__meta">
+                <text class="comment-item__time">{{item.time}}</text>
+                <text class="comment-item__action" data-id="{{item.id}}" data-name="{{item.nickname}}" catchtap="onReplyTo">评论</text>
+                <text
+                  wx:if="{{item.canDelete}}"
+                  class="comment-item__action"
+                  data-id="{{item.id}}"
+                  catchtap="onDeleteComment"
+                >删除</text>
+              </view>
+            </view>
+          </view>
+          <view wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id" class="comment-item comment-item--nested">
+            <view class="avatar avatar--sm">
+              <image class="avatar__img" src="{{reply.avatar}}" mode="aspectFill" />
+            </view>
+            <view class="comment-item__main">
+              <text class="comment-item__name">
+                {{reply.nickname}}<text wx:if="{{reply.replyToName}}" class="comment-item__to"> 评论 {{reply.replyToName}}</text>
+              </text>
+              <text class="comment-item__body">{{reply.body}}</text>
+              <view class="comment-item__meta">
+                <text class="comment-item__time">{{reply.time}}</text>
+                <text class="comment-item__action" data-id="{{reply.id}}" data-name="{{reply.nickname}}" catchtap="onReplyTo">评论</text>
+                <text
+                  wx:if="{{reply.canDelete}}"
+                  class="comment-item__action"
+                  data-id="{{reply.id}}"
+                  catchtap="onDeleteComment"
+                >删除</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
     </view>
   </scroll-view>
+  <view class="comment-dock" wx:if="{{post}}">
+    <view wx:if="{{replyToName}}" class="comment-dock__tip">
+      <text>评论 {{replyToName}}</text>
+      <text class="comment-dock__cancel" bindtap="onCancelReply">取消</text>
+    </view>
+    <view class="comment-compose">
+      <input
+        class="comment-compose__input"
+        placeholder="{{commentPlaceholder}}"
+        value="{{commentBody}}"
+        maxlength="200"
+        focus="{{commentFocus}}"
+        bindinput="onCommentInput"
+        confirm-type="send"
+        bindconfirm="onSendComment"
+      />
+      <text class="comment-compose__send" bindtap="onSendComment">发送</text>
+    </view>
+  </view>
+  </view>
 </page-shell>

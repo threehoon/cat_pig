@@ -32,6 +32,8 @@ export type Comment = {
   id: string
   author: Author
   body: string
+  parent_id: string | null
+  reply_to: Author | null
   created_at: string
 }
 

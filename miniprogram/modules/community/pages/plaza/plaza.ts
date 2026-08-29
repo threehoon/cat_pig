@@ -1,8 +1,8 @@
 import { brandAssets } from '../../../../assets/paths'
 import { toastRequestError } from '../../../../core/request'
 import { replaceCard, toPostCard, PostCardView } from '../../post-view'
-import { listPosts, reactPost } from '../../services/community'
-import { PLAZA_TABS, PostTab, ReactKind } from '../../types/post'
+import { favoritePost, likePost, listPosts } from '../../services/community'
+import { PLAZA_TABS, PostTab } from '../../types/post'
 
 Page({
   data: {
@@ -55,15 +55,42 @@ Page({
     }
     wx.navigateTo({ url: `/modules/community/pages/detail/detail?id=${id}` })
   },
-  onReact(e: WechatMiniprogram.CustomEvent<{ id: string; kind: ReactKind }>) {
-    const { id, kind } = e.detail
-    if (!id || !kind) {
+  onLike(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const id = e.detail.id
+    if (!id) {
       return
     }
-    reactPost(id, kind)
+    likePost(id)
       .then((post) => {
         this.setData({ posts: replaceCard(this.data.posts, post) })
       })
       .catch(toastRequestError)
+  },
+  onFavorite(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const id = e.detail.id
+    if (!id) {
+      return
+    }
+    favoritePost(id)
+      .then((post) => {
+        this.setData({ posts: replaceCard(this.data.posts, post) })
+      })
+      .catch(toastRequestError)
+  },
+  onReply(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const id = e.detail.id
+    if (!id) {
+      return
+    }
+    wx.navigateTo({ url: `/modules/community/pages/detail/detail?id=${id}&reply=1` })
+  },
+  onShareAppMessage(e: { target?: { dataset?: { id?: string } } }) {
+    const id = (e.target && e.target.dataset && e.target.dataset.id) || ''
+    return {
+      title: '宠物记录',
+      path: id
+        ? `/modules/community/pages/detail/detail?id=${id}`
+        : '/modules/community/pages/plaza/plaza',
+    }
   },
 })

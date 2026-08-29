@@ -60,4 +60,4 @@
 
 ## 当前阶段
 
-以 [docs/progress.md](docs/progress.md) 为准。当前是 **阶段 F：前端界面先行**。页面和视觉已铺；新对话按进度里的「下一步」做各模块 `services/` + `core/request` mock，不要先搭 FastAPI。
+以 [docs/progress.md](docs/progress.md) 为准。当前是 **阶段 F：前端界面先行**。页面、视觉、`services/` 与 mock 已接。新对话按进度里的「下一步」继续；不要先搭 FastAPI。日常改代码不要改 `docs/`，用户说「整理 / 总结 / 更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。

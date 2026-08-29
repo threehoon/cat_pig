@@ -6,14 +6,16 @@
 
 ## 当前工作方式：前端界面先行
 
-五个 tab、二级页、奶油水彩皮、`services/` 与 mock 已写入。下一对话用微信开发者工具点通主路径，不先做 FastAPI 和数据库。进度以 [progress.md](progress.md) 为准。
+五个 tab、二级页、奶油水彩皮、`services/`、mock、帖子评论区已写入。`useMock: true`。不先做 FastAPI 和数据库。进度以 [progress.md](progress.md) 为准。
+
+日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 开发者工具点通主路径，修交互/空态 | `server/` 可运行工程 |
-| 保持 `useMock: true` 与现有 service path | 真 `wx.request` 打真实 API |
+| 按用户点名继续小程序功能；开发者工具可点主路径 | `server/` 可运行工程 |
+| 保持 `useMock: true` 与合同里的 path/字段 | 真 `wx.request` 打真实 API |
 | 保持现有 tab 路径和视觉 token | 接微信登录换 JWT、真出片、真审核 |
-| 页面只调本模块 `services/` | 把 mock 写进 page 的 wxml/ts 里；重做视觉 |
+| 页面只调本模块 `services/` | 把 mock 写进 page 的 wxml/ts 里；未点名就重做视觉；每改一处就改文档 |
 
 **预留接口是阶段 F 的完成条件，不是后补。** 路径和字段的唯一依据是 [api/contract.md](api/contract.md)。前端 mock 按它返回 JSON；后端按它写 FastAPI。两端都禁止自己发明字段名。后端开工后只改 `useMock` / `request` 实现，不准改合同里的 path 和字段。
 
@@ -74,7 +76,7 @@
 | 广场 `tab` | `recommend` 推荐；`following` 关注；其余同 `board` |
 | 帖子 `board` | `qa` 问答；`show` 晒宠；`share` 分享；`help` 求助；`daily` 日常；`experience` 经验 |
 | 帖子 `status` | `draft` 草稿；`pending` 审核中；`published` 已发布；`rejected` 未通过 |
-| 帖子动作 | 点赞 / 回复 / 收藏 / 转发（转发走微信分享，无单独接口） |
+| 帖子动作 | 点赞 / 评论 / 收藏 / 转发（转发走微信分享，无单独接口） |
 | 视频 `status` | `pending` 待执行；`running` 执行中；`success` 执行成功；`failed` 执行失败 |
 | 视频 `resolution` | `540p` `720p` `1080p` `2k` `4k` 原样展示 |
 
@@ -86,6 +88,21 @@
 - 创作 tab 打开即为图生视频表单，不是发帖。发帖从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
 - 「我的」：头像昵称走 `GET /api/v1/me`；三个入口分别进我的发布、积分明细、任务管理。
+
+### 帖子互动（已接 mock）
+
+卡片和详情底栏四个动作，文案固定：**点赞 / 评论 / 收藏 / 转发**。详情页下方标题是 **评论区**，不要写「回复」。
+
+| 动作 | 行为 | 接口 |
+|---|---|---|
+| 点赞 | 独立开关 | `POST /api/v1/community/post/{id}/like` |
+| 评论 | 详情底部输入；点某条可评论该人 | `GET/POST /api/v1/community/post/{id}/comment`，`DELETE .../comment/{comment_id}` |
+| 收藏 | 独立开关，可与点赞同时亮 | `POST /api/v1/community/post/{id}/favorite` |
+| 转发 | 微信分享，无后端接口 | 页面 `enableShareAppMessage` + `button open-type="share"` |
+
+删评论：评论作者只能删自己的；贴主可删该帖下任意一条。只删点中的那一条，子评论改挂父级，不连带删别人的。删帖才清掉该帖全部评论。删除确认文案：标题「删除评论」，内容「删除后无法恢复」。
+
+首页 / 论坛 / 我的发布 / 详情页已开分享。`react-row` 图标：`assets/icon/react-like|reply|favorite|share.png` 与 `-active`（评论按钮文件名仍是 `reply`，界面文案是「评论」）。
 
 ### tabBar 图标
 
@@ -118,7 +135,7 @@
 | `modules/me/services/` | 当前用户 | `GET/PATCH /api/v1/me` |
 | `modules/media/services/` | 上传图 | `POST /api/v1/media` |
 | `modules/album/services/` | 相册列表 / 详情 / 上传 / 改 / 删 | `GET/POST /api/v1/album`，`GET/PATCH/DELETE /api/v1/album/{id}` |
-| `modules/community/services/` | 广场、发帖、详情、我的发布、点赞、收藏、回复、关注 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`POST/DELETE /api/v1/community/follow` |
+| `modules/community/services/` | 广场、发帖、详情、我的发布、点赞、收藏、评论、关注 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST/DELETE /api/v1/community/follow` |
 | `modules/video/services/` | 创建任务、列表、详情、删 | `GET/POST /api/v1/video`，`GET/DELETE /api/v1/video/{id}` |
 | `modules/points/services/` | 汇总、流水、签到 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin` |
 
@@ -142,8 +159,9 @@
 2. 页面 **不准** `wx.request`，不准写死主机名，不准直接 import 一份「页面专用假数据」。
 3. 模块 `services/` 只调 `core/request`。`useMock === true` 时，`request` 返回符合 [api/contract.md](api/contract.md) 的本地数据（按 method+path 分发）。
 4. 成功 / 失败信封与真 API 相同，JSON 形状见 [api/contract.md](api/contract.md)。
-5. 假数据足够点通主路径即可：当前用户、若干相册、若干已发布帖、一条视频任务、几条积分流水。不要做后台。
+5. 假数据足够点通主路径即可：当前用户、若干相册、若干已发布帖（含别人的帖和一条带评论的帖）、一条视频任务、几条积分流水。不要做后台。
 6. 没有审核员：mock 里 `POST` 帖子若 `status` 为 `pending`，直接存成 `published`，否则广场列表看不到刚发的帖。接真 API 后再走审核。
+7. mock 登录在 `core/auth` 启动时同步完成（`jwt-or-mock` + 写入当前用户 id），页面 `onShow` 时已有会话。
 
 接真 API：`useMock` 改为 `false`，确认 `apiBaseUrl`，services 不用改方法名。
 
@@ -210,14 +228,13 @@
 - 生产密钥不得进仓库。
 - 上传包只含 `miniprogram/`；`.md` 已在 `packOptions` 忽略。
 
-## 下一对话（点验 mock）建议读取顺序
+## 下一对话建议读取顺序
 
 1. [AGENTS.md](../AGENTS.md)
-2. [progress.md](progress.md)（确认下一步是 `services/` + mock）
-3. 本文件（模块名、页面路径、必须预留的 service、mock 约定）
+2. [progress.md](progress.md)（确认阶段 F、下一步、文档节奏）
+3. 本文件（模块名、页面路径、帖子互动、必须预留的 service、mock 约定）
 4. [api/contract.md](api/contract.md)（每个 service 的 path 和 JSON）
 5. [miniprogram/README.md](miniprogram/README.md)
 6. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
-7. [framework/modules.md](framework/modules.md) 与 [framework/adding-a-module.md](framework/adding-a-module.md)
 
-改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。不要先做 FastAPI。
+改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。不要先做 FastAPI。改接口先改合同。不要每改一处就改文档。

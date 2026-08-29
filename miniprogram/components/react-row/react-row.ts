@@ -14,11 +14,9 @@ Component({
     likeIcon: brandAssets.reactLike,
     likeIconOn: brandAssets.reactLikeOn,
     replyIcon: brandAssets.reactReply,
-    replyIconOn: brandAssets.reactReplyOn,
     favoriteIcon: brandAssets.reactFavorite,
     favoriteIconOn: brandAssets.reactFavoriteOn,
     shareIcon: brandAssets.reactShare,
-    shareIconOn: brandAssets.reactShareOn,
     popAction: '',
   },
   methods: {

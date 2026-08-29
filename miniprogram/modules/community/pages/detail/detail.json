@@ -1,5 +1,6 @@
 {
   "disableScroll": true,
+  "enableShareAppMessage": true,
   "usingComponents": {
     "page-shell": "/components/page-shell/page-shell",
     "react-row": "/components/react-row/react-row"

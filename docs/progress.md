@@ -16,20 +16,20 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：**用微信开发者工具点通主路径**（登录占位 → 首页入口 → 上传相册 → 发帖出现在广场 → 创作提交后任务列表多一条）。不要先搭 FastAPI。不要重做视觉（除非用户点名改某一页）。
+下一对话目标：继续阶段 F 的小程序功能。页面、`services/`、mock 已接；帖子互动是点赞 / 评论 / 收藏 / 转发，详情有评论区。不要先搭 FastAPI。不要重做视觉（除非用户点名改某一页）。
 
-各模块已有 `services/`；`core/request` 在 `useMock: true` 时按 method+path 返回合同形状的假数据。页面不再内置假数组。尚未在微信开发者工具里点验。
+日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
-必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md)（tab/页面/mock 约定）→ [api/contract.md](api/contract.md)（path 和 JSON 唯一依据）→ [miniprogram/README.md](miniprogram/README.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。对照截图在 [product/reference/](product/reference/README.md)。
+必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
 
-开发走 `/app-pet`。人用微信开发者工具打开**仓库根目录**点验。做完一批页面后更新本文件。
+开发走 `/app-pet`。人用微信开发者工具打开**仓库根目录**点验。
 
 ## 当前阶段
 
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（页面、services、mock 已接；尚未在微信开发者工具点验） |
+| 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具未点验） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
 | 最后更新 | 2026-08-29 |
 
@@ -39,7 +39,7 @@
 |---|---|---|
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
-| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（页面 / services / mock 已接；开发者工具未点验） |
+| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（页面 / services / mock / 评论区已接；开发者工具未点验） |
 | 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 未开始（界面之后） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
@@ -65,17 +65,17 @@
 - 项目 skill 已装到 `.grok/skills/`：`app-pet`（本仓库路由）+ `frontend-design` + 微信官方 Skyline 七件套 + FastAPI 官方 + 筛选后的 mattpocock 工程 skill。清单见 `docs/framework/skills.md`。
 - 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。未在微信开发者工具里点过。
 - 阶段 F mock：各模块 `services/` + `types/` 已按 [api/contract.md](api/contract.md) 建好；`core/request` 在 `useMock: true` 时按 method+path 返回信封内 `data`；未命中仍 `MOCK_NOT_IMPLEMENTED`。页面改为只调本模块 service（相册/发帖/创作可调 `media`）。mock 种子：当前用户、两本相册、若干帖（含草稿）、一条视频任务、积分流水合计 180。发帖 `pending` 直接 `published` 并记 +20 积分。
-- 表态改为可同时点亮：合同字段 `my_react` 换成 `my_reacts` 数组；心 / 骨头 / 星互相独立。`react-row` 图标加大，选中换彩色图并有弹跳。
+- 帖子互动改为点赞 / 评论 / 收藏 / 转发。点赞和收藏互相独立；评论区可连续发、可评论别人。删评论：本人只能删自己的，贴主可删该帖任意一条，不连带删别人的；删帖才清掉该帖全部评论。转发走微信分享。
 
 ## 进行中
 
-- 阶段 F：services / mock 已接。未在微信开发者工具里点验。
+- 阶段 F：页面、services、mock、帖子评论区已接。未在微信开发者工具里点验。
 
 ## 下一步（给新对话，按此顺序）
 
-1. 用微信开发者工具打开仓库根目录，点通主路径：首页四个入口 → 上传相册能出现在列表 → 发帖后广场看得到 → 创作页选 2 张图提交后任务列表多一条；签到写入积分流水。
-2. 点验时修交互或空态问题；不要改合同字段，不要重做视觉。
-3. 不要创建可运行的 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径和 API 字段。改皮走 [miniprogram/visual.md](miniprogram/visual.md)，不要在页面写死 hex。
+1. 按用户点名的下一功能继续改小程序。主路径仍应用开发者工具点通：首页四个入口 → 上传相册出现在列表 → 发帖后广场看得到 → 创作页选 2 张图提交后任务列表多一条；签到写入积分流水。评论区：连续发、评论别人、本人或贴主删除。
+2. 不要创建可运行的 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。
+3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
 
 写后端（阶段 1 之后）时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
 
@@ -101,7 +101,11 @@
 | 2026-08-24 | 阶段 F 先做可切 tab 的空壳 | 用户确认：page-shell + core 签名；二级页、列表、mock 数据后置。设计见 `docs/superpowers/specs/2026-08-24-miniprogram-shell-design.md` |
 | 2026-08-29 | 开发走项目 skill：`/app-pet` 为入口 | 装 Anthropic `frontend-design`、微信官方 Skyline、FastAPI 官方、mattpocock 工程子集。不装云开发 / React / `ui-ux-pro-max`。清单 `docs/framework/skills.md` |
 | 2026-08-29 | 界面气质：奶油水彩、稍可爱、留白；插画自绘 | 用户选 A 再选「刚好」这一档。token/组件/素材目录化，禁止页面写死 hex。底栏仍原生，只换图标 |
-| 2026-08-29 | 帖子表态可同时多项；`my_react` 改为 `my_reacts` 数组 | 阶段 F 未接真 API；点赞后再点星不应取消心。再点同一项才取消 |
+| 2026-08-29 | 帖子互动改为点赞 / 回复 / 收藏 / 转发 | 用户不要心/骨头/星；点赞和收藏可同时点。回复有 mock 评论；转发用微信分享 |
+| 2026-08-29 | 回复可连续、可回别人、可删；删帖/删回复级联 | 按常见社交软件：输入条常在；`parent_id` 线程；删一条带上子回复 |
+| 2026-08-29 | 删回复权限：本人或贴主；不连带删别人的 | 普通人只能删自己的评论；贴主可删帖下任意一条；子回复改挂父级 |
+| 2026-08-29 | 互动文案统一为评论 / 评论区 | 不用「回复」；删除确认为普通「删除后无法恢复」 |
+| 2026-08-29 | 日常改代码不写 docs，点名整理再更新 | 每改一次都写文档太慢；改接口仍先改 contract.md |
 
 ## 未决（不阻塞阶段 F）
 

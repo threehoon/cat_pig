@@ -20,9 +20,12 @@ ICON_DIR = ROOT / "miniprogram" / "assets" / "icon"
 ORANGE = (240, 120, 60, 255)
 MUTED = (163, 152, 142, 255)
 CLEAR = (0, 0, 0, 0)
-HEART = (240, 120, 60, 255)
-BONE = (196, 154, 110, 255)
-STAR = (240, 176, 72, 255)
+LIKE = (240, 120, 60, 255)
+FAVORITE = (240, 176, 72, 255)
+REPLY = (240, 120, 60, 255)
+SHARE = (240, 120, 60, 255)
+CREAM = (255, 251, 246, 255)
+SHINE = (255, 255, 255, 200)
 
 TAB_SIZE = 81
 TAB_SCALE = 4
@@ -103,31 +106,43 @@ def export_react(name: str, painter, color) -> None:
         down(img, REACT_SIZE).save(ICON_DIR / f"react-{name}{suffix}.png")
 
 
-def draw_heart(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
-    d.ellipse((s * 0.18, s * 0.22, s * 0.54, s * 0.58), fill=c)
-    d.ellipse((s * 0.46, s * 0.22, s * 0.82, s * 0.58), fill=c)
-    d.polygon([(s * 0.20, s * 0.44), (s * 0.50, s * 0.84), (s * 0.80, s * 0.44)], fill=c)
+def draw_like(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.ellipse((s * 0.14, s * 0.18, s * 0.56, s * 0.62), fill=c)
+    d.ellipse((s * 0.44, s * 0.18, s * 0.86, s * 0.62), fill=c)
+    d.polygon([(s * 0.16, s * 0.46), (s * 0.50, s * 0.90), (s * 0.84, s * 0.46)], fill=c)
+    d.ellipse((s * 0.24, s * 0.28, s * 0.38, s * 0.42), fill=SHINE)
 
 
-def draw_bone(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
-    d.rounded_rectangle((s * 0.22, s * 0.42, s * 0.78, s * 0.58), radius=s * 0.08, fill=c)
-    r = s * 0.14
-    d.ellipse((s * 0.14, s * 0.30, s * 0.14 + r * 2, s * 0.30 + r * 2), fill=c)
-    d.ellipse((s * 0.14, s * 0.42, s * 0.14 + r * 2, s * 0.42 + r * 2), fill=c)
-    d.ellipse((s * 0.72 - r, s * 0.30, s * 0.72 + r, s * 0.30 + r * 2), fill=c)
-    d.ellipse((s * 0.72 - r, s * 0.42, s * 0.72 + r, s * 0.42 + r * 2), fill=c)
+def draw_reply(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.rounded_rectangle((s * 0.14, s * 0.16, s * 0.86, s * 0.66), radius=s * 0.24, fill=c)
+    d.ellipse((s * 0.22, s * 0.54, s * 0.44, s * 0.84), fill=c)
+    dot = s * 0.07
+    for x in (0.34, 0.50, 0.66):
+        d.ellipse((s * x - dot, s * 0.36, s * x + dot, s * 0.36 + dot * 2), fill=CREAM)
 
 
-def draw_star(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
-    cx, cy, r = s / 2, s / 2, s * 0.34
-    pts = []
-    for i in range(10):
-        ang = -90 + i * 36
-        rad = r if i % 2 == 0 else r * 0.42
-        from math import cos, radians, sin
+def draw_favorite(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.polygon(
+        [
+            (s * 0.30, s * 0.16),
+            (s * 0.70, s * 0.16),
+            (s * 0.70, s * 0.88),
+            (s * 0.50, s * 0.68),
+            (s * 0.30, s * 0.88),
+        ],
+        fill=c,
+    )
+    d.rounded_rectangle((s * 0.30, s * 0.14, s * 0.70, s * 0.42), radius=s * 0.10, fill=c)
+    d.ellipse((s * 0.44, s * 0.26, s * 0.56, s * 0.38), fill=CREAM)
 
-        pts.append((cx + rad * cos(radians(ang)), cy + rad * sin(radians(ang))))
-    d.polygon(pts, fill=c)
+
+def draw_share(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    r = s * 0.11
+    d.line([(s * 0.30, s * 0.50), (s * 0.70, s * 0.30)], fill=c, width=int(s * 0.09))
+    d.line([(s * 0.30, s * 0.50), (s * 0.70, s * 0.72)], fill=c, width=int(s * 0.09))
+    d.ellipse((s * 0.16, s * 0.39, s * 0.16 + r * 2, s * 0.39 + r * 2), fill=c)
+    d.ellipse((s * 0.62, s * 0.18, s * 0.62 + r * 2, s * 0.18 + r * 2), fill=c)
+    d.ellipse((s * 0.62, s * 0.62, s * 0.62 + r * 2, s * 0.62 + r * 2), fill=c)
 
 
 def draw_gift(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
@@ -144,9 +159,10 @@ def main() -> None:
     export_tab("create", draw_create)
     export_tab("plaza", draw_plaza)
     export_tab("me", draw_me)
-    export_react("heart", draw_heart, HEART)
-    export_react("bone", draw_bone, BONE)
-    export_react("star", draw_star, STAR)
+    export_react("like", draw_like, LIKE)
+    export_react("reply", draw_reply, REPLY)
+    export_react("favorite", draw_favorite, FAVORITE)
+    export_react("share", draw_share, SHARE)
     ICON_DIR.mkdir(parents=True, exist_ok=True)
     big = REACT_SIZE * REACT_SCALE
     img, draw = new_canvas(big)

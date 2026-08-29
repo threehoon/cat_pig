@@ -44,6 +44,8 @@ export type MockComment = {
   post_id: string
   author: MockAuthor
   body: string
+  parent_id: string | null
+  reply_to: MockAuthor | null
   created_at: string
 }
 
@@ -119,7 +121,7 @@ export const store = {
       topic_names: ['日常'],
       status: 'published',
       like_count: 2,
-      comment_count: 1,
+      comment_count: 2,
       favorite_count: 0,
       liked: false,
       favorited: false,
@@ -180,7 +182,18 @@ export const store = {
       post_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
       author: { ...other },
       body: '也想试试，阳光好的时候拍一组。',
+      parent_id: null,
+      reply_to: null,
       created_at: '2026-08-24T11:00:00Z',
+    },
+    {
+      id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeef',
+      post_id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+      author: { ...me },
+      body: '你也去公园拍过吗？',
+      parent_id: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+      reply_to: { ...other },
+      created_at: '2026-08-24T11:20:00Z',
     },
   ] as MockComment[],
   videos: [

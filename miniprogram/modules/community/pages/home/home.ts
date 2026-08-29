@@ -70,8 +70,8 @@ Page({
     }
     wx.navigateTo({ url: `/modules/community/pages/detail/detail?id=${id}&reply=1` })
   },
-  onShareAppMessage(e: WechatMiniprogram.Page.IShareAppMessageOption) {
-    const id = (e.target && e.target.dataset && (e.target.dataset.id as string)) || ''
+  onShareAppMessage(e: { target?: { dataset?: { id?: string } } }) {
+    const id = (e.target && e.target.dataset && e.target.dataset.id) || ''
     const path = id
       ? `/modules/community/pages/detail/detail?id=${id}`
       : '/modules/community/pages/home/home'

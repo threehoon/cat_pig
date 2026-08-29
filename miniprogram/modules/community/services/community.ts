@@ -71,11 +71,18 @@ export function listComments(id: string, page = 1, pageSize = 20) {
   })
 }
 
-export function createComment(id: string, body: string) {
+export function createComment(id: string, body: string, parentId?: string | null) {
   return request<Comment>({
     method: 'POST',
     path: `/api/v1/community/post/${id}/comment`,
-    data: { body },
+    data: { body, parent_id: parentId || null },
+  })
+}
+
+export function deleteComment(postId: string, commentId: string) {
+  return request<{ ok: true; comment_count: number }>({
+    method: 'DELETE',
+    path: `/api/v1/community/post/${postId}/comment/${commentId}`,
   })
 }
 

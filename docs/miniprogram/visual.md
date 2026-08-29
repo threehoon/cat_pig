@@ -11,11 +11,11 @@
 | 颜色、圆角、阴影、字号 | `miniprogram/styles/tokens.scss` | 页面 scss 里写死 hex |
 | 卡片、按钮、芯片、入口格、顶图框 | `miniprogram/styles/primitives.scss` | 每个页面复制一份 |
 | 首页顶图、空状态、默认头像 | `miniprogram/assets/brand/` + `assets/paths.ts` | 页面写死另一套文件名 |
-| 四个入口图、表态、礼物 | `miniprogram/assets/icon/` + `assets/paths.ts` | 表态未选中 `react-*.png`，选中 `react-*-active.png` |
+| 四个入口图、帖子动作、礼物 | `miniprogram/assets/icon/` + `assets/paths.ts` | 未选中 `react-*.png`，选中 `react-*-active.png`（like / reply / favorite / share） |
 | 底栏图标 | `miniprogram/assets/tab/`（文件名锁死） | `app.json` 的 icon 路径 |
 | 界面占位照片（接 mock 前） | `miniprogram/assets/mock/` | 当正式素材用 |
 | 空列表 | `components/empty-state` | 页面内再画一套空状态 |
-| 心 / 骨头 / 星 | `components/react-row` | 写成「心 0」 |
+| 点赞 / 评论 / 收藏 / 转发 | `components/react-row` | 写成大色块按钮 |
 
 `app.scss` 只 `@import` 上面两个 styles 文件。页面 scss 只写这一页的排版。
 
@@ -53,7 +53,7 @@ Skyline：用 flex，不用 grid；滚动用 `scroll-view`；阴影用 `box-shad
 | 空相册 / 空广场 / 空任务 | `assets/brand/empty-*.jpg` |
 | 默认头像 | `assets/brand/avatar-default.jpg` |
 | 入口 | `assets/icon/entry-*.jpg` |
-| 表态、礼物 | `assets/icon/react-*.png` 与 `react-*-active.png`、`gift.png` |
+| 帖子动作、礼物 | `assets/icon/react-like|reply|favorite|share.png` 与 `-active`、`gift.png` |
 | 底栏 5×2 | `assets/tab/<name>.png` 与 `<name>-active.png` |
 
 底栏和表态图标用脚本画，保证 81px 清晰、两套颜色一致：
@@ -72,7 +72,7 @@ python3 -m venv .venv
 
 - `page-shell` — 顶栏 + 内容槽
 - `empty-state` — 插画 + 标题 + 行动
-- `react-row` — 三种表态
+- `react-row` — 点赞 / 评论 / 收藏 / 转发
 
 帖子卡片属于 `community`，放 `modules/community/components/post-card/`。其它模块不要 import 它。
 

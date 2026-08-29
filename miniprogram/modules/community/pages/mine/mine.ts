@@ -1,7 +1,7 @@
 import { toastRequestError } from '../../../../core/request'
 import { replaceCard, toPostCard, PostCardView } from '../../post-view'
-import { listMyPosts, reactPost } from '../../services/community'
-import { PostStatus, ReactKind } from '../../types/post'
+import { favoritePost, likePost, listMyPosts } from '../../services/community'
+import { PostStatus } from '../../types/post'
 
 const FILTERS: { id: 'all' | PostStatus; label: string }[] = [
   { id: 'all', label: '全部' },
@@ -35,7 +35,7 @@ Page({
         all.items.forEach((post) => {
           if (post.status === 'published') {
             published += 1
-            likes += post.react_heart + post.react_bone + post.react_star
+            likes += post.like_count
           } else if (post.status === 'pending') {
             pending += 1
           } else if (post.status === 'draft') {
@@ -68,15 +68,40 @@ Page({
     }
     wx.navigateTo({ url: `/modules/community/pages/detail/detail?id=${id}` })
   },
-  onReact(e: WechatMiniprogram.CustomEvent<{ id: string; kind: ReactKind }>) {
-    const { id, kind } = e.detail
-    if (!id || !kind) {
+  onLike(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const id = e.detail.id
+    if (!id) {
       return
     }
-    reactPost(id, kind)
+    likePost(id)
       .then((post) => {
         this.setData({ posts: replaceCard(this.data.posts, post, 'status') })
       })
       .catch(toastRequestError)
+  },
+  onFavorite(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const id = e.detail.id
+    if (!id) {
+      return
+    }
+    favoritePost(id)
+      .then((post) => {
+        this.setData({ posts: replaceCard(this.data.posts, post, 'status') })
+      })
+      .catch(toastRequestError)
+  },
+  onReply(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const id = e.detail.id
+    if (!id) {
+      return
+    }
+    wx.navigateTo({ url: `/modules/community/pages/detail/detail?id=${id}&reply=1` })
+  },
+  onShareAppMessage(e: { target?: { dataset?: { id?: string } } }) {
+    const id = (e.target && e.target.dataset && e.target.dataset.id) || ''
+    return {
+      title: '宠物记录',
+      path: id ? `/modules/community/pages/detail/detail?id=${id}` : '/modules/community/pages/mine/mine',
+    }
   },
 })
