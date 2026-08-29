@@ -1,0 +1,65 @@
+<page-shell title="论坛">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad page-pad--fab">
+      <view class="search card">
+        <input
+          class="search__input"
+          placeholder="搜索话题或养宠问题"
+          value="{{q}}"
+          confirm-type="search"
+          bindinput="onQuery"
+          bindconfirm="onSearch"
+        />
+        <text class="search__btn" bindtap="onSearch">搜索</text>
+      </view>
+
+      <scroll-view class="chip-scroll" scroll-x show-scrollbar="{{false}}">
+        <view class="chip-inner">
+          <view
+            wx:for="{{tabs}}"
+            wx:key="id"
+            class="chip chip--tab {{tab === item.id ? 'chip--on' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onTab"
+          >{{item.label}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="card hot">
+        <text class="hot__kicker">本周热聊</text>
+        <text class="hot__title">夏天怎么给毛孩子降温</text>
+      </view>
+
+      <empty-state
+        wx:if="{{posts.length === 0}}"
+        image="{{emptyPlaza}}"
+        title="{{emptyTitle}}"
+        hint="{{emptyHint}}"
+        action="{{emptyAction}}"
+        bind:action="onCompose"
+      />
+      <post-card
+        wx:for="{{posts}}"
+        wx:key="id"
+        post-id="{{item.id}}"
+        author="{{item.author}}"
+        avatar="{{item.avatar}}"
+        time="{{item.time}}"
+        board="{{item.board}}"
+        body="{{item.body}}"
+        covers="{{item.covers}}"
+        show-media="{{item.showMedia}}"
+        like-count="{{item.like_count}}"
+        comment-count="{{item.comment_count}}"
+        favorite-count="{{item.favorite_count}}"
+        liked="{{item.liked}}"
+        favorited="{{item.favorited}}"
+        bind:opentap="onPost"
+        bind:like="onLike"
+        bind:favorite="onFavorite"
+        bind:reply="onReply"
+      />
+    </view>
+  </scroll-view>
+  <view class="fab" bindtap="onCompose">发帖</view>
+</page-shell>

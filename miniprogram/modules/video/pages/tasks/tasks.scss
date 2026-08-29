@@ -1,0 +1,42 @@
+page {
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.stat-bar--spaced {
+  margin-bottom: 20rpx;
+}
+
+.task {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.task__cover {
+  width: 96rpx;
+  height: 96rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  border-radius: 20rpx;
+}
+
+.task__main {
+  flex: 1;
+}
+
+.task__title {
+  display: block;
+  font-weight: 600;
+}
+
+.task__status {
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+}
+
+.task__link {
+  color: var(--color-primary);
+  font-size: 24rpx;
+}

@@ -1,0 +1,18 @@
+<page-shell title="任务详情" back="{{true}}">
+  <scroll-view class="page-scroll" scroll-y wx:if="{{video}}">
+    <view class="page-pad">
+      <view class="card">
+        <text class="detail-kicker">{{statusLabel}}</text>
+        <text class="detail-name">{{video.title}}</text>
+        <view class="cover hero">
+          <image class="cover__img" src="{{cover}}" mode="aspectFill" />
+        </view>
+        <text class="detail-sub">分辨率 {{video.resolution}} · 消耗 {{video.points_cost}} 积分</text>
+        <text wx:if="{{video.prompt}}" class="detail-sub">{{video.prompt}}</text>
+        <text wx:if="{{video.result_url}}" class="detail-sub">结果已生成</text>
+        <text wx:else class="detail-sub">生成完成后会在这里看到结果</text>
+      </view>
+      <view wx:if="{{canDelete}}" class="btn btn--ghost upload-submit" bindtap="onDelete">删除任务</view>
+    </view>
+  </scroll-view>
+</page-shell>

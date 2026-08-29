@@ -1,0 +1,33 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.empty__img {
+  width: 360rpx;
+  height: 360rpx;
+}
+
+.empty__title {
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.empty__hint {
+  margin-top: 8rpx;
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.empty__btn {
+  margin-top: 28rpx;
+  min-width: 240rpx;
+  flex: none;
+  padding: 0 40rpx;
+}

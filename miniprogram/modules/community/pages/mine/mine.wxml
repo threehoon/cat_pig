@@ -1,0 +1,55 @@
+<page-shell title="我的发布" back="{{true}}">
+  <view slot="right" class="nav-action" bindtap="onCompose">发帖</view>
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <view class="chip-row chip-row--mine">
+        <view
+          wx:for="{{filters}}"
+          wx:key="id"
+          class="chip {{filter === item.id ? 'chip--on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onFilter"
+        >{{item.label}}</view>
+      </view>
+      <view class="stat-bar stat-bar--mine">
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{published}}</view>
+          <view class="stat-bar__label">已发布</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{pending}}</view>
+          <view class="stat-bar__label">审核中</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{draft}}</view>
+          <view class="stat-bar__label">草稿</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{likes}}</view>
+          <view class="stat-bar__label">获赞</view>
+        </view>
+      </view>
+      <post-card
+        wx:for="{{posts}}"
+        wx:key="id"
+        post-id="{{item.id}}"
+        author="{{item.author}}"
+        avatar="{{item.avatar}}"
+        time="{{item.time}}"
+        board="{{item.board}}"
+        body="{{item.body}}"
+        covers="{{item.covers}}"
+        show-media="{{item.showMedia}}"
+        like-count="{{item.like_count}}"
+        comment-count="{{item.comment_count}}"
+        favorite-count="{{item.favorite_count}}"
+        liked="{{item.liked}}"
+        favorited="{{item.favorited}}"
+        bind:opentap="onPost"
+        bind:like="onLike"
+        bind:favorite="onFavorite"
+        bind:reply="onReply"
+      />
+    </view>
+  </scroll-view>
+</page-shell>

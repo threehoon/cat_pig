@@ -1,0 +1,66 @@
+<page-shell title="首页">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <view class="hero-banner">
+        <image class="hero-banner__img" src="{{banner}}" mode="aspectFill" />
+        <view class="hero-banner__copy">
+          <text class="hero-banner__title">给毛孩子留一点会动的记忆</text>
+          <text class="hero-banner__sub">相册 · 短视频 · 广场</text>
+        </view>
+      </view>
+
+      <view class="entry-grid">
+        <view class="entry-item" bindtap="onVideo">
+          <view class="entry-icon">
+            <image class="entry-icon__img" src="{{entryVideo}}" mode="aspectFill" />
+          </view>
+          <text class="entry-label">图生视频</text>
+        </view>
+        <view class="entry-item" bindtap="onAlbum">
+          <view class="entry-icon">
+            <image class="entry-icon__img" src="{{entryAlbum}}" mode="aspectFill" />
+          </view>
+          <text class="entry-label">相册</text>
+        </view>
+        <view class="entry-item" bindtap="onPlaza">
+          <view class="entry-icon">
+            <image class="entry-icon__img" src="{{entryPlaza}}" mode="aspectFill" />
+          </view>
+          <text class="entry-label">论坛</text>
+        </view>
+        <view class="entry-item" bindtap="onCheckin">
+          <view class="entry-icon">
+            <image class="entry-icon__img" src="{{entryCheckin}}" mode="aspectFill" />
+          </view>
+          <text class="entry-label">签到</text>
+        </view>
+      </view>
+
+      <view class="section-head">
+        <text class="section-title">广场动态</text>
+        <text class="section-more" bindtap="onMore">更多</text>
+      </view>
+      <post-card
+        wx:for="{{posts}}"
+        wx:key="id"
+        post-id="{{item.id}}"
+        author="{{item.author}}"
+        avatar="{{item.avatar}}"
+        time="{{item.time}}"
+        board="{{item.board}}"
+        body="{{item.body}}"
+        covers="{{item.covers}}"
+        show-media="{{item.showMedia}}"
+        like-count="{{item.like_count}}"
+        comment-count="{{item.comment_count}}"
+        favorite-count="{{item.favorite_count}}"
+        liked="{{item.liked}}"
+        favorited="{{item.favorited}}"
+        bind:opentap="onPost"
+        bind:like="onLike"
+        bind:favorite="onFavorite"
+        bind:reply="onReply"
+      />
+    </view>
+  </scroll-view>
+</page-shell>

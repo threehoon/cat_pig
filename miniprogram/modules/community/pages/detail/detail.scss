@@ -1,0 +1,50 @@
+page {
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.detail-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.detail-meta {
+  flex: 1;
+  margin: 0 16rpx;
+}
+
+.detail-name {
+  display: block;
+  font-weight: 600;
+}
+
+.detail-sub {
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+}
+
+.detail-title {
+  display: block;
+  margin: 24rpx 0 12rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.detail-body {
+  display: block;
+  line-height: 1.6;
+  margin-bottom: 20rpx;
+}
+
+.detail-photos {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.detail-hero {
+  height: 360rpx;
+  border-radius: 24rpx;
+}

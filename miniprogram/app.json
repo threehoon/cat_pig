@@ -1,0 +1,79 @@
+{
+  "pages": [
+    "modules/community/pages/home/home",
+    "modules/album/pages/list/list",
+    "modules/video/pages/create/create",
+    "modules/community/pages/plaza/plaza",
+    "modules/me/pages/index/index",
+    "modules/album/pages/upload/upload",
+    "modules/community/pages/compose/compose",
+    "modules/community/pages/detail/detail",
+    "modules/community/pages/mine/mine",
+    "modules/points/pages/list/list",
+    "modules/video/pages/tasks/tasks",
+    "modules/video/pages/detail/detail",
+    "pages/index/index",
+    "pages/logs/logs"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#A3988E",
+    "selectedColor": "#F0783C",
+    "backgroundColor": "#FFFBF6",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "modules/community/pages/home/home",
+        "text": "首页",
+        "iconPath": "assets/tab/home.png",
+        "selectedIconPath": "assets/tab/home-active.png"
+      },
+      {
+        "pagePath": "modules/album/pages/list/list",
+        "text": "相册",
+        "iconPath": "assets/tab/album.png",
+        "selectedIconPath": "assets/tab/album-active.png"
+      },
+      {
+        "pagePath": "modules/video/pages/create/create",
+        "text": "创作",
+        "iconPath": "assets/tab/create.png",
+        "selectedIconPath": "assets/tab/create-active.png"
+      },
+      {
+        "pagePath": "modules/community/pages/plaza/plaza",
+        "text": "论坛",
+        "iconPath": "assets/tab/plaza.png",
+        "selectedIconPath": "assets/tab/plaza-active.png"
+      },
+      {
+        "pagePath": "modules/me/pages/index/index",
+        "text": "我的",
+        "iconPath": "assets/tab/me.png",
+        "selectedIconPath": "assets/tab/me-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "rendererOptions": {
+    "skyline": {
+      "defaultDisplayBlock": true,
+      "defaultContentBox": true,
+      "tagNameStyleIsolation": "legacy",
+      "disableABTest": true,
+      "sdkVersionBegin": "3.0.0",
+      "sdkVersionEnd": "15.255.255"
+    }
+  },
+  "componentFramework": "glass-easel",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.camera": {
+      "desc": "用于上传宠物照片到相册、帖子和视频"
+    }
+  }
+}

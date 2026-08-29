@@ -1,0 +1,43 @@
+<page-shell title="任务管理" back="{{true}}">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <view class="stat-bar stat-bar--spaced">
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{total}}</view>
+          <view class="stat-bar__label">全部</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{pending}}</view>
+          <view class="stat-bar__label">待执行</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{running}}</view>
+          <view class="stat-bar__label">执行中</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{done}}</view>
+          <view class="stat-bar__label">已完成</view>
+        </view>
+      </view>
+
+      <empty-state
+        wx:if="{{tasks.length === 0}}"
+        image="{{emptyTasks}}"
+        title="还没有生成任务"
+        hint="选 2–9 张照片，做成一段短视频"
+        action="去创作"
+        bind:action="onCreate"
+      />
+      <view wx:for="{{tasks}}" wx:key="id" class="card task" data-id="{{item.id}}" bindtap="onDetail">
+        <view class="cover task__cover">
+          <image class="cover__img" src="{{item.cover}}" mode="aspectFill" />
+        </view>
+        <view class="task__main">
+          <text class="task__title">{{item.title}}</text>
+          <text class="task__status">{{item.status}}</text>
+        </view>
+        <text class="task__link">详情</text>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

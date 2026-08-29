@@ -1,0 +1,8 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "page-shell": "/components/page-shell/page-shell",
+    "post-card": "../../components/post-card/post-card",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

@@ -1,0 +1,41 @@
+<page-shell title="帖子详情" back="{{true}}">
+  <scroll-view class="page-scroll" scroll-y wx:if="{{post}}">
+    <view class="page-pad">
+      <view class="card">
+        <view class="detail-head">
+          <view class="avatar avatar--md">
+            <image class="avatar__img" src="{{avatar}}" mode="aspectFill" />
+          </view>
+          <view class="detail-meta">
+            <text class="detail-name">{{nickname}}</text>
+            <text class="detail-sub">{{time}} · {{boardLabel}}</text>
+          </view>
+          <view
+            wx:if="{{!isOwn}}"
+            class="chip {{post.followed ? 'chip--on' : ''}}"
+            bindtap="onFollow"
+          >{{followLabel}}</view>
+        </view>
+        <text wx:if="{{post.title}}" class="detail-title">{{post.title}}</text>
+        <text class="detail-body">{{post.body}}</text>
+        <view class="detail-photos" wx:if="{{post.image_urls.length}}">
+          <view wx:for="{{post.image_urls}}" wx:key="*this" class="cover detail-hero">
+            <image class="cover__img" src="{{item}}" mode="aspectFill" />
+          </view>
+        </view>
+        <react-row
+          heart="{{post.react_heart}}"
+          bone="{{post.react_bone}}"
+          star="{{post.react_star}}"
+          my-reacts="{{post.my_reacts}}"
+          interactive="{{true}}"
+          bind:react="onReact"
+        />
+      </view>
+      <view wx:if="{{isOwn}}" class="btn-row">
+        <view class="btn btn--ghost" bindtap="onEdit">编辑</view>
+        <view class="btn btn--ghost" bindtap="onDelete">删除</view>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

@@ -1,0 +1,15 @@
+<view class="page-shell">
+  <navigation-bar
+    title="{{title}}"
+    back="{{back}}"
+    color="var(--color-text)"
+    background="var(--color-bg)"
+  >
+    <view slot="right">
+      <slot name="right"></slot>
+    </view>
+  </navigation-bar>
+  <view class="page-shell__body">
+    <slot></slot>
+  </view>
+</view>

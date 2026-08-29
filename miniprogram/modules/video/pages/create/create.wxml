@@ -1,0 +1,63 @@
+<page-shell title="创作">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <view class="card upload-area">
+        <text class="upload-area__title">上传宠物照片</text>
+        <text class="upload-area__sub">选择 2–9 张照片，做成一段短视频</text>
+        <view class="upload-area__box" wx:if="{{image_urls.length === 0}}" bindtap="onAddImage">
+          <image class="upload-area__mascot" src="{{emptyTasks}}" mode="aspectFit" />
+          <text class="upload-area__hint">点击选择照片</text>
+        </view>
+        <view wx:else class="media-row">
+          <view
+            wx:for="{{image_urls}}"
+            wx:key="*this"
+            class="media-thumb"
+            data-index="{{index}}"
+            bindtap="onRemoveImage"
+          >
+            <image class="media-thumb__img" src="{{item}}" mode="aspectFill" />
+          </view>
+          <view wx:if="{{image_urls.length < 9}}" class="media-add" bindtap="onAddImage">+</view>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field__label">创意提示词</view>
+        <textarea
+          class="field__input prompt"
+          placeholder="描述你想看到的画面，例如在草地上跑、配点轻快的音乐"
+          value="{{prompt}}"
+          bindinput="onPrompt"
+          maxlength="100"
+        />
+      </view>
+
+      <view class="chip-row chip-row--after-field">
+        <view
+          wx:for="{{prompts}}"
+          wx:key="*this"
+          class="chip"
+          data-text="{{item}}"
+          bindtap="onPromptChip"
+        >{{item}}</view>
+      </view>
+
+      <view class="section-head">
+        <text class="section-title">生成设置</text>
+      </view>
+      <text class="field__label">视频分辨率</text>
+      <view class="chip-row chip-row--after-label">
+        <view
+          wx:for="{{resolutions}}"
+          wx:key="*this"
+          class="chip {{resolution === item ? 'chip--on' : ''}}"
+          data-text="{{item}}"
+          bindtap="onResolution"
+        >{{item}}</view>
+      </view>
+
+      <view class="btn btn--primary generate-btn" bindtap="onGenerate">生成视频</view>
+    </view>
+  </scroll-view>
+</page-shell>

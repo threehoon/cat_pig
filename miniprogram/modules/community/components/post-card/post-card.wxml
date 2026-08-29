@@ -1,0 +1,30 @@
+<view class="post-card card" bindtap="onTap">
+  <view class="post-card__head">
+    <view class="avatar avatar--sm">
+      <image class="avatar__img" src="{{avatar}}" mode="aspectFill" />
+    </view>
+    <view class="post-card__meta">
+      <text class="post-card__author">{{author}}</text>
+      <text class="post-card__sub">{{time}} · {{board}}</text>
+    </view>
+    <view wx:if="{{board}}" class="chip chip--ghost">{{board}}</view>
+  </view>
+  <text class="post-card__body">{{body}}</text>
+  <view wx:if="{{showMedia}}" class="post-card__media">
+    <view wx:for="{{covers}}" wx:key="*this" class="cover post-card__img">
+      <image class="cover__img" src="{{item}}" mode="aspectFill" />
+    </view>
+  </view>
+  <react-row
+    post-id="{{postId}}"
+    like-count="{{likeCount}}"
+    comment-count="{{commentCount}}"
+    favorite-count="{{favoriteCount}}"
+    liked="{{liked}}"
+    favorited="{{favorited}}"
+    interactive="{{true}}"
+    bind:like="onLike"
+    bind:favorite="onFavorite"
+    bind:reply="onReply"
+  />
+</view>

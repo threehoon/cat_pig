@@ -1,0 +1,24 @@
+<page-shell title="相册">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad page-pad--fab">
+      <empty-state
+        wx:if="{{albums.length === 0}}"
+        image="{{emptyAlbum}}"
+        title="还没有相册"
+        hint="拍一组毛孩子的照片，从这里开始"
+        action="去上传"
+        bind:action="onUpload"
+      />
+      <view wx:else class="album-grid">
+        <view wx:for="{{albums}}" wx:key="id" class="album-card card" data-id="{{item.id}}" bindtap="onOpen">
+          <view class="cover album-card__cover">
+            <image class="cover__img" src="{{item.cover_url}}" mode="aspectFill" />
+          </view>
+          <text class="album-card__title">{{item.title}}</text>
+          <text class="album-card__sub">{{item.image_urls.length}} 张</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+  <view class="fab" bindtap="onUpload">上传</view>
+</page-shell>

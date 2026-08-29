@@ -1,0 +1,37 @@
+page {
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.chip-row--ledger {
+  margin: 20rpx 0;
+}
+
+.ledger-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.ledger-gift {
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.ledger-time {
+  display: block;
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+  margin-top: 6rpx;
+}
+
+.ledger-plus {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.ledger-minus {
+  color: var(--color-text);
+  font-weight: 600;
+}

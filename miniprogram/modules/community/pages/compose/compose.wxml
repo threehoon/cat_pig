@@ -1,0 +1,60 @@
+<page-shell title="发布帖子" back="{{true}}">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <text class="field__label">选择板块</text>
+      <view class="chip-row chip-row--boards">
+        <view
+          wx:for="{{boards}}"
+          wx:key="id"
+          class="chip {{board === item.id ? 'chip--on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onBoard"
+        >{{item.label}}</view>
+      </view>
+
+      <view class="field">
+        <input class="field__input" placeholder="写个吸引人的标题" value="{{title}}" bindinput="onTitle" />
+      </view>
+      <view class="field">
+        <textarea
+          class="field__input prompt"
+          placeholder="分享毛孩子的故事，或聊聊养护经验"
+          maxlength="500"
+          value="{{body}}"
+          bindinput="onBody"
+        />
+      </view>
+
+      <view class="section-head">
+        <text class="section-title">话题</text>
+      </view>
+      <view class="chip-row">
+        <view
+          wx:for="{{topic_items}}"
+          wx:key="name"
+          class="chip {{item.on ? 'chip--on' : ''}}"
+          data-name="{{item.name}}"
+          bindtap="onTopic"
+        >{{item.name}}</view>
+      </view>
+
+      <view class="media-row">
+        <view
+          wx:for="{{image_urls}}"
+          wx:key="*this"
+          class="media-thumb"
+          data-index="{{index}}"
+          bindtap="onRemoveImage"
+        >
+          <image class="media-thumb__img" src="{{item}}" mode="aspectFill" />
+        </view>
+        <view wx:if="{{image_urls.length < 9}}" class="media-add" bindtap="onAddImage">+</view>
+      </view>
+
+      <view class="btn-row">
+        <view class="btn btn--ghost" bindtap="onDraft">保存草稿</view>
+        <view class="btn btn--primary" bindtap="onPublish">发布帖子</view>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

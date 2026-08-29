@@ -1,0 +1,40 @@
+<page-shell title="积分明细" back="{{true}}">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <view class="hint" wx:if="{{checkinHint}}">{{checkinHint}}</view>
+      <view class="stat-bar">
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{earned}}</view>
+          <view class="stat-bar__label">累计获取</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{spent}}</view>
+          <view class="stat-bar__label">累计消耗</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{balance}}</view>
+          <view class="stat-bar__label">当前积分</view>
+        </view>
+      </view>
+      <view class="chip-row chip-row--ledger">
+        <view
+          wx:for="{{filters}}"
+          wx:key="id"
+          class="chip {{filter === item.id ? 'chip--on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onFilter"
+        >{{item.label}}</view>
+      </view>
+      <view wx:for="{{rows}}" wx:key="id" class="row-link">
+        <view class="ledger-left">
+          <image class="ledger-gift" src="{{gift}}" mode="aspectFit" />
+          <view>
+            <text>{{item.title}}</text>
+            <text class="ledger-time">{{item.time}}</text>
+          </view>
+        </view>
+        <text class="{{item.earn ? 'ledger-plus' : 'ledger-minus'}}">{{item.delta}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

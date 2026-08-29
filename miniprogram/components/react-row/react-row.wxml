@@ -1,0 +1,38 @@
+<view class="react-row">
+  <view
+    class="react-row__item {{liked ? 'react-row__item--on' : ''}} {{popAction === 'like' ? 'react-row__item--pop' : ''}}"
+    data-action="like"
+    catchtap="onAction"
+  >
+    <image class="react-row__icon" src="{{liked ? likeIconOn : likeIcon}}" mode="aspectFit" />
+    <text class="react-row__label">点赞</text>
+    <text class="react-row__count">{{likeCount}}</text>
+  </view>
+  <view
+    class="react-row__item {{popAction === 'reply' ? 'react-row__item--pop' : ''}}"
+    data-action="reply"
+    catchtap="onAction"
+  >
+    <image class="react-row__icon" src="{{replyIcon}}" mode="aspectFit" />
+    <text class="react-row__label">回复</text>
+    <text class="react-row__count">{{commentCount}}</text>
+  </view>
+  <view
+    class="react-row__item {{favorited ? 'react-row__item--on' : ''}} {{popAction === 'favorite' ? 'react-row__item--pop' : ''}}"
+    data-action="favorite"
+    catchtap="onAction"
+  >
+    <image class="react-row__icon" src="{{favorited ? favoriteIconOn : favoriteIcon}}" mode="aspectFit" />
+    <text class="react-row__label">收藏</text>
+    <text class="react-row__count">{{favoriteCount}}</text>
+  </view>
+  <button
+    class="react-row__item react-row__share"
+    open-type="share"
+    data-id="{{postId}}"
+    hover-class="none"
+  >
+    <image class="react-row__icon" src="{{shareIcon}}" mode="aspectFit" />
+    <text class="react-row__label">转发</text>
+  </button>
+</view>

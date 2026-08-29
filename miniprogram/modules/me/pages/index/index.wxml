@@ -1,0 +1,30 @@
+<page-shell title="我的">
+  <scroll-view class="page-scroll" scroll-y>
+    <view class="page-pad">
+      <view class="card me-head">
+        <view class="avatar avatar--lg">
+          <image class="avatar__img" src="{{avatar}}" mode="aspectFill" />
+        </view>
+        <view class="me-meta">
+          <text class="me-name">{{nickname}}</text>
+          <text class="me-points">积分 {{points_balance}}</text>
+        </view>
+      </view>
+
+      <view class="card menu">
+        <view class="menu-row" bindtap="onMine">
+          <text>我的发布</text>
+          <text class="row-link__arrow">›</text>
+        </view>
+        <view class="menu-row" bindtap="onPoints">
+          <text>积分明细</text>
+          <text class="row-link__arrow">›</text>
+        </view>
+        <view class="menu-row menu-row--last" bindtap="onTasks">
+          <text>任务管理</text>
+          <text class="row-link__arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>
