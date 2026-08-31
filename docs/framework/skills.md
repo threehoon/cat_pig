@@ -1,6 +1,6 @@
 # 项目 Agent Skills
 
-本仓库给 Grok 用的 skill 装在 [`.grok/skills/`](../../.grok/skills/)。清单变更只改这一份文件。
+本仓库给 Grok 和 Codex 共用的 skill 装在 [`.grok/skills/`](../../.grok/skills/)。Codex 通过项目级 [`.agents/skills/`](../../.agents/skills/) 软链接读取同一份文件，清单变更只改这一份文件。
 
 开发本产品时先走 **`/app-pet`**。其它 skill 是它点名才加载的同伴，不是第二套规范。规范正文仍在 `docs/`，skill 只负责触发和约束输出形态。
 

@@ -31,7 +31,7 @@
 | 阶段 | F — 前端界面先行 |
 | 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具未点验） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-08-29 |
+| 最后更新 | 2026-08-31 |
 
 ## 阶段总览
 
@@ -65,6 +65,7 @@
 - 项目 skill 已装到 `.grok/skills/`：`app-pet`（本仓库路由）+ `frontend-design` + 微信官方 Skyline 七件套 + FastAPI 官方 + 筛选后的 mattpocock 工程 skill。清单见 `docs/framework/skills.md`。
 - 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。未在微信开发者工具里点过。
 - 阶段 F mock：各模块 `services/` + `types/` 已按 [api/contract.md](api/contract.md) 建好；`core/request` 在 `useMock: true` 时按 method+path 返回信封内 `data`；未命中仍 `MOCK_NOT_IMPLEMENTED`。页面改为只调本模块 service（相册/发帖/创作可调 `media`）。mock 种子：当前用户、两本相册、若干帖（含草稿）、一条视频任务、积分流水合计 180。发帖 `pending` 直接 `published` 并记 +20 积分。
+- 项目 skill 现在由 Grok 与 Codex 共用：实际内容位于 `.grok/skills/`，项目级 `.agents/skills/` 通过软链接指向同一目录；`.grok/skills/**` 已纳入版本控制。
 - 帖子互动改为点赞 / 评论 / 收藏 / 转发。点赞和收藏互相独立；评论区可连续发、可评论别人。删评论：本人只能删自己的，贴主可删该帖任意一条，不连带删别人的；删帖才清掉该帖全部评论。转发走微信分享。
 - 评论区补齐：点赞评论、三点菜单（复制 / 举报 / 有权限才删除）、配图（最多 9 张，列表最多露 3 张，超过叠放）、水彩贴纸资源可跟在正文后、语音评论、艾特。输入条：大圆角输入 + 相册 / @ / 表情 / 语音图标 + 发送。不做 AI 润色。艾特写入 `body` 的 `@昵称 `，评论列表里仅这段用主色；退格一次删掉整段。语音走 `audio_url` / `audio_duration`，按住说话松开发出。电脑端选图没有摄像头则退回相册；录音在电脑端可能失败。未在微信开发者工具里点验。
 
