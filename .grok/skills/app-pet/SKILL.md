@@ -14,8 +14,11 @@ Facts live in `docs/`. This skill is the **router**, not a second copy of the ru
 1. Read [AGENTS.md](../../../AGENTS.md) (hard rules + which doc to open).
 2. Read [docs/progress.md](../../../docs/progress.md) for the current phase. Do that phase's work; do not skip ahead.
 3. Open only the docs AGENTS.md names for this task.
+4. Writing, moving or splitting code? Also read [docs/framework/code-standards.md](../../../docs/framework/code-standards.md) — naming, module weight, thin dispatch layers, file ownership when several agents work in parallel, verification, handoff.
 
 Installed skill catalog: [docs/framework/skills.md](../../../docs/framework/skills.md).
+
+This skill is shared by Grok, Codex and Claude Code. The one real copy is `.grok/skills/`; Codex reads it through `.agents/skills`, Claude Code through a synced copy in `.claude/skills/`. Edit `.grok/skills/` only.
 
 ## Companion skills
 
@@ -54,6 +57,12 @@ Path and JSON fields: [docs/api/contract.md](../../../docs/api/contract.md) only
 Phase F (current until `progress.md` says otherwise): pages and visual are in; **this turn's work is `services/` + mock**. Do not create a runnable FastAPI app. Do not restyle unless the user asks.
 
 Phase 1+: `fastapi` skill + [docs/backend/README.md](../../../docs/backend/README.md). Same contract file. `router` → `service` → `repository`.
+
+## Verify and hand off
+
+No typecheck runs in this repo yet: `typescript` is not a dependency, and `npx --no-install tsc` hits the macOS TeX `tsc`. Pages can only be clicked through by a human in WeChat DevTools, opened on the **repo root**.
+
+So verification means: read `git diff`, check every path and field word-for-word against [docs/api/contract.md](../../../docs/api/contract.md), and walk the pre-commit checklist in [code-standards.md](../../../docs/framework/code-standards.md). Never write 已验证 for a check you did not run — write what you skipped and why. Hand off in the code-standards format: 范围 / 已改 / 契约 / 验证 / 风险 / 下一步.
 
 ## Names that collide
 

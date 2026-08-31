@@ -8,6 +8,10 @@ Thumbs.db
 .grok/*
 !.grok/skills/
 !.grok/skills/**
+# Claude Code：settings.local.json 是个人的；.claude/skills/ 是 .grok/skills/ 的生成副本，
+# 由 scripts/sync-claude-skills.sh 产生，不进版本控制。
+.claude/settings.local.json
+.claude/skills/
 .idea/
 .vscode/
 *.swp

@@ -6,10 +6,10 @@
 
 | 类型 | 作用 | 目录 |
 |---|---|---|
-| 入口 / 路由 | 告诉 Agent 读哪份 | `/AGENTS.md` |
+| 入口 / 路由 | 告诉 Agent 读哪份 | `/AGENTS.md`、`/CLAUDE.md` |
 | 进度 | 现在做到哪、下一步、决策日志 | `progress.md` |
 | 产品 | 对标、定位、能力优先级 | `product/` |
-| 框架与规范 | 技术栈、目录、模块边界、增模块流程 | `framework/`、`backend/`、`miniprogram/` |
+| 框架与规范 | 技术栈、目录、模块边界、增模块流程、代码与协作规范 | `framework/`、`backend/`、`miniprogram/` |
 | 对接 | 环境、登录、API 形态、前后端各管什么 | `handoff.md` |
 | 设计记录 | 选型过程与为什么，不指导日常改代码 | `superpowers/specs/` |
 
@@ -18,6 +18,7 @@
 | 文档 | 给谁用 | 内容 |
 |---|---|---|
 | [AGENTS.md](../AGENTS.md) | Agent 必读入口 | 路由表、硬规则摘要、如何登记新文档 |
+| [CLAUDE.md](../CLAUDE.md) | Claude Code 自动加载 | 只写 Claude 专属机制：skill 同步、工具与并行约定、当前能跑的检查；规则仍看 AGENTS.md |
 | [progress.md](progress.md) | 人 + Agent | 项目进度、阶段、下一步、如何更新进度 |
 | [product/README.md](product/README.md) | 人 + Agent | 产品文档目录 |
 | [product/positioning.md](product/positioning.md) | 产品 | 定位、对标「萌爪日记」同类 |
@@ -28,6 +29,7 @@
 | [api/contract.md](api/contract.md) | 前端 mock + 后端 API | **路径和字段的唯一合同** |
 | [framework/overview.md](framework/overview.md) | 结构 | 仓库骨架、内核 vs 模块、依赖方向 |
 | [framework/stack.md](framework/stack.md) | 选型 | 锁定的技术栈与明确不做的 |
+| [framework/code-standards.md](framework/code-standards.md) | Agent + 开发 | 命名、模块轻量化、分层、测试、验证、并行交接 |
 | [framework/modules.md](framework/modules.md) | 边界 | 变更半径、模块契约、禁止事项 |
 | [framework/adding-a-module.md](framework/adding-a-module.md) | 开工清单 | 新增功能的唯一步骤 |
 | [framework/skills.md](framework/skills.md) | Agent 开发 | 已安装的 skill、怎么调用、重名说明 |

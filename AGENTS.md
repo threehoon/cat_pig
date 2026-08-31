@@ -4,6 +4,8 @@
 
 不要把长规范写进本文件。新约定写到 `docs/` 下独立文档，并同时在本文件的路由表和 `docs/README.md` 登记。没有登记的文档，视为不存在。
 
+Grok、Codex、Claude Code 共用本文件和 `docs/`，不各写一套。Claude Code 会自动加载根目录 [CLAUDE.md](CLAUDE.md)，那份文件只写 Claude 专属机制（skill 同步、工具与并行约定、当前能跑什么检查），规则仍以本文件为准。
+
 ## 项目是什么
 
 单仓项目：微信**原生**小程序（TypeScript + Sass）+ **FastAPI**（Python）+ **PostgreSQL**。
@@ -24,6 +26,7 @@
 | 加功能、拆模块、判断代码放哪 | [docs/framework/modules.md](docs/framework/modules.md) |
 | **新建一个功能模块**（唯一合法流程） | [docs/framework/adding-a-module.md](docs/framework/adding-a-module.md) |
 | 查技术栈（语言、库、明确不做的） | [docs/framework/stack.md](docs/framework/stack.md) |
+| **写/改代码、拆模块、改调度层、或与其它 agent 协同开发** | [docs/framework/code-standards.md](docs/framework/code-standards.md)（命名、模块重量、薄调度层、验证、交接） |
 | 写或改后端 | [docs/backend/README.md](docs/backend/README.md) |
 | 写或改小程序 | [docs/miniprogram/README.md](docs/miniprogram/README.md) |
 | **写/改任何接口、mock、FastAPI schema** | [docs/api/contract.md](docs/api/contract.md)（路径和字段的唯一依据） |
@@ -34,6 +37,7 @@
 | 查「为什么改成广场/视频」 | [docs/superpowers/specs/2026-08-24-product-community-pivot.md](docs/superpowers/specs/2026-08-24-product-community-pivot.md) |
 | 搭小程序空壳（tab / page-shell / core 签名） | [docs/superpowers/specs/2026-08-24-miniprogram-shell-design.md](docs/superpowers/specs/2026-08-24-miniprogram-shell-design.md)、[docs/handoff.md](docs/handoff.md)、[docs/miniprogram/README.md](docs/miniprogram/README.md) |
 | **按项目 skill 开发** / 查已装哪些 skill | `/app-pet`，清单 [docs/framework/skills.md](docs/framework/skills.md) |
+| 用 Claude Code 开发（skill 怎么同步、工具与并行约定、能跑什么检查） | [CLAUDE.md](CLAUDE.md) |
 
 一次任务只加载上表里需要的文档，不要把 `docs/` 全部塞进上下文。
 
