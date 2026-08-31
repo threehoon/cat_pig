@@ -1,6 +1,5 @@
 import { applyMentionDelete, insertMention } from '../../mentions'
 import { CommentWrite } from '../../types/post'
-import { uploadCommentImages } from './detail-media'
 
 export type ComposerState = {
   id: string
@@ -172,8 +171,4 @@ export function commentPayload(state: ComposerState): CommentWrite | null {
     audio_url: null,
     audio_duration: 0,
   }
-}
-
-export function uploadImages(limit: number): Promise<string[]> {
-  return uploadCommentImages(limit)
 }

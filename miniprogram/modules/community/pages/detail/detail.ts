@@ -40,8 +40,8 @@ import {
   toggleEmojiPatch,
   toggleMentionPatch,
   toggleVoicePatch,
-  uploadImages,
 } from './comment-composer'
+import { uploadCommentImages } from './detail-media'
 
 let blurTimer: ReturnType<typeof setTimeout> | 0 = 0
 
@@ -213,12 +213,7 @@ Page({
     const next = e.detail.value
     const cursor = typeof e.detail.cursor === 'number' ? e.detail.cursor : next.length
     const patched = inputBodyValue(this.data.commentBody, next, cursor, this.mentionNames())
-    this.setData(setBodyPatch(patched.value, patched.cursor), () => {
-      if (patched.cursor !== undefined) {
-        this.setData({ composerCursor: -1 })
-      }
-      this.syncComposer()
-    })
+    this.setCommentBody(patched.value, patched.cursor)
   },
   onToggleEmoji() {
     this.clearBlurTimer()
@@ -257,7 +252,7 @@ Page({
     })
   },
   onPlayComment(e: WechatMiniprogram.CustomEvent<{ id: string; url: string }>) {
-    playComment(this.data, e, (comments) => this.setData({ comments }))
+    playComment(() => this.data.comments, e, (comments) => this.setData({ comments }))
   },
   onPickEmoji(e: WechatMiniprogram.TouchEvent) {
     const result = appendEmoji(this.data.commentBody, e.currentTarget.dataset.emoji as string)
@@ -273,7 +268,7 @@ Page({
       return
     }
     this.setData({ emojiOpen: false, mentionOpen: false, voiceMode: false })
-    uploadImages(remain)
+    uploadCommentImages(remain)
       .then((urls) => {
         if (urls.length) {
           this.setData({ draftImages: this.data.draftImages.concat(urls) }, () => this.syncComposer())
@@ -320,7 +315,7 @@ Page({
       })
   },
   onLikeComment(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
-    likeCommentAction(this.data.id, this.data.comments, e, (comments) => {
+    likeCommentAction(this.data.id, () => this.data.comments, e, (comments) => {
       this.setData({ comments })
     })
   },
@@ -328,8 +323,9 @@ Page({
     previewCommentAction(e)
   },
   onMoreComment(e: WechatMiniprogram.CustomEvent<{ id: string; canDelete: boolean; isOwn: boolean; body: string }>) {
-    moreCommentAction(this.data.id, this.data.post, e, {
-      setData: (data) => this.setData(data),
+    moreCommentAction(this.data.id, e, {
+      getPost: () => this.data.post,
+      setPost: (post) => this.setData({ post }),
       reload: () => this.reload(),
     })
   },

@@ -5,14 +5,15 @@ import { uploadCommentVoice } from './detail-media'
 
 export type VoiceState = {
   id: string
-  comments: CommentView[]
   voiceMode: boolean
   recording: boolean
   sending: boolean
   replyParentId: string
 }
 
-type SetData = (data: Record<string, unknown>) => void
+type VoicePatch = { recording?: boolean; sending?: boolean }
+
+type SetData = (patch: VoicePatch) => void
 
 type VoiceCallbacks = {
   setData: SetData
@@ -20,8 +21,14 @@ type VoiceCallbacks = {
   reload: () => void
 }
 
+type PlaybackSink = {
+  getComments: () => CommentView[]
+  setComments: (comments: CommentView[]) => void
+}
+
 let recorder: WechatMiniprogram.RecorderManager | null = null
 let audioPlayer: WechatMiniprogram.InnerAudioContext | null = null
+let playbackSink: PlaybackSink | null = null
 let holdingVoice = false
 
 export function ensureRecorder() {
@@ -153,7 +160,7 @@ export function handleRecordStop(
 }
 
 export function playComment(
-  state: Pick<VoiceState, 'comments'>,
+  getComments: () => CommentView[],
   event: WechatMiniprogram.CustomEvent<{ id: string; url: string }>,
   setComments: (comments: CommentView[]) => void,
 ) {
@@ -162,6 +169,9 @@ export function playComment(
   if (!url) {
     return
   }
+
+  playbackSink = { getComments, setComments }
+  const comments = getComments()
 
   let already = false
   const scan = (list: CommentView[]) => {
@@ -172,39 +182,34 @@ export function playComment(
       scan(item.replies)
     })
   }
-  scan(state.comments)
+  scan(comments)
 
   if (!audioPlayer) {
     audioPlayer = wx.createInnerAudioContext()
-    audioPlayer.onEnded(() => updateCurrentComments())
+    audioPlayer.onEnded(() => clearPlaying())
     audioPlayer.onError(() => {
       wx.showToast({ title: '语音无法播放', icon: 'none' })
-      updateCurrentComments()
+      clearPlaying()
     })
   }
 
   if (already) {
     audioPlayer.stop()
-    setComments(patchPlaying(state.comments, ''))
+    setComments(patchPlaying(comments, ''))
     return
   }
 
   audioPlayer.stop()
   audioPlayer.src = url
   audioPlayer.play()
-  setComments(patchPlaying(state.comments, id))
+  setComments(patchPlaying(comments, id))
 }
 
-function updateCurrentComments() {
-  const pages = getCurrentPages()
-  const current = pages[pages.length - 1] as {
-    data?: { comments?: CommentView[] }
-    setData?: SetData
+function clearPlaying() {
+  if (!playbackSink) {
+    return
   }
-  const comments = current && current.data && current.data.comments
-  if (current && current.setData && comments) {
-    current.setData({ comments: patchPlaying(comments, '') })
-  }
+  playbackSink.setComments(patchPlaying(playbackSink.getComments(), ''))
 }
 
 export function disposeVoice() {
@@ -221,4 +226,5 @@ export function disposeVoice() {
     audioPlayer.destroy()
     audioPlayer = null
   }
+  playbackSink = null
 }

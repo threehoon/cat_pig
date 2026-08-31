@@ -3,10 +3,9 @@ import { deleteComment, likeComment, reportComment } from '../../services/commun
 import { CommentReportReason, Post } from '../../types/post'
 import { CommentView, patchCommentLike } from './detail-view'
 
-type SetData = (data: Record<string, unknown>) => void
-
 type ActionCallbacks = {
-  setData: SetData
+  getPost: () => Post | null
+  setPost: (post: Post | null) => void
   reload: () => void
 }
 
@@ -19,7 +18,7 @@ const REPORT_OPTIONS: { label: string; reason: CommentReportReason }[] = [
 
 export function likeCommentAction(
   postId: string,
-  comments: CommentView[],
+  getComments: () => CommentView[],
   event: WechatMiniprogram.CustomEvent<{ id: string }>,
   setComments: (comments: CommentView[]) => void,
 ) {
@@ -30,7 +29,7 @@ export function likeCommentAction(
 
   likeComment(postId, commentId)
     .then((comment) => {
-      setComments(patchCommentLike(comments, comment.id, comment.liked, comment.like_count))
+      setComments(patchCommentLike(getComments(), comment.id, comment.liked, comment.like_count))
     })
     .catch(toastRequestError)
 }
@@ -45,7 +44,6 @@ export function previewCommentAction(event: WechatMiniprogram.CustomEvent<{ urls
 
 export function moreCommentAction(
   postId: string,
-  post: Post | null,
   event: WechatMiniprogram.CustomEvent<{
     id: string
     canDelete: boolean
@@ -72,7 +70,7 @@ export function moreCommentAction(
       } else if (label === '举报') {
         reportCommentAction(postId, detail.id)
       } else if (label === '删除') {
-        deleteCommentAction(postId, post, detail.id, callbacks)
+        deleteCommentAction(postId, detail.id, callbacks)
       }
     },
   })
@@ -97,7 +95,7 @@ function reportCommentAction(postId: string, commentId: string) {
   })
 }
 
-function deleteCommentAction(postId: string, post: Post | null, commentId: string, callbacks: ActionCallbacks) {
+function deleteCommentAction(postId: string, commentId: string, callbacks: ActionCallbacks) {
   if (!commentId || !postId) {
     return
   }
@@ -111,8 +109,8 @@ function deleteCommentAction(postId: string, post: Post | null, commentId: strin
       }
       deleteComment(postId, commentId)
         .then((result) => {
-          const nextPost = post ? { ...post, comment_count: result.comment_count } : post
-          callbacks.setData({ post: nextPost })
+          const post = callbacks.getPost()
+          callbacks.setPost(post ? { ...post, comment_count: result.comment_count } : post)
           callbacks.reload()
         })
         .catch(toastRequestError)

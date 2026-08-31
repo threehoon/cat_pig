@@ -67,6 +67,7 @@
 - 阶段 F mock：各模块 `services/` + `types/` 已按 [api/contract.md](api/contract.md) 建好；`core/request` 在 `useMock: true` 时按 method+path 返回信封内 `data`；未命中仍 `MOCK_NOT_IMPLEMENTED`。页面改为只调本模块 service（相册/发帖/创作可调 `media`）。mock 种子：当前用户、两本相册、若干帖（含草稿）、一条视频任务、积分流水合计 180。发帖 `pending` 直接 `published` 并记 +20 积分。
 - 模块轻量化重构：`core/mock.ts` 收敛为 36 行的 adapter 注册/匹配入口；业务 mock handlers 下沉到各模块 `services/mock.ts`，共享无业务运行时工具位于 `core/mock-runtime.ts`。`community` 详情页拆为 245 行编排页，并将评论视图、评论动作、输入编排、媒体上传、录音播放分别移至页面专用 helper；页面路径、事件名、service/API 行为保持不变。
 - 详情页拆分收尾：安装 TypeScript 5.6 并加入 `npm run typecheck`，启用 `skipLibCheck`；页面对象已回到 `detail.ts` 的 `Page({ ... })`，删除 `detail-page.ts`；录音器回调改为单例注册并通过当前页回写；评论 composer、voice、actions helper 改为明确 state + patch/callback 接口；本次拆分文件已恢复单行 120 字符以内的可读格式。
+- 详情页解耦收尾（第二轮）：`onLikeComment` / `onMoreComment` 改传 getter，`comments` / `post` 在异步响应回来时才读，消除「发请求前快照、响应回来时已过期」导致的覆盖；语音播完清 `playing` 的回写改为模块内 `playbackSink`，不再用 `getCurrentPages()` 猜栈顶页（原写法在详情页 `navigateTo` 进 compose 页后写不回详情页）；删掉 `comment-composer.ts` 里转发用的空壳 `uploadImages`，`onCommentInput` 复用 `setCommentBody`；`detail-voice.ts` / `comment-actions.ts` 的回调类型由 `Record<string, unknown>` 收紧为具体字段。`detail.ts` 367 行超参考线，属已知例外，见决策日志。
 - 项目 skill 现在由 Grok 与 Codex 共用：实际内容位于 `.grok/skills/`，项目级 `.agents/skills/` 通过软链接指向同一目录；`.grok/skills/**` 已纳入版本控制。
 - Claude Code 接入同一套 skill 与规范：新增根目录 `CLAUDE.md` 作为 Claude 会话入口（只写路由与 Claude 专属机制，规则仍在 `AGENTS.md`）；`scripts/sync-claude-skills.sh` 把 `.grok/skills/` 同步成 `.claude/skills/` 真实目录（生成产物，已 gitignore，改动只改 `.grok/skills/`），不用软链接是因为 Claude Code 会对软链接 skill 目录报 `Unknown skill`；`.claude/settings.json` 只放 git 只读命令与同步脚本的白名单。`AGENTS.md`、`docs/README.md`、`docs/framework/skills.md` 已登记，`app-pet` skill 补上 code-standards 入口与验证/交接要求。
 - 代码规范与多 Agent 协作规范已落地：`docs/framework/code-standards.md` 统一约束命名、分层、业务拆分、文件重量、薄调度层、API 兼容、并行所有权、验证和交接；明确 `community` 详情页与 `core/mock.ts` 的现有超限债务，后续新增业务不得继续堆入调度入口；根目录 `AGENTS.md` 与 `docs/README.md` 已登记入口。
@@ -75,7 +76,7 @@
 
 ## 进行中
 
-- 阶段 F：页面、services、mock、帖子评论区（含点赞 / 举报 / 配图 / 语音 / 艾特）已接；详情页拆分收尾已完成，`npm run typecheck`、长行检查和 `git diff --check` 已通过。微信开发者工具主路径和录音连续进出回归仍未点验。
+- 阶段 F：页面、services、mock、帖子评论区（含点赞 / 举报 / 配图 / 语音 / 艾特）已接；详情页的拆分与解耦收尾已完成，`npm run typecheck` 0 错误、长行检查只剩 `pages/index/index.ts` / `plaza.ts` / `navigation-bar.ts` 三个既有文件、`git diff --check` 通过、`detail.wxml` 的 25 个事件处理器已逐个核对仍存在；本轮差异已完成规范与需求双轴审查，未发现问题。微信开发者工具全部未点验：主路径、录音连续进出三次只弹 1 个 toast、语音播放中途跳 compose 页再返回播放态是否清掉，这三条都要人工点。
 
 ## 下一步（给新对话，按此顺序）
 
@@ -118,6 +119,8 @@
 | 2026-08-31 | 增加代码规范与多 Agent 交接规范 | 让并行开发遵守同一套模块边界、文件重量和验证标准，降低维护与迭代成本 |
 | 2026-08-31 | Claude Code 与 Grok / Codex 共用同一份 skill 和规范 | 三个 CLI 一份规范，避免各写一套；Claude 侧用同步脚本而不是软链接，软链接会让 `/app-pet` 报 `Unknown skill` |
 | 2026-09-01 | 详情页 helper 只接收 state 与回调，页面对象回到 `Page({ ... })` | 恢复微信 `this` 类型上下文，避免页面实例跨 helper 传播；录音器保留全局单例注册，避免重复回调 |
+| 2026-09-01 | `detail.ts` 367 行列为已知例外，不再拆；参考线该按页面目录算 | 页面对象必须留在 `Page({ ... })` 里才有 `this` 类型，拆成 `xxx-page.ts` 只是绕行数参考线并丢掉类型安全。detail 目录合计 1029 行，要改的是「按单个文件名算」这条规则本身 |
+| 2026-09-01 | helper 需要页面 state 时传 getter，不传快照 | 快照在异步响应回来时可能已过期，会把 reload 之前的旧列表整个写回去；getter 只暴露一个字段、调用时求值，不等于把 page 实例传回 helper |
 
 ## 未决（不阻塞阶段 F）
 
