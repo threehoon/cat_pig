@@ -8,7 +8,9 @@ import { videoMockRoutes } from '../modules/video/services/mock'
 import { isMockError, matchPath, type MockOptions, type MockRoute } from './mock-runtime'
 
 export type { MockOptions }
-export type MockResult = { data: unknown; error?: undefined } | { data?: undefined; error: { code: string; message: string } }
+export type MockResult =
+  | { data: unknown; error?: undefined }
+  | { data?: undefined; error: { code: string; message: string } }
 
 const routes: MockRoute[] = [
   ...authMockRoutes,

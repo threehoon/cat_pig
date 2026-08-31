@@ -31,7 +31,7 @@
 | 阶段 | F — 前端界面先行 |
 | 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具未点验） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-08-31 |
+| 最后更新 | 2026-09-01 |
 
 ## 阶段总览
 
@@ -66,6 +66,7 @@
 - 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。未在微信开发者工具里点过。
 - 阶段 F mock：各模块 `services/` + `types/` 已按 [api/contract.md](api/contract.md) 建好；`core/request` 在 `useMock: true` 时按 method+path 返回信封内 `data`；未命中仍 `MOCK_NOT_IMPLEMENTED`。页面改为只调本模块 service（相册/发帖/创作可调 `media`）。mock 种子：当前用户、两本相册、若干帖（含草稿）、一条视频任务、积分流水合计 180。发帖 `pending` 直接 `published` 并记 +20 积分。
 - 模块轻量化重构：`core/mock.ts` 收敛为 36 行的 adapter 注册/匹配入口；业务 mock handlers 下沉到各模块 `services/mock.ts`，共享无业务运行时工具位于 `core/mock-runtime.ts`。`community` 详情页拆为 245 行编排页，并将评论视图、评论动作、输入编排、媒体上传、录音播放分别移至页面专用 helper；页面路径、事件名、service/API 行为保持不变。
+- 详情页拆分收尾：安装 TypeScript 5.6 并加入 `npm run typecheck`，启用 `skipLibCheck`；页面对象已回到 `detail.ts` 的 `Page({ ... })`，删除 `detail-page.ts`；录音器回调改为单例注册并通过当前页回写；评论 composer、voice、actions helper 改为明确 state + patch/callback 接口；本次拆分文件已恢复单行 120 字符以内的可读格式。
 - 项目 skill 现在由 Grok 与 Codex 共用：实际内容位于 `.grok/skills/`，项目级 `.agents/skills/` 通过软链接指向同一目录；`.grok/skills/**` 已纳入版本控制。
 - Claude Code 接入同一套 skill 与规范：新增根目录 `CLAUDE.md` 作为 Claude 会话入口（只写路由与 Claude 专属机制，规则仍在 `AGENTS.md`）；`scripts/sync-claude-skills.sh` 把 `.grok/skills/` 同步成 `.claude/skills/` 真实目录（生成产物，已 gitignore，改动只改 `.grok/skills/`），不用软链接是因为 Claude Code 会对软链接 skill 目录报 `Unknown skill`；`.claude/settings.json` 只放 git 只读命令与同步脚本的白名单。`AGENTS.md`、`docs/README.md`、`docs/framework/skills.md` 已登记，`app-pet` skill 补上 code-standards 入口与验证/交接要求。
 - 代码规范与多 Agent 协作规范已落地：`docs/framework/code-standards.md` 统一约束命名、分层、业务拆分、文件重量、薄调度层、API 兼容、并行所有权、验证和交接；明确 `community` 详情页与 `core/mock.ts` 的现有超限债务，后续新增业务不得继续堆入调度入口；根目录 `AGENTS.md` 与 `docs/README.md` 已登记入口。
@@ -74,7 +75,7 @@
 
 ## 进行中
 
-- 阶段 F：页面、services、mock、帖子评论区（含点赞 / 举报 / 配图 / 语音 / 艾特）已接；mock 与详情页已完成首轮轻量化拆分。未在微信开发者工具里点验，TypeScript 检查因仓库未安装 `tsc` 且环境无法访问 npm 未能运行。
+- 阶段 F：页面、services、mock、帖子评论区（含点赞 / 举报 / 配图 / 语音 / 艾特）已接；详情页拆分收尾已完成，`npm run typecheck`、长行检查和 `git diff --check` 已通过。微信开发者工具主路径和录音连续进出回归仍未点验。
 
 ## 下一步（给新对话，按此顺序）
 
@@ -116,6 +117,7 @@
 | 2026-08-29 | 实现先保证手机，电脑能点能发即可 | 不为电脑另做布局；选图无摄像头退回相册；录音在电脑端可不支持 |
 | 2026-08-31 | 增加代码规范与多 Agent 交接规范 | 让并行开发遵守同一套模块边界、文件重量和验证标准，降低维护与迭代成本 |
 | 2026-08-31 | Claude Code 与 Grok / Codex 共用同一份 skill 和规范 | 三个 CLI 一份规范，避免各写一套；Claude 侧用同步脚本而不是软链接，软链接会让 `/app-pet` 报 `Unknown skill` |
+| 2026-09-01 | 详情页 helper 只接收 state 与回调，页面对象回到 `Page({ ... })` | 恢复微信 `this` 类型上下文，避免页面实例跨 helper 传播；录音器保留全局单例注册，避免重复回调 |
 
 ## 未决（不阻塞阶段 F）
 
