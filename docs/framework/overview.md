@@ -14,12 +14,15 @@ app_pet/
     app.ts / app.json / app.scss
     styles/                     # 视觉 token + 跨页 primitives（见 miniprogram/visual.md）
     assets/                     # brand / icon / tab / mock；路径表 paths.ts
-    core/                       # 小程序内核（请求、登录、配置、存储）
-    modules/                    # 业务模块（按功能增删）
+    core/                       # config, request, auth, session, storage, mock.ts, mock-runtime.ts
+    mocks/store.ts              # mock 种子组合，不是业务模块
+    modules/<feature>/          # 业务模块（按功能增删）
+      pages/ components/ services/ types/
+      services/mock.ts          # 该模块 mock handlers
     components/                 # 跨模块通用 UI
     pages/                      # 仅保留微信模板残留页，新页面不放这里
     utils/                      # 只放纯函数；不准放请求和业务
-  server/
+  server/                       # 阶段 1 前只有 README，防止写错位置
     app/
       main.py                   # 组装应用、发现模块；无业务 if
       core/                     # 后端内核（配置、DB、JWT、异常、分页）
@@ -30,7 +33,7 @@ app_pet/
   docker-compose.yml            # 本地 Postgres（阶段 1 添加）
 ```
 
-`server/` 的 Python 包与 Compose 在阶段 1 创建。现在 `server/app/core` 与 `server/app/modules` 只有说明文件，防止业务被写到错误位置。
+`server/` 的 Python 包与 Compose 在阶段 1 创建。现在 `server/app/core` 与 `server/app/modules` 只有说明文件。
 
 ## 内核 vs 模块
 
@@ -38,8 +41,8 @@ app_pet/
 |---|---|---|
 | 何时改 | 登录协议、请求封装、数据库连接、错误码这类跨功能基础设施 | 某个产品能力 |
 | 频率 | 很少 | 每个新功能一次 |
-| 例子 | JWT 校验、分页参数、请求封装 | 已锁定：`auth` `me` `media` `album` `community` `video` `points` |
-| 禁止 | 写具体业务表名、页面文案、功能路径 | 复制一套 request / 再造一套 JWT |
+| 例子 | JWT 校验、分页参数、请求封装、无产品名词的 mock 运行时 | 英文名见 [handoff.md](../handoff.md) |
+| 禁止 | 写具体业务表名、页面文案、功能路径、相册/帖子/流水规则 | 复制一套 request / 再造一套 JWT |
 
 判断：已经被**两个**模块用到的，才允许抽到内核。禁止预抽「以后可能通用」。
 
@@ -48,11 +51,12 @@ app_pet/
 ```text
 小程序 pages/组件  →  本模块 services  →  miniprogram/core/request
                                               ↓
-                                      FastAPI /api/v1/<feature>
+                         useMock: handleMock（core/mock.ts → 模块 mock.ts）
+                         否则: wx.request → FastAPI /api/v1/<feature>
                                               ↓
                          该模块 router → service → repository → 本模块表
 
-core  ←  任何模块可用
+core 不含相册 / 帖子 / 积分流水规则
 模块 A  ↛  模块 B 的 models / repository / 私有组件
 ```
 

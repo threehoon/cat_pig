@@ -19,7 +19,7 @@
 |---|---|---|
 | [AGENTS.md](../AGENTS.md) | Agent 必读入口 | 路由表、硬规则摘要、如何登记新文档 |
 | [CLAUDE.md](../CLAUDE.md) | Claude Code 自动加载 | 只写 Claude 专属机制：skill 同步、工具与并行约定、当前能跑的检查；规则仍看 AGENTS.md |
-| [progress.md](progress.md) | 人 + Agent | 项目进度、阶段、下一步、如何更新进度 |
+| [progress.md](progress.md) | 人 + Agent | 项目进度、阶段、下一步、已知风险 |
 | [product/README.md](product/README.md) | 人 + Agent | 产品文档目录 |
 | [product/positioning.md](product/positioning.md) | 产品 | 定位、对标「萌爪日记」同类 |
 | [product/benchmark.md](product/benchmark.md) | 产品 | 与对标产品的功能逐条对照 |

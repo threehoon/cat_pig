@@ -1,4 +1,5 @@
-import { bodyOf, copy, type MockRoute, store } from '../../../core/mock-runtime'
+import { bodyOf, copy, type MockRoute } from '../../../core/mock-runtime'
+import { store } from '../../../mocks/store'
 
 export const meMockRoutes: MockRoute[] = [
   { method: 'GET', pattern: '/api/v1/me', handle: () => copy(store.me) },

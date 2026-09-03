@@ -1,21 +1,25 @@
 import {
-  addLedger,
   asStringArray,
   bodyOf,
   copy,
   fail,
-  findVideo,
   newId,
   nowIso,
   paginate,
   queryValue,
-  RESOLUTIONS,
   sortByCreated,
   todayDate,
   type MockRoute,
-  store,
 } from '../../../core/mock-runtime'
-import type { MockVideo } from '../../../core/mock-store'
+import { store, type MockVideo } from '../../../mocks/store'
+import { addLedger } from '../../points/services/mock-ledger'
+import { VIDEO_RESOLUTIONS } from '../types/video'
+
+function findVideo(id: string): MockVideo {
+  const video = store.videos.find((item) => item.id === id)
+  if (!video) fail('NOT_FOUND', '任务不存在')
+  return video
+}
 
 export const videoMockRoutes: MockRoute[] = [
   {
@@ -39,7 +43,7 @@ export const videoMockRoutes: MockRoute[] = [
       const resolution = String(data.resolution || '')
       if (image_urls.length < 2 || image_urls.length > 9) fail('VALIDATION', '请选择 2–9 张照片')
       if (prompt.length > 100) fail('VALIDATION', '提示词最多 100 字')
-      if ((RESOLUTIONS as readonly string[]).indexOf(resolution) === -1) fail('VALIDATION', '分辨率不正确')
+      if ((VIDEO_RESOLUTIONS as readonly string[]).indexOf(resolution) === -1) fail('VALIDATION', '分辨率不正确')
       addLedger('spend', 50, '图生视频')
       const video: MockVideo = {
         id: newId(),

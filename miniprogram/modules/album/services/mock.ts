@@ -1,39 +1,21 @@
 import {
+  asStringArray,
   bodyOf,
   copy,
-  currentAuthor,
   fail,
-  findAlbum,
   newId,
   nowIso,
   paginate,
-  publishPost,
   sortByCreated,
-  asStringArray,
   type MockRoute,
-  store,
 } from '../../../core/mock-runtime'
-import type { MockAlbum, MockPost } from '../../../core/mock-store'
+import { store, type MockAlbum } from '../../../mocks/store'
+import { syncAlbumToForum } from '../../community/services/mock-helpers'
 
-function createShowPost(album: MockAlbum) {
-  const post = {
-    id: newId(),
-    author: currentAuthor(),
-    board: 'show',
-    title: album.title,
-    body: album.body,
-    image_urls: album.image_urls.slice(),
-    topic_names: album.tag_names.slice(),
-    status: 'draft',
-    like_count: 0,
-    comment_count: 0,
-    favorite_count: 0,
-    liked: false,
-    favorited: false,
-    created_at: album.created_at,
-  } as MockPost
-  publishPost(post)
-  store.posts.unshift(post)
+function findAlbum(id: string): MockAlbum {
+  const album = store.albums.find((item) => item.id === id)
+  if (!album) fail('NOT_FOUND', '相册不存在')
+  return album
 }
 
 export const albumMockRoutes: MockRoute[] = [
@@ -64,7 +46,7 @@ export const albumMockRoutes: MockRoute[] = [
         created_at: nowIso(),
       }
       store.albums.unshift(album)
-      if (album.sync_to_forum) createShowPost(album)
+      if (album.sync_to_forum) syncAlbumToForum(album)
       return copy(album)
     },
   },

@@ -29,9 +29,9 @@
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具未点验） |
+| 状态 | 进行中（页面 / services / mock / 评论区已接；mock 已迁出 core；`renderer: skyline`；开发者工具未点验） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-09-01 |
+| 最后更新 | 2026-09-03 |
 
 ## 阶段总览
 
@@ -60,7 +60,7 @@
 - 模块英文名锁定：`auth` / `me` / `media` / `album` / `community` / `video` / `points`。
 - 对接文档、API 合同已按新产品重写。
 - 对标截图放入 `docs/product/reference/`（只对照，不进小程序包）。handoff 已锁定枚举中文、media 调用例外、mock 发帖直接 published。
-- 小程序空壳：`core` 四文件（`useMock: true`，无业务 mock）、`components/page-shell`、五个 tab、原生 tabBar 线框图标。`app.json` 首页为 `modules/community/pages/home/home`。
+- 小程序内核与空壳：`core`（`useMock: true`，请求 / 登录 / 存储 / mock 运行时）、`components/page-shell`、五个 tab、原生 tabBar 图标。`app.json` 首页为 `modules/community/pages/home/home`。
 - 五个 tab 画出可辨认界面（首页入口+动态、相册卡、创作表单、论坛分栏、我的入口）；二级页可跳：上传、发帖、详情、我的发布、积分明细、任务管理、任务详情。
 - 项目 skill 已装到 `.grok/skills/`：`app-pet`（本仓库路由）+ `frontend-design` + 微信官方 Skyline 七件套 + FastAPI 官方 + 筛选后的 mattpocock 工程 skill。清单见 `docs/framework/skills.md`。
 - 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。未在微信开发者工具里点过。
@@ -70,19 +70,34 @@
 - 详情页解耦收尾（第二轮）：`onLikeComment` / `onMoreComment` 改传 getter，`comments` / `post` 在异步响应回来时才读，消除「发请求前快照、响应回来时已过期」导致的覆盖；语音播完清 `playing` 的回写改为模块内 `playbackSink`，不再用 `getCurrentPages()` 猜栈顶页（原写法在详情页 `navigateTo` 进 compose 页后写不回详情页）；删掉 `comment-composer.ts` 里转发用的空壳 `uploadImages`，`onCommentInput` 复用 `setCommentBody`；`detail-voice.ts` / `comment-actions.ts` 的回调类型由 `Record<string, unknown>` 收紧为具体字段。`detail.ts` 367 行超参考线，属已知例外，见决策日志。
 - 项目 skill 现在由 Grok 与 Codex 共用：实际内容位于 `.grok/skills/`，项目级 `.agents/skills/` 通过软链接指向同一目录；`.grok/skills/**` 已纳入版本控制。
 - Claude Code 接入同一套 skill 与规范：新增根目录 `CLAUDE.md` 作为 Claude 会话入口（只写路由与 Claude 专属机制，规则仍在 `AGENTS.md`）；`scripts/sync-claude-skills.sh` 把 `.grok/skills/` 同步成 `.claude/skills/` 真实目录（生成产物，已 gitignore，改动只改 `.grok/skills/`），不用软链接是因为 Claude Code 会对软链接 skill 目录报 `Unknown skill`；`.claude/settings.json` 只放 git 只读命令与同步脚本的白名单。`AGENTS.md`、`docs/README.md`、`docs/framework/skills.md` 已登记，`app-pet` skill 补上 code-standards 入口与验证/交接要求。
-- 代码规范与多 Agent 协作规范已落地：`docs/framework/code-standards.md` 统一约束命名、分层、业务拆分、文件重量、薄调度层、API 兼容、并行所有权、验证和交接；明确 `community` 详情页与 `core/mock.ts` 的现有超限债务，后续新增业务不得继续堆入调度入口；根目录 `AGENTS.md` 与 `docs/README.md` 已登记入口。
+- 代码规范已收口：`docs/framework/code-standards.md` 只保留命名、薄调度、行数信号、交接模板；`adding-a-module.md` 按阶段 F / 阶段 1+ 分开；字段来源只认合同。`CLAUDE.md` 与 `/app-pet` 的 TypeScript 检查改为 `npm run typecheck`。
+- mock 产品规则迁出 `core/`：`core/mock.ts` 只注册路由；`core/mock-runtime.ts` 无产品名词；种子在 `miniprogram/mocks/store.ts`；发帖加积分走 `points/services/mock-ledger.ts`；相册同步广场走 `community/services/mock-helpers.ts` 的 `syncAlbumToForum`。已删除 `core/mock-store.ts`。
+- Skyline：`app.json` 补 `"renderer": "skyline"`；公共 `project.config.json` 的 `libVersion` 为 `3.7.0`（本机私有配置已 gitignore，可能覆盖）。详情录音 `onStop` / `onError` 改为 `recordSink`，不再 `getCurrentPages()`。`.hint` 颜色进 `--color-hint-text`。`page-shell` 顶栏 inline 色与 token 相同 hex。media mock 按路径后缀区分图片 / 语音 mime。
 - 帖子互动改为点赞 / 评论 / 收藏 / 转发。点赞和收藏互相独立；评论区可连续发、可评论别人。删评论：本人只能删自己的，贴主可删该帖任意一条，不连带删别人的；删帖才清掉该帖全部评论。转发走微信分享。
 - 评论区补齐：点赞评论、三点菜单（复制 / 举报 / 有权限才删除）、配图（最多 9 张，列表最多露 3 张，超过叠放）、水彩贴纸资源可跟在正文后、语音评论、艾特。输入条：大圆角输入 + 相册 / @ / 表情 / 语音图标 + 发送。不做 AI 润色。艾特写入 `body` 的 `@昵称 `，评论列表里仅这段用主色；退格一次删掉整段。语音走 `audio_url` / `audio_duration`，按住说话松开发出。电脑端选图没有摄像头则退回相册；录音在电脑端可能失败。未在微信开发者工具里点验。
 
 ## 进行中
 
-- 阶段 F：页面、services、mock、帖子评论区（含点赞 / 举报 / 配图 / 语音 / 艾特）已接；详情页的拆分与解耦收尾已完成，`npm run typecheck` 0 错误、长行检查只剩 `pages/index/index.ts` / `plaza.ts` / `navigation-bar.ts` 三个既有文件、`git diff --check` 通过、`detail.wxml` 的 25 个事件处理器已逐个核对仍存在；本轮差异已完成规范与需求双轴审查，未发现问题。微信开发者工具全部未点验：主路径、录音连续进出三次只弹 1 个 toast、语音播放中途跳 compose 页再返回播放态是否清掉，这三条都要人工点。
+- 阶段 F：页面、services、mock、评论区已接。mock 布局已按模块 seam 落地。`app.json` 已 `"renderer": "skyline"`，公共基础库 3.7.0。
+
+## 已知风险
+
+人必须点的、以及明确延后的，只记在这里。不要把延后项当成阶段 F 缺口。
+
+| 项 | 状态 | 何时处理 |
+|---|---|---|
+| 微信开发者工具未点验 | 五个 tab、发帖/相册/创作/签到写读、评论区（含语音连续三次、录到一半进创作页再回来）、调试面板是否 Skyline | **现在**，人打开仓库根目录点 |
+| 本机 `project.private.config.json` 覆盖基础库 | 已 gitignore；公共 `project.config.json` 是 `3.7.0`。面板不是 Skyline 时改私有 `libVersion` 或开发者工具「详情」 | 点验时若未亮 Skyline |
+| `POST /api/v1/media` 真上传 | mock 按路径后缀区分图（`image/jpeg`）和语音（`audio/mpeg`），`url` 仍是微信临时路径。`core/request` 还没有 `wx.uploadFile` / multipart | **阶段 2** 关 `useMock` 之前 |
+| mock 点赞/收藏 | 资源上的布尔，不是每用户一条；单用户先行够用 | 接真 API 后由后端处理 |
+| mock 种子仍是一份 `mocks/store.ts` | 写路径已走 community `mock-helpers` / points `mock-ledger`；再按模块拆种子不阻塞阶段 F | 按需，不是现在 |
 
 ## 下一步（给新对话，按此顺序）
 
-1. 按用户点名的下一功能继续改小程序。主路径仍应用开发者工具点通：首页四个入口 → 上传相册出现在列表 → 发帖后广场看得到 → 创作页选 2 张图提交后任务列表多一条；签到写入积分流水。评论区：连续发、评论别人、点赞 / 举报 / 配图 / 语音 / 艾特、本人或贴主删除。
+1. 用微信开发者工具打开仓库根目录点验上表第一行。点通后按用户点名的下一功能继续改小程序。
 2. 不要创建可运行的 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。
 3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
+4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`），并验证 `uploadMedia` 与合同一致。
 
 写后端（阶段 1 之后）时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
 
@@ -121,6 +136,10 @@
 | 2026-09-01 | 详情页 helper 只接收 state 与回调，页面对象回到 `Page({ ... })` | 恢复微信 `this` 类型上下文，避免页面实例跨 helper 传播；录音器保留全局单例注册，避免重复回调 |
 | 2026-09-01 | `detail.ts` 367 行列为已知例外，不再拆；参考线该按页面目录算 | 页面对象必须留在 `Page({ ... })` 里才有 `this` 类型，拆成 `xxx-page.ts` 只是绕行数参考线并丢掉类型安全。detail 目录合计 1029 行，要改的是「按单个文件名算」这条规则本身 |
 | 2026-09-01 | helper 需要页面 state 时传 getter，不传快照 | 快照在异步响应回来时可能已过期，会把 reload 之前的旧列表整个写回去；getter 只暴露一个字段、调用时求值，不等于把 page 实例传回 helper |
+| 2026-09-03 | mock 种子与产品 helper 离开 `core/` | 拆文件后业务仍堆在 `mock-store` / `mock-runtime`。改为 `mocks/store.ts` + community `mock-helpers` / points `mock-ledger`；`core/mock.ts` 只注册路由 |
+| 2026-09-03 | `app.json` 声明 `"renderer": "skyline"`，基础库 3.7.0 | 原先只有 `rendererOptions`，`project.private.config.json` 仍钉在 2.32.3，Skyline 不会启用 |
+| 2026-09-03 | 录音 `onStop` / `onError` 走 `recordSink` | 与播放的 `playbackSink` 对齐，不再 `getCurrentPages()` 猜栈顶 |
+| 2026-09-03 | 已知风险只登记在 progress.md | 人点验、私有基础库覆盖、media multipart、单用户 mock 点赞、种子仍一份 store，分清「现在」和「阶段 2」 |
 
 ## 未决（不阻塞阶段 F）
 

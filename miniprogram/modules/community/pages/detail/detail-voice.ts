@@ -26,10 +26,20 @@ type PlaybackSink = {
   setComments: (comments: CommentView[]) => void
 }
 
+type RecordSink = {
+  handleRecordStop: (res: { tempFilePath?: string; duration?: number }) => void
+  setRecording: (recording: boolean) => void
+}
+
 let recorder: WechatMiniprogram.RecorderManager | null = null
 let audioPlayer: WechatMiniprogram.InnerAudioContext | null = null
 let playbackSink: PlaybackSink | null = null
+let recordSink: RecordSink | null = null
 let holdingVoice = false
+
+export function attachVoicePage(sink: RecordSink): void {
+  recordSink = sink
+}
 
 export function ensureRecorder() {
   if (recorder) {
@@ -38,23 +48,11 @@ export function ensureRecorder() {
 
   recorder = wx.getRecorderManager()
   recorder.onStop((res) => {
-    const pages = getCurrentPages()
-    const current = pages[pages.length - 1] as {
-      handleRecordStop?: (result: { tempFilePath?: string; duration?: number }) => void
-    }
-    if (current && current.handleRecordStop) {
-      current.handleRecordStop(res)
-    }
+    recordSink?.handleRecordStop(res)
   })
   recorder.onError(() => {
     holdingVoice = false
-    const pages = getCurrentPages()
-    const current = pages[pages.length - 1] as {
-      setData?: (data: { recording: boolean }) => void
-    }
-    if (current && current.setData) {
-      current.setData({ recording: false })
-    }
+    recordSink?.setRecording(false)
     wx.showToast({ title: '录音失败，电脑端可能不支持', icon: 'none' })
   })
 }
@@ -227,4 +225,5 @@ export function disposeVoice() {
     audioPlayer = null
   }
   playbackSink = null
+  recordSink = null
 }

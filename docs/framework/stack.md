@@ -7,10 +7,10 @@
 | 层 | 选择 | 说明 |
 |---|---|---|
 | 小程序 | 微信原生 | WXML + TypeScript + Sass；现有 `miniprogram/` |
-| 渲染 | Skyline + glass-easel | 模板已开启，保持 |
+| 渲染 | Skyline + glass-easel | `app.json` `"renderer": "skyline"`；开发者工具基础库 3.7.0 |
 | 后端语言 | Python 3.12 | |
 | 后端框架 | FastAPI + Uvicorn | |
-| 校验 / 文档 | Pydantic v2（FastAPI 自带 OpenAPI） | 小程序类型从 OpenAPI 生成 |
+| 校验 / 文档 | Pydantic v2（FastAPI 自带 OpenAPI） | 阶段 F 类型按 [contract.md](../api/contract.md) 手写；后端落地后从 OpenAPI 生成，且 OpenAPI 必须与合同一致 |
 | ORM | SQLAlchemy 2.x（异步） | |
 | 迁移 | Alembic | 只追加新迁移，不改已应用的历史文件 |
 | 驱动 | asyncpg | |

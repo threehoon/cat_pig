@@ -49,20 +49,20 @@ This skill is shared by Grok, Codex and Claude Code. The one real copy is `.grok
 Path and JSON fields: [docs/api/contract.md](../../../docs/api/contract.md) only (`snake_case`, string ids, integer points).
 
 - Pages call `modules/<feature>/services/` → `core/request`. A page without its service is not done.
-- Mock lives in services or `core/request`'s mock branch.
+- Mock handlers: `modules/<feature>/services/mock.ts`. Seed: `miniprogram/mocks/store.ts`. Entry: `core/mock.ts` (register + match only, no product nouns). Runtime: `core/mock-runtime.ts` (no product nouns).
 - Module names: `auth` / `me` / `media` / `album` / `community` / `video` / `points`. New module: [docs/framework/adding-a-module.md](../../../docs/framework/adding-a-module.md).
 
 ## Phase gate
 
-Phase F (current until `progress.md` says otherwise): pages and visual are in; **this turn's work is `services/` + mock**. Do not create a runnable FastAPI app. Do not restyle unless the user asks.
+Phase and next step = [docs/progress.md](../../../docs/progress.md). Do that phase's work; do not skip ahead. Phase F: do not create a runnable FastAPI. Do not restyle unless the user asks.
 
 Phase 1+: `fastapi` skill + [docs/backend/README.md](../../../docs/backend/README.md). Same contract file. `router` → `service` → `repository`.
 
 ## Verify and hand off
 
-No typecheck runs in this repo yet: `typescript` is not a dependency, and `npx --no-install tsc` hits the macOS TeX `tsc`. Pages can only be clicked through by a human in WeChat DevTools, opened on the **repo root**.
+TypeScript check: `npm run typecheck`. Pages can only be clicked through by a human in WeChat DevTools, opened on the **repo root**.
 
-So verification means: read `git diff`, check every path and field word-for-word against [docs/api/contract.md](../../../docs/api/contract.md), and walk the pre-commit checklist in [code-standards.md](../../../docs/framework/code-standards.md). Never write 已验证 for a check you did not run — write what you skipped and why. Hand off in the code-standards format: 范围 / 已改 / 契约 / 验证 / 风险 / 下一步.
+So verification means: `npm run typecheck`, read `git diff`, check every path and field word-for-word against [docs/api/contract.md](../../../docs/api/contract.md), and walk the pre-commit checklist in [code-standards.md](../../../docs/framework/code-standards.md). Never write 已验证 for a check you did not run — write what you skipped and why. Hand off in the code-standards format: 范围 / 已改 / 契约 / 验证 / 风险 / 下一步.
 
 ## Names that collide
 

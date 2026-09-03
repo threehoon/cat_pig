@@ -2,8 +2,8 @@
   <navigation-bar
     title="{{title}}"
     back="{{back}}"
-    color="var(--color-text)"
-    background="var(--color-bg)"
+    color="#3A2F26"
+    background="#F7F0E6"
   >
     <view slot="right">
       <slot name="right"></slot>

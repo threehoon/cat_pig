@@ -17,6 +17,7 @@ import { BOARD_LABEL, Post } from '../../types/post'
 import { CommentView, MentionUser, collectMentions, collectNicknames, groupComments } from './detail-view'
 import { likeCommentAction, moreCommentAction, previewCommentAction } from './comment-actions'
 import {
+  attachVoicePage,
   disposeVoice,
   endRecording,
   handleRecordStop,
@@ -95,6 +96,10 @@ Page({
     }
   },
   onShow() {
+    attachVoicePage({
+      handleRecordStop: (res) => this.handleRecordStop(res),
+      setRecording: (recording) => this.setData({ recording }),
+    })
     this.reload()
   },
   onUnload() {

@@ -1,187 +1,69 @@
 # 代码规范与多 Agent 协作
 
-本文件是本仓库的日常编码、拆模块和 agent 交接规范。它不替代专业文档：目录与依赖看 [overview.md](overview.md) 和 [modules.md](modules.md)，API 看 [../api/contract.md](../api/contract.md)，小程序观感看 [../miniprogram/visual.md](../miniprogram/visual.md)，技术栈看 [stack.md](stack.md)。出现冲突时，先遵守 `AGENTS.md` 和对应领域的唯一合同。
+本文件是日常编码、拆模块和 agent 交接规范。目录与依赖看 [overview.md](overview.md) 和 [modules.md](modules.md)，API 看 [../api/contract.md](../api/contract.md)，观感看 [../miniprogram/visual.md](../miniprogram/visual.md)，技术栈看 [stack.md](stack.md)。冲突时先遵守 `AGENTS.md` 和对应领域合同。
 
-目标只有三个：改动半径可控、每个模块足够轻、下一位 agent 能在不猜测的情况下继续工作。
+目标：改动半径可控、模块足够轻、下一位 agent 不用猜测。
 
-## Agent 执行顺序
+## 命名
 
-涉及代码或模块的任务按下面顺序完成；每一步都要满足完成条件后再进入下一步。
+- 模块目录用 [handoff.md](../handoff.md) 已锁定的英文名：`auth`、`me`、`media`、`album`、`community`、`video`、`points`。文件名、组件名用 `kebab-case`。
+- TypeScript：变量 / 函数 / 属性 `camelCase`，类型 / 接口 / class `PascalCase`，常量 `UPPER_SNAKE_CASE`。
+- 页面方法：`on` + 生命周期或 WXML 事件名（`onShow`、`onLike`）。页面专用 helper 可用动词。不要给 Page 方法规定 `handleSubmit` 这种前缀。
+- Python：模块 / 函数 / 变量 `snake_case`，类 `PascalCase`，常量 `UPPER_SNAKE_CASE`。
+- 传输层字段保持合同里的 `snake_case`；ID 是字符串。业务代码不用 `any`；`as` 只用于已由运行时条件证明的窄化。
 
-1. **定位范围**：读取 `AGENTS.md`、[progress.md](../progress.md)，再读取任务对应的领域文档。确认模块名、页面路径、API 路径和当前阶段。完成条件：能列出允许修改的目录，以及明确列出不应修改的目录。
-2. **建立基线**：搜索现有实现、类型、service、测试和相关文档，确认是否已有可复用的公开方法。完成条件：没有因为“看起来通用”而重复造一个内核或 helper。
-3. **设计最小改动**：先决定职责归属和依赖方向，再编辑文件。需要新 API 时先改 [../api/contract.md](../api/contract.md)；需要新模块时先走 [adding-a-module.md](adding-a-module.md)。完成条件：改动可以用一句话说明，且不需要跨三个以上已有业务模块才能成立。
-4. **实现与自检**：保持类型、错误、加载态和空态完整；只在职责所属文件中实现。完成条件：相关类型、service、页面或 router、测试和登记项没有遗漏。
-5. **验证与交接**：运行能运行的静态检查和测试，检查 `git diff`，并留下交接记录。完成条件：交接记录包含改动文件、验证结果、未决风险和下一步，下一位 agent 不需要重新考古。
+## 调度层必须很薄
 
-## 模块轻量化
+调度层只负责把请求、事件或生命周期交给谁，不负责业务规则。入口：`app.ts`、`core/request.ts`、`core/mock.ts`、`server/app/main.py`。新增模块只追加注册项，不改调度逻辑。入口里出现第二个产品名词分支，就立即下沉。
 
-### 责任边界
+Mock 布局：
 
-- 一个模块只承载一个产品能力。页面负责展示和事件编排，`services/` 负责 API 调用，`types/` 负责数据形状；跨页面 UI 才放 `miniprogram/components/`。
-- 后端保持单向依赖：`router -> service -> repository -> models`。`router` 不写 SQL，`repository` 不处理 HTTP，`service` 是模块对外的唯一入口。
-- 模块之间只通过对方公开的 `service` 或已约定的内核能力协作。不要 import 其它模块的 `models`、`repository`、`router`、私有组件或页面。
-- 只有已经被两个模块实际使用、语义稳定的能力才进入 `core/` 或跨模块 `components/`。先在模块内验证，再抽公共层。
+- `core/mock.ts`：注册各模块 routes + `matchPath`。禁止产品名词。
+- 新 mock endpoint：写在 `modules/<feature>/services/mock.ts`，再在 `core/mock.ts` 追加一次 spread。
+- 种子数据：`miniprogram/mocks/store.ts`（不是业务模块）。不要把 fixture 放进 `core/mock.ts`。
+- 无产品名词的运行时 helper：`core/mock-runtime.ts`（`matchPath`、`paginate`、`copy`、`fail`、`newId`、`nowIso`、query helpers）。
+- 跨模块写操作走对方公开函数（community：`mock-helpers.ts` 的 `publishPost` / `presentPost` / `syncAlbumToForum`；points：`mock-ledger.ts` 的 `addLedger` / `pointsSummary`），不要直接改另一模块的数组。
 
-### 调度层必须很薄
+重量参考：`app.ts` 80 行，`core/request.ts` 180 行，`core/mock.ts` 220 行，`main.py` 120 行。超过先把注册表或 handler 拆到所属目录。
 
-调度层是高冲突、高影响区域，包含后端 `server/app/main.py`、小程序 `app.ts`、`miniprogram/core/request.ts`、Mock 分发入口，以及以后视频 worker 的任务入口。它们只负责“把请求、事件或生命周期交给谁”，不负责“业务应该怎么做”。
+## 文件大小是拆分信号
 
-调度层允许做的事：注册模块 router、组装内核依赖、启动/结束生命周期、拼接请求地址、附加鉴权头、把 Mock 转给模块 adapter、把任务 ID 交给模块 service、统一转换成功/失败信封和记录基础日志。
+超过后先拆再加行为。生成类型、资源清单、纯数据不计行数。
 
-调度层禁止做的事：读取或写业务表、判断积分/审核/权限/出片等产品规则、拼接某个模块的业务 payload、维护页面状态、保存业务 mock 数据、为单个功能增加 `if/else` 分支、直接调用其它模块的 repository 或页面。任务重试和超时的基础设施策略可由 worker 层处理；哪些状态可重试、失败后是否退积分等业务决定仍由所属模块 service 处理。
-
-重量阈值比业务文件更严格：`server/app/main.py` 参考线 120 行，单个 worker 入口参考线 120 行，`miniprogram/app.ts` 参考线 80 行，`miniprogram/core/request.ts` 参考线 180 行，单个 Mock 分发入口参考线 220 行。超过参考线时，先把注册表、传输适配器或模块 handler 拆到所属目录，再继续加功能。调度入口出现第二个产品名词分支（例如积分、帖子、相册）时，就是立即下沉的信号，不以“只是几行”为理由继续堆。
-
-新增模块的接入应是“追加注册项”而不是修改调度逻辑：后端由模块导出 router 后自动发现或统一注册；前端由该模块 service 调用 `core/request`；Mock handler/fixture 归属模块，中心入口最多保留每模块一个 adapter 注册项，不逐 endpoint 累加分支，`core/request` 不 import 业务 fixture；worker 入口只拿任务 ID 调对应 service。调度层无法回答“这个规则属于哪个模块”时，说明职责还没有设计清楚，应先回到模块边界讨论。
-
-### 文件大小是拆分信号
-
-下面是生产源码的建议上限，不是为了凑行数的硬性格式检查。超过后，新增行为前先拆分；已有超限文件先冻结扩张，并在交接记录中写清拆分计划。生成的类型、资源清单和纯数据不计入该行数。
-
-| 文件 | 触发拆分的参考线 | 优先拆法 |
+| 文件 | 参考线 | 优先拆法 |
 |---|---:|---|
-| 小程序页面 `.ts` | 300 行 | 抽页面专用组件、纯函数、表单/列表状态处理；页面只保留编排 |
-| 小程序组件 `.ts` / `.wxml` | 220 行 | 按可见职责拆成兄弟组件；不要把业务请求塞进组件 |
-| 小程序 `services/*.ts` | 200 行 | 按资源或读写用例拆文件；复用 `core/request` |
-| 小程序 `.scss` | 300 行 | 拆组件样式，公共 token/primitives 放 `styles/` |
-| FastAPI `router.py` | 150 行 | 把业务判断移到 `service.py`，把重复参数提为依赖 |
-| FastAPI `service.py` | 250 行 | 按用例拆私有函数或子服务；保持一个模块公开入口 |
-| FastAPI `repository.py` | 250 行 | 按聚合/查询职责拆分；每个查询保持可测试 |
-| FastAPI `schemas.py` / `models.py` | 250 行 | 按资源拆 schema/model；对外字段仍由 API 合同统一 |
+| 小程序页面 `.ts` | 300 行 | 抽页面专用组件、纯函数；页面只留编排 |
+| 小程序组件 `.ts` / `.wxml` | 220 行 | 按可见职责拆兄弟组件 |
+| 小程序 `services/*.ts` | 200 行 | 按资源或读写拆文件 |
+| 小程序 `.scss` | 300 行 | 拆组件样式；token 放 `styles/` |
+| FastAPI `router.py` | 150 行 | 业务判断进 `service.py` |
+| FastAPI `service.py` / `repository.py` / `schemas.py` / `models.py` | 250 行 | 按用例或资源拆 |
 
-同时满足以下任一条件时，应重新判断模块边界：模块生产源码超过约 2,000 行、单个页面同时处理三种以上独立流程、同一状态在两个页面各维护一份、或一次需求需要改动三个以上已有业务模块。拆分按产品能力进行，不要为了“看起来整齐”把一个能力拆成多个技术层模块。
+`community/pages/detail/` 是已知例外（决策 2026-09-01）：必须保留 `detail.ts` 里的 `Page({...})`，额外流程放到同目录 sibling helper，**不要**抽 `detail-page.ts`。该屏行数按页面目录算。
 
-当前仓库已有超出参考线的 `miniprogram/modules/community/pages/detail/detail.ts` 和 `miniprogram/core/mock.ts`。后续给详情页增加新流程前，优先把评论输入、评论列表和帖子动作拆为职责清晰的子组件或页面专用模块；在拆分完成前不要继续把状态堆进详情页。`core/mock.ts` 约 909 行，后续新增模块不得再把业务规则或大段 fixture 放进去；渐进改为模块 service 引用同模块 mock adapter，或由组合入口按模块注册 adapter，`core/request` 只选择真实传输或 mock adapter。已有逻辑不要求为了本规范一次性重写，但新增 endpoint 应先为所属模块建立下沉位置。
+两处真实重复且语义一致再抽 helper。模块生产源码约 2,000 行、单页三种以上独立流程、或一次需求改三个以上已有业务模块时，先判断模块边界。新模块走 [adding-a-module.md](adding-a-module.md)。
 
-### 避免无效抽象
+## 分层与契约
 
-- 两处真实重复且语义一致时再抽 helper；只有一处使用的代码优先留在所属模块。
-- 纯函数放模块内的 `*.ts` 或 `utils/`，不得把请求、鉴权、表名或产品文案塞进通用 `utils/`。
-- 不用“万能 `BaseService`”“万能组件”“按技术层重新建大目录”来解决局部重复。抽象必须能说清楚它减少了哪些依赖或重复。
+小程序：页面只编排；读写走本模块 `services/`，网络走 `core/request`。细则见 [miniprogram/README.md](../miniprogram/README.md)。
 
-## 业务变重时如何拆分
+FastAPI：`router → service → repository`，见 [backend/README.md](../backend/README.md) 和 [modules.md](modules.md)。
 
-先按变化原因拆，再按代码文件拆。每个拆分都要有一个可验证的边界和唯一负责人。
+API 兼容：已发布字段不改名、不改类型、不改成必填；变更先改 [../api/contract.md](../api/contract.md)。
 
-### 先判断拆分层级
+## 并行与交接
 
-| 信号 | 处理方式 | 保持不变的东西 |
-|---|---|---|
-| 同一产品能力内有多个页面或用例，但共享资源和权限 | 留在同一模块，在模块内按子域/用例拆目录或文件；保留模块 service façade | API 前缀、模块公开入口 |
-| 一组代码有独立数据生命周期、权限、发布节奏和 owner | 拆成新的业务模块，走 [adding-a-module.md](adding-a-module.md) | 其它模块只通过公开 service 协作 |
-| 单文件同时包含展示、状态、请求、校验、平台能力 | 留在原模块，按职责拆组件、纯函数和 adapter | 页面仍只做编排 |
-| 多模块都在复制同一套稳定能力 | 先确认有两个真实调用方，再抽到 `core/` 或跨模块组件 | 不把业务名词带入公共层 |
+两个 agent 不得写同一文件。`app.json`、`app.ts`、`core/`、`server/app/main.py`、API 合同、`docs/progress.md` 由主对话串行维护；子 agent 只回报应追加的注册项。
 
-模块内拆分可以使用 `use_cases/`、`adapters/`、`queries/`、`components/` 等子目录，但只在确有职责边界时创建。不要把一个模块机械复制成 `controllers/`、`services/`、`repositories/` 等全仓技术大目录，也不要用子目录绕过模块之间的依赖规则。
+```text
+范围：<模块 / 用例>
+已改：<路径，逐项列出>
+契约：<合同是否改变；改变列出路径>
+验证：<命令 / 手工路径 / 结果>
+风险：<已知缺口；没有则写「无」>
+下一步：<下一位可直接执行的动作>
+```
 
-### 拆分完成标准
+## 提交前
 
-拆分不是把代码移动到更多文件就结束。完成时必须满足：
-
-- 每个子模块/子域有一句话职责、一个 owner 和一条公开入口；内部 helper 默认私有。
-- 调用方不需要知道被拆部分的文件位置；移动实现不改变 API 合同和页面调用方式。
-- 依赖图仍是单向的，没有循环 import；共享类型放在稳定边界，不从另一个子域偷取内部类型。
-- 每个拆分后的单元可以独立测试，原有主路径和错误路径仍能通过。
-- 交接中记录“为什么拆、边界是什么、哪些代码暂时保留”，避免下一位 agent 再次合并回大文件。
-
-出现以下任一情况时，必须在继续加业务前拆分或先得到明确例外记录：一个文件有两个以上独立变化原因；单页同时管理三个以上异步流程；模块生产源码约 2,000 行以上；一个模块需要三个以上 agent 同时写同一文件；或一次需求需要跨三个以上业务模块互相调用。
-
-## 并行开发协议
-
-并行的前提是**边界先于代码、所有权先于编辑**。共享工作树中，两个 agent 不得同时写同一文件；“先改了再合并”不是协调方式。
-
-### 文件所有权
-
-- 任务开始建立文件所有权表：每个 agent 的模块、允许修改的文件、明确禁止修改的文件、交付条件和验证命令。
-- 模块 agent 默认只写自己的 `miniprogram/modules/<feature>/` 或 `server/app/modules/<feature>/`，以及该模块测试和迁移。
-- `app.json`、`app.ts`、`server/app/main.py`、`core/`、API 合同、`docs/progress.md` 和调度/注册入口是共享高冲突文件，默认由一个集成 owner 串行维护。模块 agent 通过交接消息提供“应追加的注册项”，不直接顺手编辑这些文件。
-- 一个文件只能有一个 active owner。需要跨边界改动时，先发送交接，owner 完成或明确释放后再编辑；不要用格式化、重命名或大范围排序制造冲突。
-
-### 推荐的拆工顺序
-
-1. **契约 owner** 锁定用例、API path/字段、状态和验收条件；合同有变更时先提交合同变更。
-2. **模块 agent** 按模块或模块内子域并行实现 types、service、页面、后端分层和测试；各自只依赖已锁定的契约。
-3. **集成 owner** 串行接入 `app.json`、router 注册、Mock adapter 注册和跨模块 wiring；只做组装，不吸收业务逻辑。
-4. **验证 owner** 在集成后跑类型检查、受影响测试、合同对照和主路径点验，发现问题回派给原模块 owner。
-
-只有模块之间没有共享文件、共享状态或未决合同依赖时才并行。若两个任务都需要改调度层、同一个页面、同一个 schema 或同一迁移文件，应拆成先后阶段，而不是强行并行。
-
-### 并行交付门禁
-
-- [ ] 文件所有权表已明确，未与其它 agent 重叠。
-- [ ] 依赖的 API 合同、类型和公开 service 已锁定。
-- [ ] 本 agent 没有修改共享调度/注册文件，或已有 owner 明确授权。
-- [ ] 交付 diff 只包含本任务文件，没有无关格式化和重命名。
-- [ ] 交接消息写明边界、公开入口、验证结果、未决风险和集成顺序。
-- [ ] 集成后由单一 owner 处理冲突，再进行统一验证；不要让多个 agent 各自“修到能过”。
-
-## 命名与类型
-
-- 目录和 API 模块使用已锁定的英文名：`auth`、`me`、`media`、`album`、`community`、`video`、`points`。文件名、小程序组件名使用 `kebab-case`；禁止用旧别名或中文目录。
-- TypeScript 变量、函数和属性用 `camelCase`，类型、接口和 class 用 `PascalCase`，常量用 `UPPER_SNAKE_CASE`。事件处理函数以动作命名，例如 `handleSubmit`、`handleLoadMore`。
-- Python 模块、函数和变量用 `snake_case`，类用 `PascalCase`，常量用 `UPPER_SNAKE_CASE`。公共 service 方法用产品动作命名，不暴露 ORM 细节。
-- 传输层字段始终保持 API 合同中的 `snake_case`；前端页面不要再维护一套驼峰映射。ID 是字符串，日期和时间格式遵守合同。
-- TypeScript 保持 `strict` 通过；业务代码不使用 `any`。微信事件或第三方边界确实缺少类型时，在边界处定义最小类型并说明原因，内部立即转成明确类型。
-- 类型优先于断言。`as` 只用于已由运行时条件证明的窄化，不用它压过编译器错误；不要用 `!` 隐藏未初始化状态。
-
-## 小程序编码
-
-- 页面只编排状态和交互：读写数据必须调用本模块 `services/`，网络必须经 `core/request`。页面和组件不写 `wx.request`，不读 token 细节，不写死 API 主机名。
-- 页面状态至少区分首次加载、刷新/分页、提交中、成功、空数据和可恢复错误。错误按 `error.code` 分支，不按中文 `message` 判断；提交按钮在请求期间要有防重复状态。
-- `setData` 只提交需要更新的字段；列表更新使用明确的不可变副本，避免直接改共享 mock 或缓存对象。跨页共享只放约定的 `core/auth` 等内核，不放 `App.globalData`。
-- WXML 事件名和 data key 与 TS 一致；复杂条件和格式化在 TS 中完成，模板只做展示。可复用 UI 优先做局部组件，组件不偷偷发业务请求。
-- Sass 使用 [visual.md](../miniprogram/visual.md) 和 `styles/` 的 token/primitives。页面不写散落的品牌色 hex，不复制跨页样式；组件样式跟组件同目录。
-- 微信能力（选图、录音、分享等）集中在模块 helper 或 `core` 边界封装；成功、取消、权限拒绝和平台不支持都要有可见结果。
-
-## FastAPI 编码
-
-- `router.py` 只做路径、参数、鉴权依赖、schema 入出和 HTTP 错误映射；业务规则放 `service.py`，数据库访问只在 `repository.py`。
-- 所有 I/O 使用异步栈约定。Session 生命周期由依赖管理，repository 不把 Session 泄漏给上层；事务边界由 service 的用例决定并保持原子性。
-- Schema 是对外 DTO，禁止直接返回 ORM 实例。校验规则与 [../api/contract.md](../api/contract.md) 一致；稳定错误使用 `server/app/core` 的错误码。
-- 新表只归属一个模块；改表新增 Alembic 迁移，不改已应用历史迁移。迁移、模型和 schema 必须能在空数据库和已有数据上说明兼容行为。
-- 需要调用其它模块时调用其公开 service，传递 ID 或 DTO，不跨层取表。避免在 service 中拼 URL、处理 JWT 密钥或写对象存储细节。
-
-## API 与兼容性
-
-- API 变更顺序固定为：更新 [../api/contract.md](../api/contract.md) -> 更新前端 types/services/mock -> 更新后端 schema/router/service -> 更新测试和进度。
-- 已发布字段不改名、不改类型、不改为必填。新增字段默认可选且无破坏性；破坏性变更使用新路径或 `/api/v2`。
-- 成功/失败信封、分页结构、空值、错误码、状态枚举和业务限制严格按合同实现。合同没有的 endpoint 不先“顺手”添加。
-- mock 是真实 API 的替身，不是第二套业务：同一 method + path 返回同一信封形状，写操作应能被后续列表/详情读到。
-
-## 测试与验证
-
-- 测试跟着模块放：后端在 `server/tests/modules/<feature>/`，内核在 `server/tests/core/`；前端至少为复杂纯函数、service 分支和关键页面动作保留可重复验证路径。
-- 测试行为和契约，不测私有实现细节。覆盖成功、空数据、校验失败、权限失败、重复提交/重复签到、分页或状态转换等边界。
-- mock 测试不得依赖真实网络、当前时间或执行顺序；使用固定 ID、时间和资源，避免测试互相污染。
-- 提交前至少完成：类型检查或构建检查（工具可用时）、受影响模块测试、API 合同对照、`git diff --check` 和工作树审阅。无法运行的检查要在交接记录写明原因，不能写成“已验证”。
-- 涉及页面的改动还要在微信开发者工具点通主路径：进入页面、触发主要读写、返回/再次进入、空态和错误态各至少检查一次。
-
-## 多 Agent 交接与并行
-
-- 任务开始先声明负责的模块和文件范围；两个 agent 不同时编辑同一文件。必须跨边界时先由负责该边界的 agent 处理，或明确交接后再修改。
-- 每个 agent 只提交完成当前子任务所需的最小 diff，不顺手格式化、不重命名无关文件、不回滚别人的改动。发现工作树有未知改动时保留它，并在交接中标记冲突风险。
-- 需要把接口、类型、页面、后端拆给不同 agent 时，先锁定合同和文件所有权，再并行实现；合同未定时不得各自发明字段。
-- 交接消息使用下面的最小格式：
-
-  ```text
-  范围：<模块 / 用例>
-  已改：<绝对或仓库相对路径，逐项列出>
-  契约：<API 合同是否改变；改变列出路径>
-  验证：<运行的命令 / 手工路径 / 结果>
-  风险：<已知缺口；没有则写“无”>
-  下一步：<下一位 agent 可直接执行的动作>
-  ```
-
-- 阶段完成或合并一批可交付改动后更新 [../progress.md](../progress.md)。单个小修复不为了形式更新文档，但接口合同和 agent 入口路由一旦变化必须同步更新。
-
-## 提交前门禁
-
-- [ ] 任务对应的入口文档已读，修改范围符合模块边界。
-- [ ] 没有跨模块 import `models` / `repository` / `router` / 私有组件。
-- [ ] 页面没有 `wx.request`、硬编码 API 主机、页面专用假数据或业务 `globalData`。
-- [ ] API path、method、字段、类型和信封与合同逐字一致。
-- [ ] 超过文件参考线的新增代码已先拆分，或交接中有明确拆分计划。
-- [ ] 关键成功、空态、错误态和权限/重复提交路径已经验证。
-- [ ] `git diff --check` 通过，变更只包含本任务需要的文件。
-- [ ] 交接记录和阶段进度已经更新到足以让下一位 agent 继续的位置。
+遵守 `AGENTS.md` 硬规则。再跑 `npm run typecheck`、`git diff --check`。涉及页面时请人用微信开发者工具打开仓库根目录点验。没跑过的检查不要写成已验证。

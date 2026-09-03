@@ -1,36 +1,32 @@
 import {
   asStringArray,
-  assertCanDeleteComment,
-  assertOwnPost,
   bodyOf,
-  BOARDS,
-  CURRENT_USER_ID,
   fail,
-  findComment,
-  findPost,
   newId,
   nowIso,
   paginate,
+  queryValue,
+  sortByCreated,
+  type MockRoute,
+} from '../../../core/mock-runtime'
+import { CURRENT_USER_ID, currentAuthor, store, type MockComment, type MockPost } from '../../../mocks/store'
+import { BOARDS, type Board, type CommentReportReason, type CommentStickerId } from '../types/post'
+import {
+  assertCanDeleteComment,
+  assertOwnPost,
+  findComment,
+  findPost,
   presentComment,
   presentPost,
   publishPost,
-  currentAuthor,
-  queryValue,
-  REPORT_REASONS,
+  reparentChildren,
   resolveCommentParent,
-  sortByCreated,
-  STICKER_IDS,
   syncCommentCount,
-  type MockRoute,
-  store,
-} from '../../../core/mock-runtime'
-import type { MockComment, MockPost } from '../../../core/mock-store'
+} from './mock-helpers'
 
-function reparentChildren(deletedId: string, newParentId: string | null) {
-  store.comments.forEach((item) => {
-    if (item.parent_id === deletedId) item.parent_id = newParentId
-  })
-}
+const BOARD_IDS: readonly Board[] = BOARDS.map((item) => item.id)
+const STICKER_IDS: readonly CommentStickerId[] = ['blush', 'happy', 'cry', 'paw', 'heart', 'sleep', 'wow', 'kiss']
+const REPORT_REASONS: readonly CommentReportReason[] = ['spam', 'abuse', 'porn', 'other']
 
 const postRoutes: MockRoute[] = [
   {
@@ -54,7 +50,7 @@ const postRoutes: MockRoute[] = [
         store.posts.filter((post) => {
           if (post.status !== 'published') return false
           if (tab === 'following' && store.follows.indexOf(post.author.id) === -1) return false
-          if ((BOARDS as readonly string[]).indexOf(tab) !== -1 && post.board !== tab) return false
+          if ((BOARD_IDS as readonly string[]).indexOf(tab) !== -1 && post.board !== tab) return false
           return !q || post.title.indexOf(q) !== -1 || post.body.indexOf(q) !== -1
         }),
       ).map(presentPost)
@@ -71,7 +67,7 @@ const postRoutes: MockRoute[] = [
       const title = typeof data.title === 'string' ? data.title : ''
       const body = typeof data.body === 'string' ? data.body : ''
       const image_urls = asStringArray(data.image_urls)
-      if ((BOARDS as readonly string[]).indexOf(board) === -1) fail('VALIDATION', '板块不正确')
+      if ((BOARD_IDS as readonly string[]).indexOf(board) === -1) fail('VALIDATION', '板块不正确')
       if (status !== 'draft' && status !== 'pending') fail('VALIDATION', '状态只允许 draft 或 pending')
       if (!body.trim() && image_urls.length === 0) fail('VALIDATION', '正文和图片不能同时为空')
       if (body.length > 500) fail('VALIDATION', '正文最多 500 字')
@@ -106,7 +102,7 @@ const postRoutes: MockRoute[] = [
       assertOwnPost(post)
       const data = bodyOf(options)
       if (typeof data.board === 'string') {
-        if ((BOARDS as readonly string[]).indexOf(data.board) === -1) fail('VALIDATION', '板块不正确')
+        if ((BOARD_IDS as readonly string[]).indexOf(data.board) === -1) fail('VALIDATION', '板块不正确')
         post.board = data.board as MockPost['board']
       }
       if (typeof data.title === 'string') post.title = data.title

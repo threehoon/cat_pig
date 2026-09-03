@@ -6,7 +6,7 @@
 
 ## 当前工作方式：前端界面先行
 
-五个 tab、二级页、奶油水彩皮、`services/`、mock、帖子评论区（点赞 / 举报 / 配图 / 语音 / 艾特）已写入。`useMock: true`。不先做 FastAPI 和数据库。进度以 [progress.md](progress.md) 为准。
+五个 tab、二级页、奶油水彩皮、`services/`、mock、帖子评论区已写入。`useMock: true`。不先做 FastAPI。当前基线、已知风险和下一步以 [progress.md](progress.md) 为准。
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -151,7 +151,7 @@
 
 页面事件处理里只出现 `xxxService.list()` 这类调用。字段名用下划线：`image_urls`、`sync_to_forum`、`points_balance`，不要在页面层再映射一套驼峰再丢掉。
 
-**例外：** `media` 没有自己的页面。相册 / 发帖 / 创作在选图后可以调用 `modules/media/services` 拿 `url`，再交给本模块 service。其它跨模块仍然只许跳路由，不许互相 import service。
+**例外：** `media` 没有自己的页面。相册 / 发帖 / 创作在选图后可以调用 `modules/media/services` 拿 `url`，再交给本模块 service。阶段 F 的 mock 可以直接把微信临时路径当作 `url`；当前 `uploadMedia` 仍通过 `core/request` 传递路径，切真 API 前必须在内核补 `multipart` 上传适配。其它跨模块仍然只许跳路由，不许互相 import service。
 
 首页、我的若只展示其它模块的数据：首页帖预览走 **本模块** `community` service；积分入口只跳路由，不在 `me` 页面 import `points` 的 service。`GET /api/v1/me` 已带 `points_balance`，我的页展示余额用这个字段。
 
@@ -167,13 +167,17 @@
 
 1. `miniprogram/core/config.ts` 提供 `useMock: true`（先行默认）和 `apiBaseUrl`。
 2. 页面 **不准** `wx.request`，不准写死主机名，不准直接 import 一份「页面专用假数据」。
-3. 模块 `services/` 只调 `core/request`。`useMock === true` 时，`request` 返回符合 [api/contract.md](api/contract.md) 的本地数据（按 method+path 分发）。
+3. 模块 `services/` 只调 `core/request`。`useMock === true` 时，`request` 把 method+path 交给 `core/mock.ts`（只注册 / 匹配）。handlers 在各模块 `services/mock.ts`，种子在 `miniprogram/mocks/store.ts`。跨模块写操作走对方公开函数（community `mock-helpers.ts`、points `mock-ledger.ts`），不要直接改另一模块的数组。返回值符合 [api/contract.md](api/contract.md)。
 4. 成功 / 失败信封与真 API 相同，JSON 形状见 [api/contract.md](api/contract.md)。
 5. 假数据足够点通主路径即可：当前用户、若干相册、若干已发布帖（含别人的帖和一条带评论的帖）、一条视频任务、几条积分流水。不要做后台。
 6. 没有审核员：mock 里 `POST` 帖子若 `status` 为 `pending`，直接存成 `published`，否则广场列表看不到刚发的帖。接真 API 后再走审核。
 7. mock 登录在 `core/auth` 启动时同步完成（`jwt-or-mock` + 写入当前用户 id），页面 `onShow` 时已有会话。
 
-接真 API：`useMock` 改为 `false`，确认 `apiBaseUrl`，services 不用改方法名。
+接真 API：`useMock` 改为 `false`，确认 `apiBaseUrl`。页面和 service **方法名**不用改；`core/request` 必须能走 `POST /api/v1/media` 的 multipart（`wx.uploadFile`，字段名 `file`），见 [progress.md](progress.md) 已知风险。
+
+## 开发者工具（阶段 F）
+
+打开仓库**根目录**。`app.json` 已 `"renderer": "skyline"`，公共 `libVersion` 是 `3.7.0`。本机 `project.private.config.json` 已 gitignore，会盖掉公共基础库。调试面板不是 Skyline 时：开发者工具「详情」改成 3.7.0，或改私有配置里的 `libVersion`。细则 [miniprogram/README.md](miniprogram/README.md)。
 
 ## 本地怎么对上（后端落地之后）
 

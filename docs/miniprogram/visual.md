@@ -36,10 +36,11 @@
 | `--color-sage` `#D7E8D4` | 热聊卡 |
 | `--color-text` `#3A2F26` | 正文 |
 | `--color-text-muted` `#A3988E` | 辅助、未选中 tab |
+| `--color-hint-text` `#8A4A22` | 浅底提示文案 |
 | `--radius` `32rpx` | 卡片 |
 | `--shadow` | 暖色浅阴影 |
 
-原生 `switch` 的 `color` 只能写 hex，与 `--color-primary` 相同：`#F0783C`。
+原生 `switch` 的 `color` 只能写 hex，与 `--color-primary` 相同：`#F0783C`。`page-shell` 传给 `navigation-bar` 的 `color` / `background` 也是组件 inline style，不能写 CSS 变量；与 token 相同：`#3A2F26` / `#F7F0E6`。
 
 字：系统黑体。标题约 `36rpx / 600`，正文 `28rpx`。不装自定义字体。
 

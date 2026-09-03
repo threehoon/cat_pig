@@ -51,7 +51,7 @@ Grok、Codex、Claude Code 共用本文件和 `docs/`，不各写一套。Claude
 4. FastAPI 的 `router` 不准直接写 SQL / 碰 ORM session；只走本模块 `service` → `repository`。
 5. 已发布的 API 字段不改名、不改类型、不改成必填。破坏性变更走新路径或 `/api/v2`。
 6. 加功能时，`app.json` 只允许**追加** `pages`；不准把业务塞进 `app.ts` / `globalData`。
-7. 完成一个阶段或合并一批改动后，必须更新 [docs/progress.md](docs/progress.md)。
+7. 完成一个**阶段**、用户要求整理 / 总结 / 更新对接文档、或合同 / 路由 / Agent 入口变化时，才更新 [docs/progress.md](docs/progress.md)。日常小修代码不改文档。
 8. 实现用户可见功能前必须读 [docs/product/positioning.md](docs/product/positioning.md)、[docs/product/benchmark.md](docs/product/benchmark.md)、[docs/product/capabilities.md](docs/product/capabilities.md)。benchmark 标明「无」的当作需求不存在。对标功能对等，禁止使用「萌爪日记」品牌名、插画与文案原句。
 9. **接口只认 [docs/api/contract.md](docs/api/contract.md)。** 前端 mock、services 的 path/字段、后端 router/schema 必须与该文件逐字一致（含 `snake_case`、字符串 id、积分为整数）。禁止另起一套。改接口先改合同文件。页面只调 `services/` → `core/request`。没有对应 service 的页面不算做完。
 
@@ -64,4 +64,4 @@ Grok、Codex、Claude Code 共用本文件和 `docs/`，不各写一套。Claude
 
 ## 当前阶段
 
-以 [docs/progress.md](docs/progress.md) 为准。当前是 **阶段 F：前端界面先行**。页面、视觉、`services/` 与 mock 已接。新对话按进度里的「下一步」继续；不要先搭 FastAPI。日常改代码不要改 `docs/`，用户说「整理 / 总结 / 更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。
+以 [docs/progress.md](docs/progress.md) 为准。当前是 **阶段 F：前端界面先行**。页面、`services/` 与 mock 已存在。下一步以进度文件为准，不要先搭 FastAPI。日常改代码不要改 `docs/`，用户说「整理 / 总结 / 更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。

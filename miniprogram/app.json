@@ -58,6 +58,7 @@
     ]
   },
   "style": "v2",
+  "renderer": "skyline",
   "rendererOptions": {
     "skyline": {
       "defaultDisplayBlock": true,

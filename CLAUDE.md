@@ -41,11 +41,11 @@ bash scripts/sync-claude-skills.sh
 
 | 想验证的 | 现状 |
 |---|---|
-| TypeScript | **跑不了**。仓库没装 `typescript`，`npx --no-install tsc` 会命中 macOS 自带的 TeX `tsc`。要用先 `npm i -D typescript`，否则在交接里写「未运行」及原因 |
+| TypeScript | **可跑** `npm run typecheck`（typescript 5.6 已是 devDependency） |
 | 页面主路径 | 只有人能在微信开发者工具打开**仓库根目录**点验。你代跑不了；需要点验时明确请用户点 |
 | 后端测试 | 阶段 1 之后才有（`server/tests/`） |
 
-所以当前的验证手段是：读 `git diff`、逐字对照 [docs/api/contract.md](docs/api/contract.md) 的 path 与字段、走 code-standards 的「提交前门禁」自查。
+所以当前的验证手段是：`npm run typecheck`、读 `git diff`、逐字对照 [docs/api/contract.md](docs/api/contract.md) 的 path 与字段、走 code-standards 的提交前自查。
 
 ## 交接
 
@@ -53,11 +53,4 @@ bash scripts/sync-claude-skills.sh
 
 ## 最容易踩的坑
 
-细则见 [AGENTS.md](AGENTS.md) 的硬规则，这里只列高频翻车点：
-
-- 页面里写 `wx.request`、写死 API 主机名、写死品牌色 hex。
-- 页面没有对应的 `services/` 就当做完了。
-- 改字段不先改 [docs/api/contract.md](docs/api/contract.md)。
-- 往 `core/mock.ts`、`core/request.ts`、`app.ts` 这些调度入口里加产品分支（积分 / 帖子 / 相册）。它们的行数参考线比业务文件更严。
-- 新建已作废的模块名 `pet` / `journal` / `ledger` / `reminder`，或改已锁定的 tab 路径。
-- 现在去搭可运行的 FastAPI —— 阶段 F 不做。
+细则见 [AGENTS.md](AGENTS.md) 硬规则。高频：页面写 `wx.request`；往 `core/mock.ts` 塞产品名词（种子在 `miniprogram/mocks/store.ts`）；改字段不先改合同；阶段 F 去搭可运行 FastAPI。Skyline 起不来时先查本机 `project.private.config.json` 的 `libVersion` 是否盖掉了公共的 3.7.0。
