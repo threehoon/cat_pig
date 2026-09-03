@@ -16,20 +16,20 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：继续阶段 F 的小程序功能。页面、`services/`、mock 已接；帖子互动是点赞 / 评论 / 收藏 / 转发。详情评论区已有点赞 / 举报 / 配图 / 贴纸展示 / 语音 / 艾特。不要先搭 FastAPI。不要重做视觉（除非用户点名改某一页）。
+下一对话目标：按用户点名继续阶段 F 的小程序功能。页面、`services/`、mock、评论区已接；开发者工具已点开，界面正常。帖子互动是点赞 / 评论 / 收藏 / 转发。详情评论区已有点赞 / 举报 / 配图 / 贴纸展示 / 语音 / 艾特。不要先搭 FastAPI。不要重做视觉（除非用户点名改某一页）。不要把 progress 里「已知风险」的延后项当成本轮必须做的事。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
-必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
+必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。写代码再读 [framework/code-standards.md](framework/code-standards.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
 
-开发走 `/app-pet`。人用微信开发者工具打开**仓库根目录**点验。
+开发走 `/app-pet`。打开仓库**根目录**。静态检查 `npm run typecheck`。
 
 ## 当前阶段
 
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（页面 / services / mock / 评论区已接；mock 已迁出 core；`renderer: skyline`；开发者工具未点验） |
+| 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具已点开，界面正常） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
 | 最后更新 | 2026-09-03 |
 
@@ -39,7 +39,7 @@
 |---|---|---|
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
-| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（页面 / services / mock / 评论区能力已接；开发者工具未点验） |
+| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（页面 / services / mock / 评论区已接；开发者工具已点开，界面正常） |
 | 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 未开始（界面之后） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
@@ -63,7 +63,7 @@
 - 小程序内核与空壳：`core`（`useMock: true`，请求 / 登录 / 存储 / mock 运行时）、`components/page-shell`、五个 tab、原生 tabBar 图标。`app.json` 首页为 `modules/community/pages/home/home`。
 - 五个 tab 画出可辨认界面（首页入口+动态、相册卡、创作表单、论坛分栏、我的入口）；二级页可跳：上传、发帖、详情、我的发布、积分明细、任务管理、任务详情。
 - 项目 skill 已装到 `.grok/skills/`：`app-pet`（本仓库路由）+ `frontend-design` + 微信官方 Skyline 七件套 + FastAPI 官方 + 筛选后的 mattpocock 工程 skill。清单见 `docs/framework/skills.md`。
-- 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。未在微信开发者工具里点过。
+- 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。
 - 阶段 F mock：各模块 `services/` + `types/` 已按 [api/contract.md](api/contract.md) 建好；`core/request` 在 `useMock: true` 时按 method+path 返回信封内 `data`；未命中仍 `MOCK_NOT_IMPLEMENTED`。页面改为只调本模块 service（相册/发帖/创作可调 `media`）。mock 种子：当前用户、两本相册、若干帖（含草稿）、一条视频任务、积分流水合计 180。发帖 `pending` 直接 `published` 并记 +20 积分。
 - 模块轻量化重构：`core/mock.ts` 收敛为 36 行的 adapter 注册/匹配入口；业务 mock handlers 下沉到各模块 `services/mock.ts`，共享无业务运行时工具位于 `core/mock-runtime.ts`。`community` 详情页拆为 245 行编排页，并将评论视图、评论动作、输入编排、媒体上传、录音播放分别移至页面专用 helper；页面路径、事件名、service/API 行为保持不变。
 - 详情页拆分收尾：安装 TypeScript 5.6 并加入 `npm run typecheck`，启用 `skipLibCheck`；页面对象已回到 `detail.ts` 的 `Page({ ... })`，删除 `detail-page.ts`；录音器回调改为单例注册并通过当前页回写；评论 composer、voice、actions helper 改为明确 state + patch/callback 接口；本次拆分文件已恢复单行 120 字符以内的可读格式。
@@ -73,31 +73,30 @@
 - 代码规范已收口：`docs/framework/code-standards.md` 只保留命名、薄调度、行数信号、交接模板；`adding-a-module.md` 按阶段 F / 阶段 1+ 分开；字段来源只认合同。`CLAUDE.md` 与 `/app-pet` 的 TypeScript 检查改为 `npm run typecheck`。
 - mock 产品规则迁出 `core/`：`core/mock.ts` 只注册路由；`core/mock-runtime.ts` 无产品名词；种子在 `miniprogram/mocks/store.ts`；发帖加积分走 `points/services/mock-ledger.ts`；相册同步广场走 `community/services/mock-helpers.ts` 的 `syncAlbumToForum`。已删除 `core/mock-store.ts`。
 - Skyline：`app.json` 补 `"renderer": "skyline"`；公共 `project.config.json` 的 `libVersion` 为 `3.7.0`（本机私有配置已 gitignore，可能覆盖）。详情录音 `onStop` / `onError` 改为 `recordSink`，不再 `getCurrentPages()`。`.hint` 颜色进 `--color-hint-text`。`page-shell` 顶栏 inline 色与 token 相同 hex。media mock 按路径后缀区分图片 / 语音 mime。
+- 微信开发者工具已打开仓库根目录：小程序可启动，界面与主路径正常。
 - 帖子互动改为点赞 / 评论 / 收藏 / 转发。点赞和收藏互相独立；评论区可连续发、可评论别人。删评论：本人只能删自己的，贴主可删该帖任意一条，不连带删别人的；删帖才清掉该帖全部评论。转发走微信分享。
-- 评论区补齐：点赞评论、三点菜单（复制 / 举报 / 有权限才删除）、配图（最多 9 张，列表最多露 3 张，超过叠放）、水彩贴纸资源可跟在正文后、语音评论、艾特。输入条：大圆角输入 + 相册 / @ / 表情 / 语音图标 + 发送。不做 AI 润色。艾特写入 `body` 的 `@昵称 `，评论列表里仅这段用主色；退格一次删掉整段。语音走 `audio_url` / `audio_duration`，按住说话松开发出。电脑端选图没有摄像头则退回相册；录音在电脑端可能失败。未在微信开发者工具里点验。
+- 评论区补齐：点赞评论、三点菜单（复制 / 举报 / 有权限才删除）、配图（最多 9 张，列表最多露 3 张，超过叠放）、水彩贴纸资源可跟在正文后、语音评论、艾特。输入条：大圆角输入 + 相册 / @ / 表情 / 语音图标 + 发送。不做 AI 润色。艾特写入 `body` 的 `@昵称 `，评论列表里仅这段用主色；退格一次删掉整段。语音走 `audio_url` / `audio_duration`，按住说话松开发出。电脑端选图没有摄像头则退回相册；录音在电脑端可能失败。
 
 ## 进行中
 
-- 阶段 F：页面、services、mock、评论区已接。mock 布局已按模块 seam 落地。`app.json` 已 `"renderer": "skyline"`，公共基础库 3.7.0。
+- 阶段 F：页面、services、mock、评论区已接。开发者工具已点开，界面正常。按用户点名继续改小程序功能。
 
 ## 已知风险
 
-人必须点的、以及明确延后的，只记在这里。不要把延后项当成阶段 F 缺口。
+不要把延后项当成阶段 F 缺口。
 
 | 项 | 状态 | 何时处理 |
 |---|---|---|
-| 微信开发者工具未点验 | 五个 tab、发帖/相册/创作/签到写读、评论区（含语音连续三次、录到一半进创作页再回来）、调试面板是否 Skyline | **现在**，人打开仓库根目录点 |
-| 本机 `project.private.config.json` 覆盖基础库 | 已 gitignore；公共 `project.config.json` 是 `3.7.0`。面板不是 Skyline 时改私有 `libVersion` 或开发者工具「详情」 | 点验时若未亮 Skyline |
 | `POST /api/v1/media` 真上传 | mock 按路径后缀区分图（`image/jpeg`）和语音（`audio/mpeg`），`url` 仍是微信临时路径。`core/request` 还没有 `wx.uploadFile` / multipart | **阶段 2** 关 `useMock` 之前 |
 | mock 点赞/收藏 | 资源上的布尔，不是每用户一条；单用户先行够用 | 接真 API 后由后端处理 |
 | mock 种子仍是一份 `mocks/store.ts` | 写路径已走 community `mock-helpers` / points `mock-ledger`；再按模块拆种子不阻塞阶段 F | 按需，不是现在 |
+| 本机 `project.private.config.json` 覆盖基础库 | 已 gitignore。本机已点开正常。换机器或 DevTools 改回旧 `libVersion` 时，把私有配置改成与公共 `3.7.0` 一致 | 换环境若 Skyline 未亮 |
 
 ## 下一步（给新对话，按此顺序）
 
-1. 用微信开发者工具打开仓库根目录点验上表第一行。点通后按用户点名的下一功能继续改小程序。
-2. 不要创建可运行的 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。
-3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
-4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`），并验证 `uploadMedia` 与合同一致。
+1. 按用户点名的下一功能继续改小程序。不要先搭 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。新模块走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 只建小程序，不建后端目录）。
+2. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
+3. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`），并验证 `uploadMedia` 与合同一致。这不是下一对话的默认任务。
 
 写后端（阶段 1 之后）时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
 

@@ -2,24 +2,38 @@
 
 前后端、本地环境、**前端先行**时的 mock，以及页面 / 模块名的交界写在这里。
 
-目录怎么拆见 [framework/overview.md](framework/overview.md)。产品做哪些功能见 [product/benchmark.md](product/benchmark.md)。当前进度见 [progress.md](progress.md)。
+目录怎么拆见 [framework/overview.md](framework/overview.md)。产品做哪些功能见 [product/benchmark.md](product/benchmark.md)。阶段、下一步、已知风险只认 [progress.md](progress.md)。
 
-## 当前工作方式：前端界面先行
+## 新对话从这里开始
 
-五个 tab、二级页、奶油水彩皮、`services/`、mock、帖子评论区已写入。`useMock: true`。不先做 FastAPI。当前基线、已知风险和下一步以 [progress.md](progress.md) 为准。
+阶段 **F（前端界面先行）**，进行中。`useMock: true`。不要先搭 FastAPI。不要重做视觉（除非用户点名某一页）。
 
-日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
+下一轮：**按用户点名的功能继续改小程序**。页面、`services/`、mock、评论区已接。微信开发者工具已打开仓库根目录，界面与主路径正常。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 按用户点名继续小程序功能；开发者工具可点主路径 | `server/` 可运行工程 |
-| 保持 `useMock: true` 与合同里的 path/字段 | 真 `wx.request` 打真实 API |
-| 保持现有 tab 路径和视觉 token | 接微信登录换 JWT、真出片、真审核 |
-| 页面只调本模块 `services/` | 把 mock 写进 page 的 wxml/ts 里；未点名就重做视觉；每改一处就改文档 |
+| 按用户点名继续小程序功能 | `server/` 可运行工程 |
+| 保持 `useMock: true` 与合同里的 path / 字段 | 真 `wx.request` 打真实 API |
+| 保持已锁定的 tab 路径和视觉 token | 接微信登录换 JWT、真出片、真审核 |
+| 页面只调本模块 `services/` | 把 mock 写进页面；未点名就重做视觉；每改一处就改文档 |
 
-**预留接口是阶段 F 的完成条件，不是后补。** 路径和字段的唯一依据是 [api/contract.md](api/contract.md)。前端 mock 按它返回 JSON；后端按它写 FastAPI。两端都禁止自己发明字段名。后端开工后只改 `useMock` / `request` 实现，不准改合同里的 path 和字段。
+日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
-前端先行时允许 **先建小程序模块目录和页面，暂不建** `server/app/modules/<feature>/`。后端开工时必须用 **同一套英文模块名**。
+### 当前基线
+
+| 项 | 值 |
+|---|---|
+| 模块 | `auth` `me` `media` `album` `community` `video` `points`（`auth` / `media` 无独立页） |
+| 业务 service | 6 个（`me` `media` `album` `community` `video` `points`）；登录在 `core/auth` |
+| mock | 各模块 `services/mock.ts`；community 另有 `mock-helpers.ts`；points 另有 `mock-ledger.ts`；种子 `miniprogram/mocks/store.ts`；入口 `core/mock.ts`（只注册 / 匹配） |
+| 页面 | `app.json` 14 项：12 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
+| 渲染 | `"renderer": "skyline"`；公共 `libVersion` `3.7.0` |
+| 检查 | `npm run typecheck`（typescript 5.6） |
+| 详情页 | `community/pages/detail/detail.ts` 保留 `Page({...})`，不要再抽 `detail-page.ts`；录音走 `recordSink` |
+
+**预留接口是阶段 F 的完成条件，不是后补。** 路径和字段只认 [api/contract.md](api/contract.md)。前端 mock 按它返回 JSON；后端按它写 FastAPI。禁止另起字段名。后端开工后只改 `useMock` / `request` 实现。
+
+前端先行允许先建小程序模块和页面，暂不建 `server/app/modules/<feature>/`。后端开工时必须用**同一套英文模块名**。
 
 ## 已锁定的模块名（前后端同名）
 
@@ -133,7 +147,7 @@
 | 字段名、错误码 | 始终以 [api/contract.md](api/contract.md) 为准；OpenAPI 必须对上合同 | 先行按合同写 `types/`；接真 API 后可用生成文件覆盖，但仍须等于合同 |
 | 页面、交互、选图 | 不出现页面文案 | 负责 |
 | 图片二进制 | 收文件、存对象存储、返回 URL | 先行阶段可用本地临时路径占位；接 API 后走 `media` |
-| mock 数据 | 不存在 | 只允许出现在 services 或 `core/request` 的 mock 分支 |
+| mock 数据 | 不存在 | handlers 在各模块 `services/mock.ts`；种子在 `miniprogram/mocks/store.ts`；`core/mock.ts` 只注册。跨模块写走 community `mock-helpers` / points `mock-ledger` |
 
 ## 必须预留的 service（与接口一一对应）
 
@@ -177,7 +191,9 @@
 
 ## 开发者工具（阶段 F）
 
-打开仓库**根目录**。`app.json` 已 `"renderer": "skyline"`，公共 `libVersion` 是 `3.7.0`。本机 `project.private.config.json` 已 gitignore，会盖掉公共基础库。调试面板不是 Skyline 时：开发者工具「详情」改成 3.7.0，或改私有配置里的 `libVersion`。细则 [miniprogram/README.md](miniprogram/README.md)。
+打开仓库**根目录**（不是 `miniprogram/`）。`app.json` 已 `"renderer": "skyline"`，公共 `libVersion` 是 `3.7.0`。本机已点开，界面正常。
+
+`project.private.config.json` 已 gitignore，会盖掉公共基础库。换机器或面板不是 Skyline 时：开发者工具「详情」改成 3.7.0，或改私有配置里的 `libVersion`。细则 [miniprogram/README.md](miniprogram/README.md)。
 
 ## 本地怎么对上（后端落地之后）
 
@@ -245,10 +261,13 @@
 ## 下一对话建议读取顺序
 
 1. [AGENTS.md](../AGENTS.md)
-2. [progress.md](progress.md)（确认阶段 F、下一步、文档节奏）
-3. 本文件（模块名、页面路径、帖子互动、必须预留的 service、mock 约定）
-4. [api/contract.md](api/contract.md)（每个 service 的 path 和 JSON）
+2. [progress.md](progress.md)（阶段、下一步、已知风险）
+3. 本文件（模块名、tab / 页面路径、帖子互动、service、mock 布局）
+4. [api/contract.md](api/contract.md)（path 和 JSON）
 5. [miniprogram/README.md](miniprogram/README.md)
-6. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
+6. 写代码时再读 [framework/code-standards.md](framework/code-standards.md)
+7. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
 
-改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。不要先做 FastAPI。改接口先改合同。不要每改一处就改文档。
+改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。不要先做 FastAPI。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 不要建后端目录）。
+
+开发走 `/app-pet`。静态检查：`npm run typecheck`。页面改动请人在开发者工具点一下。已知延后项（media multipart、mock 单用户点赞、种子仍一份 store）见 [progress.md](progress.md)，不要当阶段 F 缺口去「顺便做掉」。
