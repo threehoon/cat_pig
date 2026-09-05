@@ -69,11 +69,11 @@ handlers 在 `modules/<feature>/services/mock.ts`。未命中路由时 `handleMo
 
 `navigation-bar` 用同步 `wx.getSystemInfoSync()` 量高度并缓存（本仓库 typings 没有 `getWindowInfo`）。不要在 `attached` 里异步 `getSystemInfo` 再 `setData`，转场中途会跳顶栏。
 
-### 跳转空一拍（未完成）
+### 跳转空一拍（真机不卡）
 
-Tab 切换不卡。卡的是页面里点击后 `wx.navigateTo`：抬手后转场迟一拍。公共骨架已按上面改过，**空一拍仍在**，不要写成已修好。下次从新页第一帧继续：详情整页 `wx:if="{{post}}"`、底栏 `textarea` 一进页就建、`onShow` 一次 `setData` 帖子+评论。模拟器会放大，真机再对照。
+Tab 切换不卡。开发者工具模拟器里，页面点击后 `wx.navigateTo` 会抬手空一拍再转场。**真机调试没有这个问题。** 阶段 F 在当前骨架上继续做功能。不要把模拟器里的空一拍当成产品缺口去改详情第一帧。
 
-下次不要先做这些（已试过或已排除）：
+公共骨架（`scroll-view type`、导航栏同步）仍按上面写。不要为「修模拟器卡顿」做这些（已试过或已排除）：
 
 - 评论无限滚动。合同虽是 `page_size=20`，但评论是 `parent_id` 线程，按页切会把回复和楼主拆开。当前 mock 也只有几条评论。
 - 给 Skyline 的 `image` 加 `lazy-load`。Skyline 默认已懒加载，那是 WebView 属性。

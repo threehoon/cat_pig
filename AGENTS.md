@@ -29,7 +29,7 @@ Grok、Codex、Claude Code 共用本文件和 `docs/`，不各写一套。Claude
 | **写/改代码、拆模块、改调度层、或与其它 agent 协同开发** | [docs/framework/code-standards.md](docs/framework/code-standards.md)（命名、模块重量、薄调度层、验证、交接） |
 | 写或改后端 | [docs/backend/README.md](docs/backend/README.md) |
 | 写或改小程序 | [docs/miniprogram/README.md](docs/miniprogram/README.md) |
-| **改小程序跳转卡顿 / Skyline 列表滚动** | [docs/miniprogram/README.md](docs/miniprogram/README.md)（滚动、导航栏、跳转空一拍；空一拍仍未修好） |
+| **改小程序跳转卡顿 / Skyline 列表滚动** | [docs/miniprogram/README.md](docs/miniprogram/README.md)（滚动、导航栏；模拟器 `navigateTo` 空一拍，真机不卡） |
 | **写/改任何接口、mock、FastAPI schema** | [docs/api/contract.md](docs/api/contract.md)（路径和字段的唯一依据） |
 | **做小程序界面 / mock / 页面路径** | [docs/handoff.md](docs/handoff.md)、[docs/api/contract.md](docs/api/contract.md)、[docs/miniprogram/README.md](docs/miniprogram/README.md)、[docs/product/reference/](docs/product/reference/README.md) |
 | **改小程序观感（配色、插画、通用组件）** | [docs/miniprogram/visual.md](docs/miniprogram/visual.md)、[docs/miniprogram/README.md](docs/miniprogram/README.md)、[docs/handoff.md](docs/handoff.md) |

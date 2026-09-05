@@ -16,7 +16,7 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：按用户点名继续阶段 F 的小程序功能。页面、`services/`、mock、评论区已接；开发者工具已点开，界面正常。帖子互动是点赞 / 评论 / 收藏 / 转发。详情评论区已有点赞 / 举报 / 配图 / 贴纸展示 / 语音 / 艾特。**点卡片 / 二级页 `navigateTo` 仍会空一拍，未修好**；点名继续时按 [miniprogram/README.md](miniprogram/README.md) 的「跳转空一拍」做，不要重做已撤回的详情 WXML 大重构。不要先搭 FastAPI。不要重做视觉（除非用户点名改某一页）。不要把 progress 里「已知风险」的延后项当成本轮必须做的事。
+下一对话目标：在当前骨架上按用户点名继续阶段 F。页面、`services/`、mock、评论区已接；真机调试可进。帖子互动是点赞 / 评论 / 收藏 / 转发。详情评论区已有点赞 / 举报 / 配图 / 贴纸展示 / 语音 / 艾特。模拟器 `navigateTo` 空一拍、真机不卡，**不要回头改跳转**。不要先搭 FastAPI。不要重做视觉（除非用户点名改某一页）。不要把 progress 里「已知风险」的延后项当成本轮必须做的事。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -31,7 +31,7 @@
 | 阶段 | F — 前端界面先行 |
 | 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具已点开，界面正常） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-09-05 |
+| 最后更新 | 2026-09-06 |
 
 ## 阶段总览
 
@@ -76,13 +76,13 @@
 - 微信开发者工具已打开仓库根目录：小程序可启动，界面与主路径正常。
 - 帖子互动改为点赞 / 评论 / 收藏 / 转发。点赞和收藏互相独立；评论区可连续发、可评论别人。删评论：本人只能删自己的，贴主可删该帖任意一条，不连带删别人的；删帖才清掉该帖全部评论。转发走微信分享。
 - 评论区补齐：点赞评论、三点菜单（复制 / 举报 / 有权限才删除）、配图（最多 9 张，列表最多露 3 张，超过叠放）、水彩贴纸资源可跟在正文后、语音评论、艾特。输入条：大圆角输入 + 相册 / @ / 表情 / 语音图标 + 发送。不做 AI 润色。艾特写入 `body` 的 `@昵称 `，评论列表里仅这段用主色；退格一次删掉整段。语音走 `audio_url` / `audio_duration`，按住说话松开发出。电脑端选图没有摄像头则退回相册；录音在电脑端可能失败。
-- Skyline 列表骨架：业务页纵向 `scroll-view` 补 `type="list"`；论坛横向标签加 `enable-flex`；首页 / 论坛 / 我的发布把 `post-card` 做成列表直接子节点；导航栏改为同步 `getSystemInfoSync` 并缓存。**点进去仍空一拍，未修好**，见已知风险和 [miniprogram/README.md](miniprogram/README.md)。
+- Skyline 列表骨架：业务页纵向 `scroll-view` 补 `type="list"`；论坛横向标签加 `enable-flex`；首页 / 论坛 / 我的发布把 `post-card` 做成列表直接子节点；导航栏改为同步 `getSystemInfoSync` 并缓存。模拟器里 `navigateTo` 仍可能空一拍，**真机调试不卡**，见 [miniprogram/README.md](miniprogram/README.md)。
 - 真机调试：`detail-voice.ts` 去掉 `recordSink?.`，改成显式判断。`es6` / `enhance` 仍关闭。
+- 真机对照：点动态进详情不卡。模拟器 `navigateTo` 空一拍只当开发者工具现象。阶段 F 在此基础上继续，不再为跳转改详情。
 
 ## 进行中
 
-- 阶段 F：页面、services、mock、评论区已接。开发者工具已点开，界面正常。按用户点名继续改小程序功能。
-- `navigateTo` 空一拍未修好（Tab 不卡，点动态 / 二级页抬手后转场仍迟一拍）。骨架已改，下一轮查新页第一帧。
+- 阶段 F：页面、services、mock、评论区已接。真机调试可用。按用户点名继续加功能。
 
 ## 已知风险
 
@@ -94,11 +94,11 @@
 | mock 点赞/收藏 | 资源上的布尔，不是每用户一条；单用户先行够用 | 接真 API 后由后端处理 |
 | mock 种子仍是一份 `mocks/store.ts` | 写路径已走 community `mock-helpers` / points `mock-ledger`；再按模块拆种子不阻塞阶段 F | 按需，不是现在 |
 | 本机 `project.private.config.json` 覆盖基础库 | 已 gitignore。本机已点开正常。换机器或 DevTools 改回旧 `libVersion` 时，把私有配置改成与公共 `3.7.0` 一致 | 换环境若 Skyline 未亮 |
-| `navigateTo` 空一拍 | Tab 不卡；点动态 / 二级页抬手后转场仍迟一拍。已补 `scroll-view type` 与导航栏同步，**未修好**。模拟器会放大 | 点名继续时按 [miniprogram/README.md](miniprogram/README.md)「跳转空一拍」；先查新页第一帧，不要重做已撤回的详情 WXML 大重构 |
+| 开发者工具 Skyline 模拟器 `navigateTo` 空一拍 | 模拟器里点动态 / 二级页抬手后转场会迟一拍；**真机调试不卡**。已补 `scroll-view type` 与导航栏同步 | 不当作产品缺口。不要为修模拟器去改详情第一帧或重做已撤回的详情 WXML |
 
 ## 下一步（给新对话，按此顺序）
 
-1. 按用户点名的下一功能继续改小程序。点名修跳转卡顿时：空一拍**还没好**，从新页第一帧继续，细则 [miniprogram/README.md](miniprogram/README.md)；不要重做已撤回的详情 WXML 大重构，不要先做评论分页 / `lazy-load` / 把 `reload` 挪到 `onLoad`。不要先搭 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。新模块走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 只建小程序，不建后端目录）。
+1. 在当前骨架上按用户点名继续改小程序。不要回头修 `navigateTo`（真机不卡，见 [miniprogram/README.md](miniprogram/README.md)）。不要先搭 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。新模块走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 只建小程序，不建后端目录）。
 2. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
 3. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`），并验证 `uploadMedia` 与合同一致。这不是下一对话的默认任务。
 
@@ -143,7 +143,8 @@
 | 2026-09-03 | `app.json` 声明 `"renderer": "skyline"`，基础库 3.7.0 | 原先只有 `rendererOptions`，`project.private.config.json` 仍钉在 2.32.3，Skyline 不会启用 |
 | 2026-09-03 | 录音 `onStop` / `onError` 走 `recordSink` | 与播放的 `playbackSink` 对齐，不再 `getCurrentPages()` 猜栈顶 |
 | 2026-09-03 | 已知风险只登记在 progress.md | 人点验、私有基础库覆盖、media multipart、单用户 mock 点赞、种子仍一份 store，分清「现在」和「阶段 2」 |
-| 2026-09-03 | 跳转卡顿先改公共骨架，不先动详情评论 | Tab 正常、`navigateTo` 空一拍；评论分页 / `lazy-load` 对当前几条评论无收益且会拆线程。骨架改完仍空一拍，记为未完成 |
+| 2026-09-03 | 跳转卡顿先改公共骨架，不先动详情评论 | 当时只在模拟器里看到 `navigateTo` 空一拍；评论分页 / `lazy-load` 对当前几条评论无收益且会拆线程 |
+| 2026-09-06 | 模拟器 `navigateTo` 空一拍不当作产品缺口 | 真机调试点动态进详情不卡；空一拍只出现在开发者工具验证 |
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 
