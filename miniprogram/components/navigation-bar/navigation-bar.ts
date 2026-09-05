@@ -1,3 +1,32 @@
+type NavMetrics = {
+  ios: boolean
+  innerPaddingRight: string
+  leftWidth: string
+  safeAreaTop: string
+}
+
+let cachedNav: NavMetrics | null = null
+
+function readNavMetrics(): NavMetrics {
+  if (cachedNav) {
+    return cachedNav
+  }
+  const rect = wx.getMenuButtonBoundingClientRect()
+  const res = wx.getSystemInfoSync()
+  const isAndroid = res.platform === 'android'
+  const isDevtools = res.platform === 'devtools'
+  cachedNav = {
+    ios: !isAndroid,
+    innerPaddingRight: `padding-right: ${res.windowWidth - rect.left}px`,
+    leftWidth: `width: ${res.windowWidth - rect.left}px`,
+    safeAreaTop:
+      isDevtools || isAndroid
+        ? `height: calc(var(--height) + ${res.safeArea.top}px); padding-top: ${res.safeArea.top}px`
+        : '',
+  }
+  return cachedNav
+}
+
 Component({
   options: {
     multipleSlots: true // 在组件定义时的选项中启用多slot支持
@@ -59,19 +88,7 @@ Component({
   },
   lifetimes: {
     attached() {
-      const rect = wx.getMenuButtonBoundingClientRect()
-      wx.getSystemInfo({
-        success: (res) => {
-          const isAndroid = res.platform === 'android'
-          const isDevtools = res.platform === 'devtools'
-          this.setData({
-            ios: !isAndroid,
-            innerPaddingRight: `padding-right: ${res.windowWidth - rect.left}px`,
-            leftWidth: `width: ${res.windowWidth - rect.left }px`,
-            safeAreaTop: isDevtools || isAndroid ? `height: calc(var(--height) + ${res.safeArea.top}px); padding-top: ${res.safeArea.top}px` : ``
-          })
-        }
-      })
+      this.setData(readNavMetrics())
     },
   },
   /**

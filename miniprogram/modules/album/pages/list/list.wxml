@@ -1,5 +1,5 @@
 <page-shell title="相册">
-  <scroll-view class="page-scroll" scroll-y>
+  <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad page-pad--fab">
       <empty-state
         wx:if="{{albums.length === 0}}"

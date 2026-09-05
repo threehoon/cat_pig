@@ -57,6 +57,29 @@ handlers 在 `modules/<feature>/services/mock.ts`。未命中路由时 `handleMo
 
 调试面板不是 Skyline 时：在开发者工具「详情」把基础库改成 3.7.0，或把本机私有配置里的 `libVersion` 改成与公共配置相同。打开仓库**根目录**，不是 `miniprogram/`。
 
+真机调试：`project.config.json` 里 `es6` 和 `enhance` 都是 `false`，TS `target` 是 ES2020。写 `?.` / `??` 模拟器可能过，真机调试会 `SyntaxError: Unexpected token .`（已在 `detail-voice.ts` 的 `recordSink?.` 上发生过）。业务代码写成显式 `if`。不要为了这一个语法去开 `enhance`。
+
+### 滚动
+
+纵向 `scroll-view` 必须写 `type="list"`。横向再加 `enable-flex`。不设 `type` 会走退化路径，点击也不跟手。
+
+`type="list"` 时，列表项必须是 `scroll-view` 的直接子节点。不要用一个 `page-pad` 把头图和卡片全包进去再标 `type="list"`——那样按需渲染退化。首页 / 论坛 / 我的发布：头用 `page-pad--head`，`post-card` 做直接子节点，底部用 `list-end`（论坛带 FAB 用 `list-end--fab`）。短页（我的、发帖、上传）可以保留单个 `page-pad`，但仍要有 `type`。
+
+### 导航栏
+
+`navigation-bar` 用同步 `wx.getSystemInfoSync()` 量高度并缓存（本仓库 typings 没有 `getWindowInfo`）。不要在 `attached` 里异步 `getSystemInfo` 再 `setData`，转场中途会跳顶栏。
+
+### 跳转空一拍（未完成）
+
+Tab 切换不卡。卡的是页面里点击后 `wx.navigateTo`：抬手后转场迟一拍。公共骨架已按上面改过，**空一拍仍在**，不要写成已修好。下次从新页第一帧继续：详情整页 `wx:if="{{post}}"`、底栏 `textarea` 一进页就建、`onShow` 一次 `setData` 帖子+评论。模拟器会放大，真机再对照。
+
+下次不要先做这些（已试过或已排除）：
+
+- 评论无限滚动。合同虽是 `page_size=20`，但评论是 `parent_id` 线程，按页切会把回复和楼主拆开。当前 mock 也只有几条评论。
+- 给 Skyline 的 `image` 加 `lazy-load`。Skyline 默认已懒加载，那是 WebView 属性。
+- 把详情 `reload` 整包挪到 `onLoad`。会更早堵住转场。
+- 为修卡顿重写详情 WXML。已发生过少闭合标签、编译失败，整段撤回。改 WXML 后先核对开闭标签；编译不过先还原，不要再堆 `core/navigation.ts`、`detail-loading.ts` 这类新文件。
+
 ## 与模板页
 
 `pages/index`、`pages/logs` 是官方 quickstart。阶段 F 把 `app.json` 首页改为 `modules/community/pages/home/home`。不要在模板页里堆产品 UI。

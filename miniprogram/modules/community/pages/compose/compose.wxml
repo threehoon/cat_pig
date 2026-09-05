@@ -1,5 +1,5 @@
 <page-shell title="发布帖子" back="{{true}}">
-  <scroll-view class="page-scroll" scroll-y>
+  <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <text class="field__label">选择板块</text>
       <view class="chip-row chip-row--boards">

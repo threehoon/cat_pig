@@ -1,6 +1,6 @@
 <page-shell title="论坛">
-  <scroll-view class="page-scroll" scroll-y>
-    <view class="page-pad page-pad--fab">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad page-pad--head">
       <view class="search card">
         <input
           class="search__input"
@@ -13,7 +13,7 @@
         <text class="search__btn" bindtap="onSearch">搜索</text>
       </view>
 
-      <scroll-view class="chip-scroll" scroll-x show-scrollbar="{{false}}">
+      <scroll-view class="chip-scroll" type="list" scroll-x enable-flex show-scrollbar="{{false}}">
         <view class="chip-inner">
           <view
             wx:for="{{tabs}}"
@@ -38,28 +38,29 @@
         action="{{emptyAction}}"
         bind:action="onCompose"
       />
-      <post-card
-        wx:for="{{posts}}"
-        wx:key="id"
-        post-id="{{item.id}}"
-        author="{{item.author}}"
-        avatar="{{item.avatar}}"
-        time="{{item.time}}"
-        board="{{item.board}}"
-        body="{{item.body}}"
-        covers="{{item.covers}}"
-        show-media="{{item.showMedia}}"
-        like-count="{{item.like_count}}"
-        comment-count="{{item.comment_count}}"
-        favorite-count="{{item.favorite_count}}"
-        liked="{{item.liked}}"
-        favorited="{{item.favorited}}"
-        bind:opentap="onPost"
-        bind:like="onLike"
-        bind:favorite="onFavorite"
-        bind:reply="onReply"
-      />
     </view>
+    <post-card
+      wx:for="{{posts}}"
+      wx:key="id"
+      post-id="{{item.id}}"
+      author="{{item.author}}"
+      avatar="{{item.avatar}}"
+      time="{{item.time}}"
+      board="{{item.board}}"
+      body="{{item.body}}"
+      covers="{{item.covers}}"
+      show-media="{{item.showMedia}}"
+      like-count="{{item.like_count}}"
+      comment-count="{{item.comment_count}}"
+      favorite-count="{{item.favorite_count}}"
+      liked="{{item.liked}}"
+      favorited="{{item.favorited}}"
+      bind:opentap="onPost"
+      bind:like="onLike"
+      bind:favorite="onFavorite"
+      bind:reply="onReply"
+    />
+    <view class="list-end list-end--fab"></view>
   </scroll-view>
   <view class="fab" bindtap="onCompose">发帖</view>
 </page-shell>

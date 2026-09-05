@@ -1,5 +1,5 @@
 <page-shell title="上传到相册" back="{{true}}">
-  <scroll-view class="page-scroll" scroll-y>
+  <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="media-row">
         <view

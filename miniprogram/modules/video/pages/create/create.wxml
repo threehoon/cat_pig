@@ -1,5 +1,5 @@
 <page-shell title="创作">
-  <scroll-view class="page-scroll" scroll-y>
+  <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="card upload-area">
         <text class="upload-area__title">上传宠物照片</text>

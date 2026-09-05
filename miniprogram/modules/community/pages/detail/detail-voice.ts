@@ -48,11 +48,15 @@ export function ensureRecorder() {
 
   recorder = wx.getRecorderManager()
   recorder.onStop((res) => {
-    recordSink?.handleRecordStop(res)
+    if (recordSink) {
+      recordSink.handleRecordStop(res)
+    }
   })
   recorder.onError(() => {
     holdingVoice = false
-    recordSink?.setRecording(false)
+    if (recordSink) {
+      recordSink.setRecording(false)
+    }
     wx.showToast({ title: '录音失败，电脑端可能不支持', icon: 'none' })
   })
 }

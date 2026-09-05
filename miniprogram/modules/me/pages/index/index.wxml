@@ -1,5 +1,5 @@
 <page-shell title="我的">
-  <scroll-view class="page-scroll" scroll-y>
+  <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="card me-head">
         <view class="avatar avatar--lg">

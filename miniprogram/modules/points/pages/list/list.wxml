@@ -1,5 +1,5 @@
 <page-shell title="积分明细" back="{{true}}">
-  <scroll-view class="page-scroll" scroll-y>
+  <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="hint" wx:if="{{checkinHint}}">{{checkinHint}}</view>
       <view class="stat-bar">

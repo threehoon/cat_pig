@@ -1,5 +1,5 @@
 <page-shell title="任务详情" back="{{true}}">
-  <scroll-view class="page-scroll" scroll-y wx:if="{{video}}">
+  <scroll-view class="page-scroll" type="list" scroll-y wx:if="{{video}}">
     <view class="page-pad">
       <view class="card">
         <text class="detail-kicker">{{statusLabel}}</text>

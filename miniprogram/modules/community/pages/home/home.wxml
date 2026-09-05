@@ -1,6 +1,6 @@
 <page-shell title="首页">
-  <scroll-view class="page-scroll" scroll-y>
-    <view class="page-pad">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad page-pad--head">
       <view class="hero-banner">
         <image class="hero-banner__img" src="{{banner}}" mode="aspectFill" />
         <view class="hero-banner__copy">
@@ -40,27 +40,28 @@
         <text class="section-title">广场动态</text>
         <text class="section-more" bindtap="onMore">更多</text>
       </view>
-      <post-card
-        wx:for="{{posts}}"
-        wx:key="id"
-        post-id="{{item.id}}"
-        author="{{item.author}}"
-        avatar="{{item.avatar}}"
-        time="{{item.time}}"
-        board="{{item.board}}"
-        body="{{item.body}}"
-        covers="{{item.covers}}"
-        show-media="{{item.showMedia}}"
-        like-count="{{item.like_count}}"
-        comment-count="{{item.comment_count}}"
-        favorite-count="{{item.favorite_count}}"
-        liked="{{item.liked}}"
-        favorited="{{item.favorited}}"
-        bind:opentap="onPost"
-        bind:like="onLike"
-        bind:favorite="onFavorite"
-        bind:reply="onReply"
-      />
     </view>
+    <post-card
+      wx:for="{{posts}}"
+      wx:key="id"
+      post-id="{{item.id}}"
+      author="{{item.author}}"
+      avatar="{{item.avatar}}"
+      time="{{item.time}}"
+      board="{{item.board}}"
+      body="{{item.body}}"
+      covers="{{item.covers}}"
+      show-media="{{item.showMedia}}"
+      like-count="{{item.like_count}}"
+      comment-count="{{item.comment_count}}"
+      favorite-count="{{item.favorite_count}}"
+      liked="{{item.liked}}"
+      favorited="{{item.favorited}}"
+      bind:opentap="onPost"
+      bind:like="onLike"
+      bind:favorite="onFavorite"
+      bind:reply="onReply"
+    />
+    <view class="list-end"></view>
   </scroll-view>
 </page-shell>

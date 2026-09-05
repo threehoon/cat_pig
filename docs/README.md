@@ -34,7 +34,7 @@
 | [framework/adding-a-module.md](framework/adding-a-module.md) | 开工清单 | 新增功能的唯一步骤 |
 | [framework/skills.md](framework/skills.md) | Agent 开发 | 已安装的 skill、怎么调用、重名说明 |
 | [backend/README.md](backend/README.md) | 后端 | FastAPI 分层、发现路由、迁移 |
-| [miniprogram/README.md](miniprogram/README.md) | 小程序 | 页面、core、模块、微信约束 |
+| [miniprogram/README.md](miniprogram/README.md) | 小程序 | 页面、core、模块、微信约束、Skyline 滚动与跳转空一拍（未完成） |
 | [miniprogram/visual.md](miniprogram/visual.md) | 小程序观感 | 配色 token、插画目录、通用组件、禁止写死 hex |
 | [superpowers/specs/2026-08-24-framework-and-stack-design.md](superpowers/specs/2026-08-24-framework-and-stack-design.md) | 追溯 | 技术栈与仓库骨架（产品方向以 product/ 为准） |
 | [superpowers/specs/2026-08-24-product-community-pivot.md](superpowers/specs/2026-08-24-product-community-pivot.md) | 追溯 | 从日记账本改向内容小程序 |
