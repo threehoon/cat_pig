@@ -16,7 +16,7 @@ Claude Code 在本仓库的会话入口。单仓项目：微信**原生**小程�
 
 本仓库开发一律先走 **`/app-pet`**。它是路由，会点名该加载哪个同伴 skill；清单见 [docs/framework/skills.md](docs/framework/skills.md)。
 
-skill 的唯一副本在 `.grok/skills/`（版本控制里就这一份，Grok 和 Codex 也读它）。Claude Code 读的 `.claude/skills/` 是**生成副本**，不进 git：
+skill 的唯一副本在 `.grok/skills/`（版本控制里就这一份，Grok、Codex、Hermes 也读它）。Claude Code 读的 `.claude/skills/` 是**生成副本**，不进 git：
 
 ```bash
 bash scripts/sync-claude-skills.sh

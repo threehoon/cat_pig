@@ -12,6 +12,7 @@
     "modules/points/pages/list/list",
     "modules/video/pages/tasks/tasks",
     "modules/video/pages/detail/detail",
+    "modules/me/pages/profile/profile",
     "pages/index/index",
     "pages/logs/logs"
   ],

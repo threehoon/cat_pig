@@ -58,7 +58,7 @@
 }
 ```
 
-`nickname`、`avatar_url` 可 `null`（未设时）。`points_balance` 始终是整数。
+`nickname`、`avatar_url` 可 `null`（未设时）。`points_balance` 始终是整数。用户保存时 `nickname` 去空白后须 1–16 字，空或超长返回 `VALIDATION`；未设仍允许 `null`。
 
 ### Media
 

@@ -1,22 +1,23 @@
 # 项目 Agent Skills
 
-本仓库给 Grok、Codex 和 Claude Code 共用的 skill 装在 [`.grok/skills/`](../../.grok/skills/)。这是唯一副本，清单变更只改这一份文件。
+本仓库给 Grok、Codex、Claude Code 和 Hermes 共用的 skill 装在 [`.grok/skills/`](../../.grok/skills/)。这是唯一副本，清单变更只改这一份文件。
 
 开发本产品时先走 **`/app-pet`**。其它 skill 是它点名才加载的同伴，不是第二套规范。规范正文仍在 `docs/`，skill 只负责触发和约束输出形态。
 
 安装来源记在仓库根目录 `skills-lock.json`。更新第三方 skill：`npx skills update`，更新完按下表重新接一次 Claude Code。
 
-## 三个 CLI 怎么接上同一份
+## 四个 CLI 怎么接上同一份
 
 | CLI | 读哪个目录 | 怎么接 |
 |---|---|---|
 | Grok | [`.grok/skills/`](../../.grok/skills/) | 原生位置，唯一副本 |
 | Codex | [`.agents/skills/`](../../.agents/skills/) | 软链接 → `../.grok/skills` |
+| Hermes | [`.agents/skills/`](../../.agents/skills/) | 官方跨工具目录，与 Codex 共用；本机先 `hermes skills trust`。**不要**再建 `.hermes/skills` |
 | Claude Code | `.claude/skills/` | **生成副本**：`bash scripts/sync-claude-skills.sh`，已 gitignore |
 
 Claude Code 不能用软链接接 skill 目录：软链接下 `/app-pet` 会报 `Unknown skill`（[claude-code#36659](https://github.com/anthropics/claude-code/issues/36659)、[#25367](https://github.com/anthropics/claude-code/issues/25367)），所以改为同步出真实目录。三条规矩：改动只改 `.grok/skills/`，改完重跑同步脚本，然后重启对话（skill 只在会话启动时加载）。新克隆的仓库里 `.claude/skills/` 不存在，`/app-pet` 要等同步后才有。
 
-Claude Code 的会话入口与专属机制（工具、并行、能跑什么检查）在根目录 [CLAUDE.md](../../CLAUDE.md)。
+Claude Code 的会话入口与专属机制在根目录 [CLAUDE.md](../../CLAUDE.md)。Hermes 的在 [hermes.md](hermes.md)。
 
 ## 怎么用
 

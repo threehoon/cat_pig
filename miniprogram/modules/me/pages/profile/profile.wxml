@@ -1,0 +1,35 @@
+<page-shell title="编辑资料" back="{{true}}" catch-back="{{true}}" bind:back="onBack">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad">
+      <form bindsubmit="onSave">
+        <view class="card profile-head">
+          <button
+            class="profile-avatar-btn"
+            hover-class="none"
+            open-type="chooseAvatar"
+            bindchooseavatar="onChooseAvatar"
+          >
+            <view class="avatar avatar--lg">
+              <image class="avatar__img" src="{{draftAvatar}}" mode="aspectFill" />
+            </view>
+          </button>
+          <text class="profile-avatar-hint">点击更换头像</text>
+        </view>
+
+        <view class="field">
+          <view class="field__label">昵称</view>
+          <input
+            class="field__input"
+            name="nickname"
+            value="{{draftNickname}}"
+            maxlength="16"
+            placeholder="请输入昵称"
+            bindinput="onNickname"
+          />
+        </view>
+
+        <button form-type="submit" class="btn btn--primary profile-save" hover-class="none">保存</button>
+      </form>
+    </view>
+  </scroll-view>
+</page-shell>

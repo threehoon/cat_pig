@@ -1,0 +1,45 @@
+page {
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.profile-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40rpx;
+  padding-bottom: 40rpx;
+}
+
+.profile-avatar-btn {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-avatar-btn::after {
+  border: none;
+}
+
+.profile-avatar-hint {
+  margin-top: 16rpx;
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+}
+
+.profile-save {
+  margin-top: 48rpx;
+  width: 100%;
+  padding: 0;
+  border: none;
+  line-height: 88rpx;
+}
+
+.profile-save::after {
+  border: none;
+}

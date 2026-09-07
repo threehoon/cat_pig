@@ -79,6 +79,10 @@ Component({
       type: Number,
       value: 1
     },
+    catchBack: {
+      type: Boolean,
+      value: false,
+    },
   },
   /**
    * 组件的初始数据
@@ -111,6 +115,10 @@ Component({
     },
     back() {
       const data = this.data
+      if (data.catchBack) {
+        this.triggerEvent('back', { delta: data.delta }, {})
+        return
+      }
       if (data.delta) {
         wx.navigateBack({
           delta: data.delta

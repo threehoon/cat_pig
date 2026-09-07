@@ -26,6 +26,13 @@ page {
   color: var(--color-primary);
 }
 
+.me-edit-hint {
+  display: block;
+  margin-top: 6rpx;
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+}
+
 .menu {
   padding: 8rpx 28rpx;
 }

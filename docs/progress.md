@@ -31,7 +31,7 @@
 | 阶段 | F — 前端界面先行 |
 | 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具已点开，界面正常） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-09-06 |
+| 最后更新 | 2026-09-07 |
 
 ## 阶段总览
 
@@ -79,6 +79,8 @@
 - Skyline 列表骨架：业务页纵向 `scroll-view` 补 `type="list"`；论坛横向标签加 `enable-flex`；首页 / 论坛 / 我的发布把 `post-card` 做成列表直接子节点；导航栏改为同步 `getSystemInfoSync` 并缓存。模拟器里 `navigateTo` 仍可能空一拍，**真机调试不卡**，见 [miniprogram/README.md](miniprogram/README.md)。
 - 真机调试：`detail-voice.ts` 去掉 `recordSink?.`，改成显式判断。`es6` / `enhance` 仍关闭。
 - 真机对照：点动态进详情不卡。模拟器 `navigateTo` 空一拍只当开发者工具现象。阶段 F 在此基础上继续，不再为跳转改详情。
+- 「我的」编辑资料页已接：点资料卡进 `modules/me/pages/profile/profile`；头像走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入 1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`catch-back` 仅本页开启。评论作者展示跟 `store.me`。
+- Hermes 接入同一套 skill 与规范：不建根目录 `.hermes.md` / `HERMES.md`（会盖掉 `AGENTS.md`），也不建 `.hermes/skills`（会和 `.agents/skills` 扫两遍）。Hermes 读已有的 `.agents/skills` 软链接；专属机制在 [framework/hermes.md](framework/hermes.md)。本机需 `hermes skills trust`，只改 `~/.hermes/config.yaml`。
 
 ## 进行中
 
@@ -98,7 +100,7 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 在当前骨架上按用户点名继续改小程序。不要回头修 `navigateTo`（真机不卡，见 [miniprogram/README.md](miniprogram/README.md)）。不要先搭 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。新模块走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 只建小程序，不建后端目录）。
+1. 按用户点名继续阶段 F。不要回头修 `navigateTo`（真机不卡，见 [miniprogram/README.md](miniprogram/README.md)）。不要先搭 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改接口先改 [api/contract.md](api/contract.md)。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。新模块走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 只建小程序，不建后端目录）。
 2. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
 3. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`），并验证 `uploadMedia` 与合同一致。这不是下一对话的默认任务。
 
@@ -145,6 +147,8 @@
 | 2026-09-03 | 已知风险只登记在 progress.md | 人点验、私有基础库覆盖、media multipart、单用户 mock 点赞、种子仍一份 store，分清「现在」和「阶段 2」 |
 | 2026-09-03 | 跳转卡顿先改公共骨架，不先动详情评论 | 当时只在模拟器里看到 `navigateTo` 空一拍；评论分页 / `lazy-load` 对当前几条评论无收益且会拆线程 |
 | 2026-09-06 | 模拟器 `navigateTo` 空一拍不当作产品缺口 | 真机调试点动态进详情不卡；空一拍只出现在开发者工具验证 |
+| 2026-09-07 | 「我的」用独立编辑资料页改头像昵称；头像只走 `chooseAvatar`；昵称普通输入，不用微信昵称快捷填入；点保存才 PATCH | 微信已收回 getUserProfile 真头像；官方头像选择已含相册/相机；草稿预览避免误触写库；昵称不绑微信名 |
+| 2026-09-07 | Hermes 与 Grok / Codex / Claude Code 共用同一份 skill 和规范 | 官方扫 `.agents/skills` 与 `.hermes/skills`；本仓库只用前者。不建 `.hermes.md`，否则会盖掉 `AGENTS.md`。本机 `hermes skills trust` |
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 

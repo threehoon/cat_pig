@@ -11,5 +11,14 @@ Component({
       type: Boolean,
       value: false,
     },
+    catchBack: {
+      type: Boolean,
+      value: false,
+    },
+  },
+  methods: {
+    onNavBack() {
+      this.triggerEvent('back')
+    },
   },
 })

@@ -18,7 +18,7 @@ Facts live in `docs/`. This skill is the **router**, not a second copy of the ru
 
 Installed skill catalog: [docs/framework/skills.md](../../../docs/framework/skills.md).
 
-This skill is shared by Grok, Codex and Claude Code. The one real copy is `.grok/skills/`; Codex reads it through `.agents/skills`, Claude Code through a synced copy in `.claude/skills/`. Edit `.grok/skills/` only.
+This skill is shared by Grok, Codex, Claude Code and Hermes. The one real copy is `.grok/skills/`; Codex and Hermes read it through `.agents/skills` (Hermes also needs `hermes skills trust` on this repo). Claude Code reads a synced copy in `.claude/skills/`. Edit `.grok/skills/` only. Do not add `.hermes/skills` or a root `.hermes.md`.
 
 ## Companion skills
 

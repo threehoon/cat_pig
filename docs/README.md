@@ -6,7 +6,7 @@
 
 | 类型 | 作用 | 目录 |
 |---|---|---|
-| 入口 / 路由 | 告诉 Agent 读哪份 | `/AGENTS.md`、`/CLAUDE.md` |
+| 入口 / 路由 | 告诉 Agent 读哪份 | `/AGENTS.md`、`/CLAUDE.md`、`docs/framework/hermes.md` |
 | 进度 | 现在做到哪、下一步、决策日志 | `progress.md` |
 | 产品 | 对标、定位、能力优先级 | `product/` |
 | 框架与规范 | 技术栈、目录、模块边界、增模块流程、代码与协作规范 | `framework/`、`backend/`、`miniprogram/` |
@@ -19,6 +19,7 @@
 |---|---|---|
 | [AGENTS.md](../AGENTS.md) | Agent 必读入口 | 路由表、硬规则摘要、如何登记新文档 |
 | [CLAUDE.md](../CLAUDE.md) | Claude Code 自动加载 | 只写 Claude 专属机制：skill 同步、工具与并行约定、当前能跑的检查；规则仍看 AGENTS.md |
+| [framework/hermes.md](framework/hermes.md) | Hermes 自动加载 AGENTS.md | 只写 Hermes 专属机制：trust 项目 skill、禁止根目录 `.hermes.md`；规则仍看 AGENTS.md |
 | [progress.md](progress.md) | 人 + Agent | 项目进度、阶段、下一步、已知风险 |
 | [product/README.md](product/README.md) | 人 + Agent | 产品文档目录 |
 | [product/positioning.md](product/positioning.md) | 产品 | 定位、对标「萌爪日记」同类 |

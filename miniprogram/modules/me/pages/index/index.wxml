@@ -1,13 +1,14 @@
 <page-shell title="我的">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
-      <view class="card me-head">
+      <view class="card me-head" bindtap="onProfile">
         <view class="avatar avatar--lg">
           <image class="avatar__img" src="{{avatar}}" mode="aspectFill" />
         </view>
         <view class="me-meta">
           <text class="me-name">{{nickname}}</text>
           <text class="me-points">积分 {{points_balance}}</text>
+          <text class="me-edit-hint">点击编辑</text>
         </view>
       </view>
 

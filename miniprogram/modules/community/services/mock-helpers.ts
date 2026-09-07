@@ -21,13 +21,20 @@ export function presentPost(post: MockPost) {
   }
 }
 
+function presentAuthor(author: MockComment['author']) {
+  if (author.id !== CURRENT_USER_ID) {
+    return { id: author.id, nickname: author.nickname, avatar_url: author.avatar_url }
+  }
+  return { id: author.id, nickname: store.me.nickname, avatar_url: store.me.avatar_url }
+}
+
 export function presentComment(item: MockComment) {
   return copy({
     id: item.id,
-    author: item.author,
+    author: presentAuthor(item.author),
     body: item.body,
     parent_id: item.parent_id,
-    reply_to: item.reply_to,
+    reply_to: item.reply_to ? presentAuthor(item.reply_to) : null,
     sticker_ids: item.sticker_ids.slice(),
     image_urls: item.image_urls.slice(),
     audio_url: item.audio_url || null,

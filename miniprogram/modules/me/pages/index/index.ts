@@ -19,6 +19,9 @@ Page({
       })
       .catch(toastRequestError)
   },
+  onProfile() {
+    wx.navigateTo({ url: '/modules/me/pages/profile/profile' })
+  },
   onMine() {
     wx.navigateTo({ url: '/modules/community/pages/mine/mine' })
   },

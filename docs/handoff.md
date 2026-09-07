@@ -26,7 +26,7 @@
 | 模块 | `auth` `me` `media` `album` `community` `video` `points`（`auth` / `media` 无独立页） |
 | 业务 service | 6 个（`me` `media` `album` `community` `video` `points`）；登录在 `core/auth` |
 | mock | 各模块 `services/mock.ts`；community 另有 `mock-helpers.ts`；points 另有 `mock-ledger.ts`；种子 `miniprogram/mocks/store.ts`；入口 `core/mock.ts`（只注册 / 匹配） |
-| 页面 | `app.json` 14 项：12 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
+| 页面 | `app.json` 15 项：13 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
 | 渲染 | `"renderer": "skyline"`；公共 `libVersion` `3.7.0` |
 | 检查 | `npm run typecheck`（typescript 5.6） |
 | 详情页 | `community/pages/detail/detail.ts` 保留 `Page({...})`，不要再抽 `detail-page.ts`；录音走 `recordSink` |
@@ -72,6 +72,7 @@
 | points | `modules/points/pages/list/list` | 积分明细 |
 | video | `modules/video/pages/tasks/tasks` | 任务管理（生成任务列表） |
 | video | `modules/video/pages/detail/detail` | 一条生成任务详情 |
+| me | `modules/me/pages/profile/profile` | 编辑资料（头像 / 昵称） |
 
 `pages/index`、`pages/logs`：界面接入后，把 `app.json` 的 `pages` 第一项改成社区首页，这两页不再当入口。不要在它们里面写产品 UI。
 
@@ -101,7 +102,7 @@
 - 论坛 tab：搜索走 query `q`；顶部分栏对应 `tab`（推荐 / 关注 / 六个板块）。
 - 创作 tab 打开即为图生视频表单，不是发帖。发帖从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
-- 「我的」：头像昵称走 `GET /api/v1/me`；三个入口分别进我的发布、积分明细、任务管理。
+- 「我的」：头像昵称走 `GET /api/v1/me`；点资料卡进编辑资料页；三个入口分别进我的发布、积分明细、任务管理。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。
 
 ### 帖子互动（已接 mock）
 
@@ -165,7 +166,7 @@
 
 页面事件处理里只出现 `xxxService.list()` 这类调用。字段名用下划线：`image_urls`、`sync_to_forum`、`points_balance`，不要在页面层再映射一套驼峰再丢掉。
 
-**例外：** `media` 没有自己的页面。相册 / 发帖 / 创作在选图后可以调用 `modules/media/services` 拿 `url`，再交给本模块 service。阶段 F 的 mock 可以直接把微信临时路径当作 `url`；当前 `uploadMedia` 仍通过 `core/request` 传递路径，切真 API 前必须在内核补 `multipart` 上传适配。其它跨模块仍然只许跳路由，不许互相 import service。
+**例外：** `media` 没有自己的页面。相册 / 发帖 / 创作 / 编辑资料在选图后可以调用 `modules/media/services` 拿 `url`，再交给本模块 service。阶段 F 的 mock 可以直接把微信临时路径当作 `url`；当前 `uploadMedia` 仍通过 `core/request` 传递路径，切真 API 前必须在内核补 `multipart` 上传适配。其它跨模块仍然只许跳路由，不许互相 import service。
 
 首页、我的若只展示其它模块的数据：首页帖预览走 **本模块** `community` service；积分入口只跳路由，不在 `me` 页面 import `points` 的 service。`GET /api/v1/me` 已带 `points_balance`，我的页展示余额用这个字段。
 
