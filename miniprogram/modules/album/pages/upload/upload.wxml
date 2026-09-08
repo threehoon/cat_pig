@@ -1,4 +1,4 @@
-<page-shell title="上传到相册" back="{{true}}">
+<page-shell title="{{pageTitle}}" back="{{true}}">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="media-row">
@@ -7,26 +7,57 @@
           wx:key="*this"
           class="media-thumb"
           data-index="{{index}}"
-          bindtap="onRemoveImage"
+          bindtap="onPreviewImage"
         >
           <image class="media-thumb__img" src="{{item}}" mode="aspectFill" />
+          <view
+            class="media-thumb__remove"
+            data-index="{{index}}"
+            catchtap="onRemoveImage"
+          >
+            <text>×</text>
+          </view>
+          <view wx:if="{{item === cover_url}}" class="media-thumb__mark media-thumb__mark--on">
+            <text>封面</text>
+          </view>
+          <view
+            wx:else
+            class="media-thumb__mark"
+            data-index="{{index}}"
+            catchtap="onSetCover"
+          >
+            <text>设为封面</text>
+          </view>
         </view>
-        <view wx:if="{{image_urls.length < 9}}" class="media-add" bindtap="onAddImage">+</view>
+        <view wx:if="{{image_urls.length < 9}}" class="media-add" bindtap="onAddImage">
+          <text class="media-add__plus">+</text>
+          <text class="media-add__label">添加照片</text>
+        </view>
       </view>
 
-      <view class="field">
-        <view class="field__label">照片标题</view>
-        <input class="field__input" placeholder="给这组照片起个名字" value="{{title}}" bindinput="onTitle" />
+      <view class="upload-field">
+        <view class="upload-field__label">
+          <text>照片标题</text>
+          <text class="upload-field__req">必填</text>
+        </view>
+        <view class="field">
+          <input class="field__input" placeholder="给这组照片起个名字" value="{{title}}" bindinput="onTitle" />
+        </view>
       </view>
-      <view class="field">
-        <view class="field__label">记录一下</view>
-        <textarea
-          class="field__input prompt"
-          placeholder="写下此刻的心情或趣事"
-          maxlength="500"
-          value="{{body}}"
-          bindinput="onBody"
-        />
+      <view class="upload-field">
+        <view class="upload-field__label">
+          <text>记录一下</text>
+          <text class="upload-field__req">必填</text>
+        </view>
+        <view class="field">
+          <textarea
+            class="field__input prompt"
+            placeholder="写下此刻的心情或趣事"
+            maxlength="500"
+            value="{{body}}"
+            bindinput="onBody"
+          />
+        </view>
       </view>
 
       <view class="section-head">
@@ -39,15 +70,40 @@
           class="chip {{item.on ? 'chip--on' : ''}}"
           data-name="{{item.name}}"
           bindtap="onTag"
-        >{{item.name}}</view>
+        >
+          <text>{{item.name}}</text>
+        </view>
+        <view class="chip chip--add" bindtap="onCustomTag">
+          <text>+ 自定义</text>
+        </view>
+      </view>
+
+      <view class="section-head">
+        <text class="section-title">可见性</text>
+      </view>
+      <view class="chip-row">
+        <view
+          wx:for="{{visibility_items}}"
+          wx:key="id"
+          class="chip {{item.on ? 'chip--on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onVisibility"
+        >
+          <text>{{item.label}}</text>
+        </view>
       </view>
 
       <view class="row-link">
         <view>
           <text>同步到论坛</text>
-          <text class="sync-sub">分享到广场，让更多人看到</text>
+          <text class="sync-sub">仅公开相册可以同步到论坛</text>
         </view>
-        <switch color="#F0783C" checked="{{sync_to_forum}}" bindchange="onSync" />
+        <switch
+          color="#F0783C"
+          checked="{{sync_to_forum}}"
+          disabled="{{syncDisabled}}"
+          bindchange="onSync"
+        />
       </view>
 
       <view class="btn btn--primary upload-submit" bindtap="onSubmit">保存到相册</view>

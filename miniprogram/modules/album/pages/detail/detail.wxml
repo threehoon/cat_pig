@@ -1,0 +1,39 @@
+<page-shell title="{{pageTitle}}" back="{{true}}">
+  <scroll-view wx:if="{{ready}}" class="page-scroll" type="list" scroll-y>
+    <view class="page-pad">
+      <view class="cover hero" data-url="{{cover_url}}" bindtap="onPreview">
+        <image class="cover__img" src="{{cover_url}}" mode="aspectFill" />
+      </view>
+
+      <scroll-view class="thumb-scroll" type="list" scroll-x enable-flex show-scrollbar="{{false}}">
+        <view
+          wx:for="{{thumbs}}"
+          wx:key="id"
+          class="thumb"
+          data-url="{{item.url}}"
+          bindtap="onPreview"
+        >
+          <image class="thumb__img" src="{{item.url}}" mode="aspectFill" />
+          <view wx:if="{{item.isCover}}" class="thumb__mark">
+            <text>封面</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <text class="detail-title">{{title}}</text>
+      <text class="detail-body">{{body}}</text>
+      <view wx:if="{{tag_names.length}}" class="chip-row detail-tags">
+        <view wx:for="{{tag_names}}" wx:key="*this" class="chip chip--ghost">
+          <text>{{item}}</text>
+        </view>
+      </view>
+      <text class="detail-vis">{{visibility_label}}</text>
+      <text class="detail-time">{{time}}</text>
+
+      <view class="btn-row">
+        <view class="btn btn--ghost" bindtap="onDelete">删除</view>
+        <view class="btn btn--primary" bindtap="onEdit">编辑</view>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

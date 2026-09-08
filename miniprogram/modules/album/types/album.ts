@@ -1,3 +1,5 @@
+export type AlbumVisibility = 'public' | 'private' | 'friends'
+
 export type Album = {
   id: string
   title: string
@@ -5,6 +7,7 @@ export type Album = {
   image_urls: string[]
   cover_url: string
   tag_names: string[]
+  visibility: AlbumVisibility
   sync_to_forum: boolean
   created_at: string
 }
@@ -15,6 +18,7 @@ export type AlbumWrite = {
   image_urls: string[]
   cover_url?: string
   tag_names: string[]
+  visibility?: AlbumVisibility
   sync_to_forum: boolean
 }
 

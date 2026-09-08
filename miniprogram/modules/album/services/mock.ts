@@ -11,11 +11,40 @@ import {
 } from '../../../core/mock-runtime'
 import { store, type MockAlbum } from '../../../mocks/store'
 import { syncAlbumToForum } from '../../community/services/mock-helpers'
+import { AlbumVisibility } from '../types/album'
+import { parseVisibility } from '../visibility'
 
 function findAlbum(id: string): MockAlbum {
   const album = store.albums.find((item) => item.id === id)
   if (!album) fail('NOT_FOUND', '相册不存在')
   return album
+}
+
+function readVisibility(data: Record<string, unknown>, fallback: AlbumVisibility): AlbumVisibility {
+  if (!('visibility' in data) || data.visibility === undefined || data.visibility === null || data.visibility === '') {
+    return fallback
+  }
+  const parsed = parseVisibility(data.visibility)
+  if (!parsed) fail('VALIDATION', '可见性不正确')
+  return parsed
+}
+
+function assertSyncAllowed(visibility: AlbumVisibility, syncToForum: boolean) {
+  if (syncToForum && visibility !== 'public') {
+    fail('VALIDATION', '只有公开相册可以同步到论坛')
+  }
+}
+
+function assertKeepPublicIfSynced(album: MockAlbum, nextVisibility: AlbumVisibility) {
+  if (album.visibility === 'public' && album.sync_to_forum && nextVisibility !== 'public') {
+    fail('VALIDATION', '已同步的公开相册不能改为非公开')
+  }
+}
+
+function trySync(album: MockAlbum) {
+  try {
+    syncAlbumToForum(album)
+  } catch (_err) {}
 }
 
 export const albumMockRoutes: MockRoute[] = [
@@ -35,6 +64,9 @@ export const albumMockRoutes: MockRoute[] = [
       if (!title || !body) fail('VALIDATION', '标题和说明不能为空')
       if (image_urls.length < 1 || image_urls.length > 9)
         fail('VALIDATION', image_urls.length < 1 ? '至少上传一张照片' : '最多 9 张照片')
+      const visibility = readVisibility(data, 'private')
+      const sync_to_forum = Boolean(data.sync_to_forum)
+      assertSyncAllowed(visibility, sync_to_forum)
       const album: MockAlbum = {
         id: newId(),
         title,
@@ -42,11 +74,12 @@ export const albumMockRoutes: MockRoute[] = [
         image_urls,
         cover_url: typeof data.cover_url === 'string' && data.cover_url ? data.cover_url : image_urls[0],
         tag_names: asStringArray(data.tag_names),
-        sync_to_forum: Boolean(data.sync_to_forum),
+        visibility,
+        sync_to_forum,
         created_at: nowIso(),
       }
       store.albums.unshift(album)
-      if (album.sync_to_forum) syncAlbumToForum(album)
+      if (album.sync_to_forum) trySync(album)
       return copy(album)
     },
   },
@@ -57,6 +90,12 @@ export const albumMockRoutes: MockRoute[] = [
     handle: (params, options) => {
       const album = findAlbum(params.id)
       const data = bodyOf(options)
+      const nextVisibility = readVisibility(data, album.visibility)
+      const nextSync =
+        typeof data.sync_to_forum === 'boolean' ? data.sync_to_forum : album.sync_to_forum
+      const wasSynced = album.sync_to_forum
+      assertKeepPublicIfSynced(album, nextVisibility)
+      assertSyncAllowed(nextVisibility, nextSync)
       if (typeof data.title === 'string') {
         if (!data.title.trim()) fail('VALIDATION', '标题不能为空')
         album.title = data.title.trim()
@@ -73,7 +112,9 @@ export const albumMockRoutes: MockRoute[] = [
       }
       if (typeof data.cover_url === 'string' && data.cover_url) album.cover_url = data.cover_url
       if (Array.isArray(data.tag_names)) album.tag_names = asStringArray(data.tag_names)
-      if (typeof data.sync_to_forum === 'boolean') album.sync_to_forum = data.sync_to_forum
+      album.visibility = nextVisibility
+      album.sync_to_forum = nextSync
+      if (nextSync && !wasSynced) trySync(album)
       return copy(album)
     },
   },

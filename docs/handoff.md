@@ -8,7 +8,7 @@
 
 阶段 **F（前端界面先行）**，进行中。`useMock: true`。不要先搭 FastAPI。不要重做视觉（除非用户点名某一页）。
 
-下一轮：**按用户点名的功能继续改小程序**。页面、`services/`、mock、评论区已接。微信开发者工具已打开仓库根目录，界面与主路径正常。
+下一轮：按 [dev/album.md](dev/album.md) 做相册 **切片 1**（上传页对标）。只做那一片，点验过关再往下。不要一次做完相册，切片 4 之前不要改合同。页面、`services/`、mock、评论区已接。微信开发者工具已打开仓库根目录，界面与主路径正常。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
@@ -263,11 +263,12 @@
 
 1. [AGENTS.md](../AGENTS.md)
 2. [progress.md](progress.md)（阶段、下一步、已知风险）
-3. 本文件（模块名、tab / 页面路径、帖子互动、service、mock 布局）
-4. [api/contract.md](api/contract.md)（path 和 JSON）
-5. [miniprogram/README.md](miniprogram/README.md)
-6. 写代码时再读 [framework/code-standards.md](framework/code-standards.md)
-7. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
+3. [dev/album.md](dev/album.md)（本轮相册：只做「当前切片」）
+4. 本文件（模块名、tab / 页面路径、帖子互动、service、mock 布局）
+5. [api/contract.md](api/contract.md)（path 和 JSON）
+6. [miniprogram/README.md](miniprogram/README.md)
+7. 写代码时再读 [framework/code-standards.md](framework/code-standards.md)
+8. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
 
 改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。不要先做 FastAPI。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 不要建后端目录）。
 

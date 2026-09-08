@@ -18,6 +18,7 @@ export type MockAlbum = {
   image_urls: string[]
   cover_url: string
   tag_names: string[]
+  visibility: 'public' | 'private' | 'friends'
   sync_to_forum: boolean
   created_at: string
 }
@@ -102,7 +103,8 @@ export const store = {
       image_urls: [mockPhotos.pet1, mockPhotos.pet2],
       cover_url: mockPhotos.pet1,
       tag_names: ['生活'],
-      sync_to_forum: false,
+      visibility: 'public',
+      sync_to_forum: true,
       created_at: '2026-08-24T10:00:00Z',
     },
     {
@@ -112,6 +114,7 @@ export const store = {
       image_urls: [mockPhotos.pet3],
       cover_url: mockPhotos.pet3,
       tag_names: ['温馨'],
+      visibility: 'private',
       sync_to_forum: false,
       created_at: '2026-08-22T08:00:00Z',
     },

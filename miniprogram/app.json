@@ -14,7 +14,8 @@
     "modules/video/pages/detail/detail",
     "modules/me/pages/profile/profile",
     "pages/index/index",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "modules/album/pages/detail/detail"
   ],
   "window": {
     "navigationBarTextStyle": "black",

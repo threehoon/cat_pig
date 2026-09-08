@@ -81,12 +81,13 @@
   "image_urls": ["https://example.com/1.jpg"],
   "cover_url": "https://example.com/1.jpg",
   "tag_names": ["生活"],
+  "visibility": "private",
   "sync_to_forum": false,
   "created_at": "2026-08-24T10:00:00Z"
 }
 ```
 
-`title`、`body` 必填非空。`cover_url` 默认等于 `image_urls[0]`。`tag_names` 始终是数组（可 `[]`）。预设标签：`写真` `美食` `生活` `温馨` `风景`，允许请求里带新字符串。`sync_to_forum` 为 true 时，后端在创建相册成功后 **另外** 调 community 发一条 `show` 帖（带同样的图和文）；失败不回滚相册，相册仍 `sync_to_forum: true`。
+`title`、`body` 必填非空。`cover_url` 默认等于 `image_urls[0]`。`tag_names` 始终是数组（可 `[]`）。预设标签：`写真` `美食` `生活` `温馨` `风景`，允许请求里带新字符串。`visibility` 为 `"public"` / `"private"` / `"friends"`；请求可省略，省略视为 `"private"`。仅 `visibility === "public"` 允许 `sync_to_forum: true`，其它值带 true 返回 `VALIDATION`。已是公开且 `sync_to_forum: true` 的相册，`PATCH` 把 `visibility` 改成非公开返回 `VALIDATION`。`sync_to_forum` 为 true 时，后端在创建相册成功后 **另外** 调 community 发一条 `show` 帖（带同样的图和文）；失败不回滚相册，相册仍 `sync_to_forum: true`。
 
 ### Author（嵌在帖子里，不是独立资源）
 
@@ -250,8 +251,8 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 只返回当前用户自己的相册。
 
 `POST /api/v1/album`  
-请求：`{ "title", "body", "image_urls", "cover_url", "tag_names", "sync_to_forum" }`  
-`cover_url` 可省略（用首图）。响应：`{ "data": Album }`
+请求：`{ "title", "body", "image_urls", "cover_url", "tag_names", "visibility", "sync_to_forum" }`
+`cover_url` 可省略（用首图）。`visibility` 可省略（视为 `private`）。响应：`{ "data": Album }`
 
 `GET /api/v1/album/{id}` → `{ "data": Album }`  
 `PATCH /api/v1/album/{id}` 子集 → `{ "data": Album }`  

@@ -16,9 +16,41 @@ page {
   box-sizing: border-box;
 }
 
+.fab--plus {
+  min-width: 96rpx;
+  width: 96rpx;
+  height: 96rpx;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 56rpx;
+}
+
+.filter-row {
+  margin-bottom: 20rpx;
+}
+
+.filter-empty {
+  margin-top: 80rpx;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
 .album-card__cover {
+  position: relative;
   height: 220rpx;
   border-radius: 20rpx;
+}
+
+.album-card__badge {
+  position: absolute;
+  left: 8rpx;
+  bottom: 8rpx;
+  z-index: 2;
+  padding: 6rpx 14rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-caption);
 }
 
 .album-card__title {
@@ -30,4 +62,12 @@ page {
 .album-card__sub {
   color: var(--color-text-muted);
   font-size: var(--font-caption);
+}
+
+.album-card__tags {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 8rpx;
 }

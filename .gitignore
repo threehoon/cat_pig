@@ -5,6 +5,7 @@ Thumbs.db
 # Editors / local agent tools
 .obsidian/
 .superpowers/
+.hermes/
 .grok/*
 !.grok/skills/
 !.grok/skills/**

@@ -1,6 +1,17 @@
 <page-shell title="相册">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad page-pad--fab">
+      <view class="chip-row filter-row">
+        <view
+          wx:for="{{filters}}"
+          wx:key="id"
+          class="chip {{filter === item.id ? 'chip--on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onFilter"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
       <empty-state
         wx:if="{{albums.length === 0}}"
         image="{{emptyAlbum}}"
@@ -9,16 +20,36 @@
         action="去上传"
         bind:action="onUpload"
       />
+      <view wx:elif="{{shown.length === 0}}" class="filter-empty">
+        <text>这个分类还没有相册</text>
+      </view>
       <view wx:else class="album-grid">
-        <view wx:for="{{albums}}" wx:key="id" class="album-card card" data-id="{{item.id}}" bindtap="onOpen">
+        <view
+          wx:for="{{shown}}"
+          wx:key="id"
+          wx:for-item="album"
+          class="album-card card"
+          data-id="{{album.id}}"
+          bindtap="onOpen"
+        >
           <view class="cover album-card__cover">
-            <image class="cover__img" src="{{item.cover_url}}" mode="aspectFill" />
+            <image class="cover__img" src="{{album.cover_url}}" mode="aspectFill" />
+            <view class="album-card__badge">
+              <text>{{album.visibility_label}}</text>
+            </view>
           </view>
-          <text class="album-card__title">{{item.title}}</text>
-          <text class="album-card__sub">{{item.image_urls.length}} 张</text>
+          <text class="album-card__title">{{album.title}}</text>
+          <text class="album-card__sub">{{album.sub}}</text>
+          <view wx:if="{{album.tag_names.length}}" class="album-card__tags">
+            <view wx:for="{{album.tag_names}}" wx:key="*this" class="chip chip--ghost">
+              <text>{{item}}</text>
+            </view>
+          </view>
         </view>
       </view>
     </view>
   </scroll-view>
-  <view class="fab" bindtap="onUpload">上传</view>
+  <view class="fab fab--plus" bindtap="onUpload">
+    <text>+</text>
+  </view>
 </page-shell>
