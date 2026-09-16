@@ -12,13 +12,13 @@ Facts live in `docs/`. This skill is the **router**, not a second copy of the ru
 ## Every turn
 
 1. Read [AGENTS.md](../../../AGENTS.md) (hard rules + which doc to open).
-2. Read [docs/progress.md](../../../docs/progress.md) for the current phase. Do that phase's work; do not skip ahead.
+2. Read [docs/progress.md](../../../docs/progress.md) for the current phase. Confirm against `git log -5 --oneline` and `git status -sb` before coding — HEAD can already contain work the progress file still lists as next. If they disagree, report and ask; do not start from the stale slice. Do that phase's work; do not skip ahead.
 3. Open only the docs AGENTS.md names for this task.
 4. Writing, moving or splitting code? Also read [docs/framework/code-standards.md](../../../docs/framework/code-standards.md) — naming, module weight, thin dispatch layers, file ownership when several agents work in parallel, verification, handoff.
 
 Installed skill catalog: [docs/framework/skills.md](../../../docs/framework/skills.md).
 
-This skill is shared by Grok, Codex and Claude Code. The one real copy is `.grok/skills/`; Codex reads it through `.agents/skills`. Claude Code reads a synced copy in `.claude/skills/`. Edit `.grok/skills/` only.
+This skill is shared by Grok, Codex, Claude Code and Hermes. The one real copy is `.grok/skills/`; Codex and Hermes read it through `.agents/skills` (Hermes: after local `hermes skills trust`). Claude Code reads a synced copy in `.claude/skills/`. Edit `.grok/skills/` only. Do not add `.hermes.md` — Hermes would load it instead of AGENTS.md.
 
 ## Companion skills
 
@@ -57,6 +57,10 @@ Path and JSON fields: [docs/api/contract.md](../../../docs/api/contract.md) only
 Phase and next step = [docs/progress.md](../../../docs/progress.md). Do that phase's work; do not skip ahead. Phase F: do not create a runnable FastAPI. Do not restyle unless the user asks.
 
 Phase 1+: `fastapi` skill + [docs/backend/README.md](../../../docs/backend/README.md). Same contract file. `router` → `service` → `repository`.
+
+## With this user
+
+Do not write `docs/dev/` unless they asked for a document. After clarifying questions, implement; they verify by tapping WeChat DevTools (repo root).
 
 ## Verify and hand off
 

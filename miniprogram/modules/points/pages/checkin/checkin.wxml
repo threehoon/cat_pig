@@ -12,6 +12,21 @@
         </view>
       </view>
 
+      <view class="card streak">
+        <view class="streak__row">
+          <view wx:for="{{streakCells}}" wx:key="key" class="streak__cell">
+            <view
+              class="streak__dot {{item.filled ? 'streak__dot--filled' : ''}} {{item.next ? 'streak__dot--next' : ''}}"
+            >
+              <text class="streak__pts">{{item.points}}</text>
+            </view>
+            <text class="streak__day">{{item.label}}</text>
+            <text wx:if="{{item.card}}" class="streak__gift">补签卡</text>
+            <view wx:else class="streak__gift"></view>
+          </view>
+        </view>
+      </view>
+
       <view class="card cal">
         <view class="cal__nav">
           <text class="cal__nav-btn {{canPrev ? '' : 'cal__nav-btn--off'}}" bindtap="onPrev">‹</text>

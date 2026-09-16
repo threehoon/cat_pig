@@ -8,7 +8,7 @@
 
 阶段 **F（前端界面先行）**，进行中。`useMock: true`。不要先搭 FastAPI。不要重做视觉（除非用户点名某一页）。
 
-下一轮：按 [dev/album.md](dev/album.md) 做相册 **切片 1**（上传页对标）。只做那一片，点验过关再往下。不要一次做完相册，切片 4 之前不要改合同。页面、`services/`、mock、评论区已接。微信开发者工具已打开仓库根目录，界面与主路径正常。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：按 [dev/checkin-streak.md](dev/checkin-streak.md) 点验签到页近 7 天进度条。不要先搭 FastAPI。不要重做视觉。相册 / 「我的」/ 签到月历与积分任务已在 HEAD。微信开发者工具打开仓库根目录。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
@@ -26,7 +26,7 @@
 | 模块 | `auth` `me` `media` `album` `community` `video` `points`（`auth` / `media` 无独立页） |
 | 业务 service | 6 个（`me` `media` `album` `community` `video` `points`）；登录在 `core/auth` |
 | mock | 各模块 `services/mock.ts`；community 另有 `mock-helpers.ts`；points 另有 `mock-ledger.ts`；种子 `miniprogram/mocks/store.ts`；入口 `core/mock.ts`（只注册 / 匹配） |
-| 页面 | `app.json` 15 项：13 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
+| 页面 | `app.json` 22 项：20 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
 | 渲染 | `"renderer": "skyline"`；公共 `libVersion` `3.7.0` |
 | 检查 | `npm run typecheck`（typescript 5.6） |
 | 详情页 | `community/pages/detail/detail.ts` 保留 `Page({...})`，不要再抽 `detail-page.ts`；录音走 `recordSink` |
@@ -73,6 +73,8 @@
 | community | `modules/community/pages/follow/follow` | 我的关注 |
 | community | `modules/community/pages/follower/follower` | 粉丝 |
 | points | `modules/points/pages/list/list` | 积分明细 |
+| points | `modules/points/pages/tasks/tasks` | 积分任务（发帖 / 评论 / 点赞） |
+| points | `modules/points/pages/checkin/checkin` | 每日签到（月历、补签、近 7 天进度） |
 | video | `modules/video/pages/tasks/tasks` | 任务管理（生成任务列表） |
 | video | `modules/video/pages/detail/detail` | 一条生成任务详情 |
 | album | `modules/album/pages/detail/detail` | 相册详情 |
@@ -102,12 +104,12 @@
 
 ### 入口约定（避免各写各的）
 
-- 首页四个入口：图生视频 → 创作 tab；相册 → 相册 tab；论坛 → 论坛 tab；签到 → 积分明细页（可带 `checkin=1`，由 `points` 页调签到接口）。禁止首页 import `points` service。
+- 首页四个入口：图生视频 → 创作 tab；相册 → 相册 tab；论坛 → 论坛 tab；签到 → `modules/points/pages/checkin/checkin`。禁止首页 import `points` service。带着 `?checkin=1` 进积分明细不会自动签到。
 - 首页下方动态：`GET /api/v1/community/post?tab=recommend`。点「更多」切到论坛 tab。
 - 论坛 tab：搜索走 query `q`；顶部分栏对应 `tab`（推荐 / 关注 / 六个板块）。
 - 创作 tab 打开即为图生视频表单，不是发帖。发帖从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
-- 「我的」：头像昵称和四计数走 `GET /api/v1/me`。点头像/昵称进编辑资料页；点「动态 / 获赞」进我的发布；点「关注 / 粉丝」进对应列表。菜单：我的发布、我的收藏、我的相册（`switchTab` 相册 tab）、我的关注、粉丝、积分明细、每日签到（积分页 `?checkin=1`）、任务管理、设置。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。设置页无接口：关于写「宠物记录 / 开发版」；注销只提示「开发期不能注销」。关注 / 粉丝行不进作者页。
+- 「我的」：头像昵称和四计数走 `GET /api/v1/me`。点头像/昵称进编辑资料页；点「动态 / 获赞」进我的发布；点「关注 / 粉丝」进对应列表。菜单分组：我的发布 / 我的收藏 / 我的相册（`switchTab` 相册 tab）/ 生成记录；我的关注 / 粉丝；积分明细 / 积分任务；设置。没有「每日签到」菜单（签到只从首页进）。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。设置页无接口：关于写「宠物记录 / 开发版」；注销只提示「开发期不能注销」。关注 / 粉丝行不进作者页。
 
 ### 帖子互动（已接 mock）
 
@@ -167,7 +169,7 @@
 | `modules/album/services/` | 相册列表 / 详情 / 上传 / 改 / 删 | `GET/POST /api/v1/album`，`GET/PATCH/DELETE /api/v1/album/{id}` |
 | `modules/community/services/` | 广场、发帖、详情、我的发布、收藏列表、点赞、收藏、评论、关注、粉丝 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET /api/v1/community/post/favorite`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report`，`GET/POST/DELETE /api/v1/community/follow`，`GET /api/v1/community/follower` |
 | `modules/video/services/` | 创建任务、列表、详情、删 | `GET/POST /api/v1/video`，`GET/DELETE /api/v1/video/{id}` |
-| `modules/points/services/` | 汇总、流水、签到 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin` |
+| `modules/points/services/` | 汇总、流水、签到、补签 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin`，`POST /api/v1/points/makeup` |
 
 页面事件处理里只出现 `xxxService.list()` 这类调用。字段名用下划线：`image_urls`、`sync_to_forum`、`points_balance`，不要在页面层再映射一套驼峰再丢掉。
 
@@ -268,7 +270,7 @@
 
 1. [AGENTS.md](../AGENTS.md)
 2. [progress.md](progress.md)（阶段、下一步、已知风险）
-3. [dev/album.md](dev/album.md)（本轮相册：只做「当前切片」）
+3. [dev/checkin-streak.md](dev/checkin-streak.md)（本轮：点验签到进度条）
 4. 本文件（模块名、tab / 页面路径、帖子互动、service、mock 布局）
 5. [api/contract.md](api/contract.md)（path 和 JSON）
 6. [miniprogram/README.md](miniprogram/README.md)

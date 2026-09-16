@@ -7,6 +7,68 @@ page {
   margin-bottom: 24rpx;
 }
 
+.streak {
+  margin-bottom: 24rpx;
+  padding: 24rpx 8rpx 16rpx;
+}
+
+.streak__row {
+  display: flex;
+  flex-direction: row;
+}
+
+.streak__cell {
+  width: 14.28%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.streak__dot {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  box-sizing: border-box;
+}
+
+.streak__dot--filled {
+  background: var(--color-primary-soft);
+}
+
+.streak__dot--next {
+  border: 2rpx solid var(--color-primary);
+}
+
+.streak__pts {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.streak__dot--filled .streak__pts,
+.streak__dot--next .streak__pts {
+  color: var(--color-primary);
+}
+
+.streak__day {
+  margin-top: 8rpx;
+  font-size: 18rpx;
+  color: var(--color-text-muted);
+}
+
+.streak__gift {
+  margin-top: 2rpx;
+  height: 24rpx;
+  font-size: 16rpx;
+  line-height: 24rpx;
+  color: var(--color-primary);
+}
+
 .cal {
   padding: 28rpx 20rpx 24rpx;
 }

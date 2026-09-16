@@ -9,6 +9,11 @@ import {
   todayDate,
   type CalCell,
 } from './checkin-calendar'
+import {
+  buildStreakStrip,
+  checkinToastTitle,
+  type StreakCell,
+} from './streak-strip'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
@@ -21,6 +26,7 @@ Page({
     canPrev: false,
     canNext: false,
     cells: [] as CalCell[],
+    streakCells: [] as StreakCell[],
     streak: 0,
     makeup_card_count: 0,
     today_checked: false,
@@ -38,6 +44,7 @@ Page({
       .then((summary) => {
         this.setData({
           streak: summary.streak,
+          streakCells: buildStreakStrip(summary.streak, summary.today_checked),
           makeup_card_count: summary.makeup_card_count,
           today_checked: summary.today_checked,
           makeup_dates: summary.makeup_dates,
@@ -81,7 +88,11 @@ Page({
     this.setData({ busy: true })
     checkin()
       .then((result) => {
-        const title = result.already_done ? '今天已经签过了' : `签到成功，积分 +${result.awarded}`
+        const title = checkinToastTitle(
+          result.already_done,
+          result.awarded,
+          result.makeup_cards_awarded,
+        )
         wx.showToast({ title, icon: 'none' })
         return this.reload()
       })

@@ -6,7 +6,7 @@
 
 | 类型 | 作用 | 目录 |
 |---|---|---|
-| 入口 / 路由 | 告诉 Agent 读哪份 | `/AGENTS.md`、`/CLAUDE.md` |
+| 入口 / 路由 | 告诉 Agent 读哪份 | `/AGENTS.md`、`/CLAUDE.md`（Hermes 也注入 `AGENTS.md`，无独立文件） |
 | 进度 | 现在做到哪、下一步、决策日志 | `progress.md` |
 | 产品 | 对标、定位、能力优先级 | `product/` |
 | 框架与规范 | 技术栈、目录、模块边界、增模块流程、代码与协作规范 | `framework/`、`backend/`、`miniprogram/` |
@@ -17,7 +17,7 @@
 
 | 文档 | 给谁用 | 内容 |
 |---|---|---|
-| [AGENTS.md](../AGENTS.md) | Agent 必读入口 | 路由表、硬规则摘要、如何登记新文档 |
+| [AGENTS.md](../AGENTS.md) | Agent 必读入口 | 路由表、硬规则摘要、如何登记新文档。Hermes 自动注入这一份 |
 | [CLAUDE.md](../CLAUDE.md) | Claude Code 自动加载 | 只写 Claude 专属机制：skill 同步、工具与并行约定、当前能跑的检查；规则仍看 AGENTS.md |
 | [progress.md](progress.md) | 人 + Agent | 项目进度、阶段、下一步、已知风险 |
 | [product/README.md](product/README.md) | 人 + Agent | 产品文档目录 |

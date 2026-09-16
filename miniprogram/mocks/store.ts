@@ -109,14 +109,7 @@ function shiftFromToday(days: number): string {
 }
 
 function demoCheckinDates(): string[] {
-  return [
-    shiftFromToday(0),
-    shiftFromToday(-2),
-    shiftFromToday(-3),
-    shiftFromToday(-4),
-    shiftFromToday(-5),
-    shiftFromToday(-6),
-  ]
+  return [shiftFromToday(-1), shiftFromToday(-2)]
 }
 
 export const store = {
@@ -125,7 +118,7 @@ export const store = {
   follows: [OTHER_USER_ID] as string[],
   followers: [OTHER_USER_ID, THIRD_USER_ID] as string[],
   checkin_dates: demoCheckinDates(),
-  makeup_card_count: 1,
+  makeup_card_count: 0,
   albums: [
     {
       id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',

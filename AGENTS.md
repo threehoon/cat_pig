@@ -4,7 +4,7 @@
 
 不要把长规范写进本文件。新约定写到 `docs/` 下独立文档，并同时在本文件的路由表和 `docs/README.md` 登记。没有登记的文档，视为不存在。
 
-Grok、Codex、Claude Code 共用本文件和 `docs/`，不各写一套。Claude Code 会自动加载根目录 [CLAUDE.md](CLAUDE.md)，那份只写 Claude 怎么接 skill / 工具，规则仍以本文件为准。
+Grok、Codex、Claude Code、Hermes 共用本文件和 `docs/`，不各写一套。Claude Code 会自动加载根目录 [CLAUDE.md](CLAUDE.md)，那份只写 Claude 怎么接 skill / 工具，规则仍以本文件为准。Hermes 自动注入本文件；不要另写 `.hermes.md`（会盖掉本文件）。
 
 ## 项目是什么
 
@@ -39,6 +39,7 @@ Grok、Codex、Claude Code 共用本文件和 `docs/`，不各写一套。Claude
 | 搭小程序空壳（tab / page-shell / core 签名） | [docs/superpowers/specs/2026-08-24-miniprogram-shell-design.md](docs/superpowers/specs/2026-08-24-miniprogram-shell-design.md)、[docs/handoff.md](docs/handoff.md)、[docs/miniprogram/README.md](docs/miniprogram/README.md) |
 | **按项目 skill 开发** / 查已装哪些 skill | `/app-pet`，清单 [docs/framework/skills.md](docs/framework/skills.md) |
 | 用 Claude Code 开发（skill 怎么同步、工具与并行约定、当前能跑什么检查） | [CLAUDE.md](CLAUDE.md) |
+| 用 Hermes 开发（项目 skill 怎么自动加载） | 本文件（已自动注入）+ [docs/framework/skills.md](docs/framework/skills.md) |
 
 一次任务只加载上表里需要的文档，不要把 `docs/` 全部塞进上下文。
 
