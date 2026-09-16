@@ -1,5 +1,5 @@
 import { ListResult, request } from '../../../core/request'
-import { Comment, CommentReportReason, CommentWrite, Post, PostStatus, PostTab, PostWrite } from '../types/post'
+import { Author, Comment, CommentReportReason, CommentWrite, Post, PostStatus, PostTab, PostWrite } from '../types/post'
 
 export function listPosts(tab: PostTab = 'recommend', q?: string, page = 1, pageSize = 20) {
   return request<ListResult<Post>>({
@@ -14,6 +14,14 @@ export function listMyPosts(status?: PostStatus, page = 1, pageSize = 20) {
     method: 'GET',
     path: '/api/v1/community/post/mine',
     query: { status, page, page_size: pageSize },
+  })
+}
+
+export function listFavoritePosts(page = 1, pageSize = 20) {
+  return request<ListResult<Post>>({
+    method: 'GET',
+    path: '/api/v1/community/post/favorite',
+    query: { page, page_size: pageSize },
   })
 }
 
@@ -106,6 +114,22 @@ export function reportComment(postId: string, commentId: string, reason: Comment
     method: 'POST',
     path: `/api/v1/community/post/${postId}/comment/${commentId}/report`,
     data: { reason },
+  })
+}
+
+export function listFollows(page = 1, pageSize = 20) {
+  return request<ListResult<Author>>({
+    method: 'GET',
+    path: '/api/v1/community/follow',
+    query: { page, page_size: pageSize },
+  })
+}
+
+export function listFollowers(page = 1, pageSize = 20) {
+  return request<ListResult<Author>>({
+    method: 'GET',
+    path: '/api/v1/community/follower',
+    query: { page, page_size: pageSize },
   })
 }
 

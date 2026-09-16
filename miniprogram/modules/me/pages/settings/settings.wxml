@@ -1,0 +1,21 @@
+<page-shell title="设置" back="{{true}}">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad">
+      <view class="card menu">
+        <view class="menu-row">
+          <text>关于</text>
+          <text class="menu-row__value">宠物记录</text>
+        </view>
+        <view class="menu-row menu-row--last">
+          <text>版本</text>
+          <text class="menu-row__value">开发版</text>
+        </view>
+      </view>
+      <view class="card menu">
+        <view class="menu-row menu-row--last" bindtap="onLogout">
+          <text class="menu-row__danger">注销账号</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

@@ -2,6 +2,7 @@ import { brandAssets, mockPhotos } from '../assets/paths'
 
 export const CURRENT_USER_ID = '10101010-1010-1010-1010-101010101010'
 export const OTHER_USER_ID = '20202020-2020-2020-2020-202020202020'
+export const THIRD_USER_ID = '30303030-3030-3030-3030-303030303030'
 
 export type MockAuthor = {
   id: string
@@ -91,9 +92,17 @@ const other: MockAuthor = {
   avatar_url: brandAssets.avatarDefault,
 }
 
+const third: MockAuthor = {
+  id: THIRD_USER_ID,
+  nickname: '街角的猫',
+  avatar_url: brandAssets.avatarDefault,
+}
+
 export const store = {
   me,
-  follows: [] as string[],
+  authors: [other, third] as MockAuthor[],
+  follows: [OTHER_USER_ID] as string[],
+  followers: [OTHER_USER_ID, THIRD_USER_ID] as string[],
   last_checkin_date: null as string | null,
   albums: [
     {
@@ -149,7 +158,7 @@ export const store = {
       comment_count: 0,
       favorite_count: 1,
       liked: false,
-      favorited: false,
+      favorited: true,
       created_at: '2026-08-23T14:00:00Z',
     },
     {

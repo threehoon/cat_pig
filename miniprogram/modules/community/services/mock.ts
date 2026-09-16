@@ -18,6 +18,7 @@ import {
   findPost,
   presentComment,
   presentPost,
+  presentUsers,
   publishPost,
   reparentChildren,
   resolveCommentParent,
@@ -38,6 +39,14 @@ const postRoutes: MockRoute[] = [
         store.posts.filter((post) => post.author.id === CURRENT_USER_ID && (!status || post.status === status)),
       ).map(presentPost)
       return paginate(mine, options.query)
+    },
+  },
+  {
+    method: 'GET',
+    pattern: '/api/v1/community/post/favorite',
+    handle: (_params, options) => {
+      const items = sortByCreated(store.posts.filter((post) => post.favorited)).map(presentPost)
+      return paginate(items, options.query)
     },
   },
   {
@@ -268,6 +277,16 @@ export const communityMockRoutes: MockRoute[] = [
       store.follows.push(userId)
       return { ok: true }
     },
+  },
+  {
+    method: 'GET',
+    pattern: '/api/v1/community/follow',
+    handle: (_params, options) => paginate(presentUsers(store.follows), options.query),
+  },
+  {
+    method: 'GET',
+    pattern: '/api/v1/community/follower',
+    handle: (_params, options) => paginate(presentUsers(store.followers), options.query),
   },
   {
     method: 'DELETE',

@@ -15,7 +15,11 @@
     "modules/me/pages/profile/profile",
     "pages/index/index",
     "pages/logs/logs",
-    "modules/album/pages/detail/detail"
+    "modules/album/pages/detail/detail",
+    "modules/community/pages/favorites/favorites",
+    "modules/community/pages/follow/follow",
+    "modules/community/pages/follower/follower",
+    "modules/me/pages/settings/settings"
   ],
   "window": {
     "navigationBarTextStyle": "black",

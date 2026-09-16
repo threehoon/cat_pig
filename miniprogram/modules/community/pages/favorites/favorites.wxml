@@ -1,0 +1,29 @@
+<page-shell title="我的收藏" back="{{true}}">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad" wx:if="{{posts.length === 0}}">
+      <empty-state image="{{emptyPlaza}}" title="还没有收藏" />
+    </view>
+    <post-card
+      wx:for="{{posts}}"
+      wx:key="id"
+      post-id="{{item.id}}"
+      author="{{item.author}}"
+      avatar="{{item.avatar}}"
+      time="{{item.time}}"
+      board="{{item.board}}"
+      body="{{item.body}}"
+      covers="{{item.covers}}"
+      show-media="{{item.showMedia}}"
+      like-count="{{item.like_count}}"
+      comment-count="{{item.comment_count}}"
+      favorite-count="{{item.favorite_count}}"
+      liked="{{item.liked}}"
+      favorited="{{item.favorited}}"
+      bind:opentap="onPost"
+      bind:like="onLike"
+      bind:favorite="onFavorite"
+      bind:reply="onReply"
+    />
+    <view class="list-end"></view>
+  </scroll-view>
+</page-shell>

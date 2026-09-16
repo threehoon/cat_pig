@@ -69,10 +69,15 @@
 | community | `modules/community/pages/compose/compose` | 发布 / 编辑帖子、存草稿 |
 | community | `modules/community/pages/detail/detail` | 帖子详情 |
 | community | `modules/community/pages/mine/mine` | 我的发布 |
+| community | `modules/community/pages/favorites/favorites` | 我的收藏 |
+| community | `modules/community/pages/follow/follow` | 我的关注 |
+| community | `modules/community/pages/follower/follower` | 粉丝 |
 | points | `modules/points/pages/list/list` | 积分明细 |
 | video | `modules/video/pages/tasks/tasks` | 任务管理（生成任务列表） |
 | video | `modules/video/pages/detail/detail` | 一条生成任务详情 |
+| album | `modules/album/pages/detail/detail` | 相册详情 |
 | me | `modules/me/pages/profile/profile` | 编辑资料（头像 / 昵称） |
+| me | `modules/me/pages/settings/settings` | 设置（关于 + 注销占位） |
 
 `pages/index`、`pages/logs`：界面接入后，把 `app.json` 的 `pages` 第一项改成社区首页，这两页不再当入口。不要在它们里面写产品 UI。
 
@@ -82,7 +87,7 @@
 
 视觉：暖米色底、橙色主按钮；细则只认 [miniprogram/visual.md](miniprogram/visual.md)。气质可学 [product/reference/](product/reference/README.md) 截图，不贴对方素材。阶段 F 用**原生 tabBar**，第三项是加号；中间凸起不阻塞。
 
-相册编辑：同一 upload 页带 `?id=`。快捷提示词、分辨率选项是页面本地文案，写入 `prompt` / `resolution` 字段，不新开接口。「我的发布」顶部四个数字从 `GET /api/v1/community/post/mine` 聚合，不另开统计接口。
+相册编辑：同一 upload 页带 `?id=`。快捷提示词、分辨率选项是页面本地文案，写入 `prompt` / `resolution` 字段，不新开接口。「我的发布」顶部四个数字从 `GET /api/v1/community/post/mine` 聚合，不另开统计接口。资料卡「动态 / 获赞 / 关注 / 粉丝」走 `GET /api/v1/me` 的四个计数，不另开统计接口。收藏列表 `GET /api/v1/community/post/favorite`；关注 / 粉丝列表 `GET /api/v1/community/follow`、`GET /api/v1/community/follower`（item 为 Author）。
 
 ### 界面枚举（字段用英文，界面用这列中文）
 
@@ -102,7 +107,7 @@
 - 论坛 tab：搜索走 query `q`；顶部分栏对应 `tab`（推荐 / 关注 / 六个板块）。
 - 创作 tab 打开即为图生视频表单，不是发帖。发帖从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
-- 「我的」：头像昵称走 `GET /api/v1/me`；点资料卡进编辑资料页；三个入口分别进我的发布、积分明细、任务管理。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。
+- 「我的」：头像昵称和四计数走 `GET /api/v1/me`。点头像/昵称进编辑资料页；点「动态 / 获赞」进我的发布；点「关注 / 粉丝」进对应列表。菜单：我的发布、我的收藏、我的相册（`switchTab` 相册 tab）、我的关注、粉丝、积分明细、每日签到（积分页 `?checkin=1`）、任务管理、设置。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。设置页无接口：关于写「宠物记录 / 开发版」；注销只提示「开发期不能注销」。关注 / 粉丝行不进作者页。
 
 ### 帖子互动（已接 mock）
 
@@ -127,7 +132,7 @@
 
 评论行 UI 在 `modules/community/components/comment-row/`。艾特切分在 `modules/community/mentions.ts`。贴纸目录在 `modules/community/stickers.ts`。
 
-首页 / 论坛 / 我的发布 / 详情页已开分享。`react-row` 图标：`assets/icon/react-like|reply|favorite|share.png` 与 `-active`（评论按钮文件名仍是 `reply`，界面文案是「评论」）。
+首页 / 论坛 / 我的发布 / 我的收藏 / 详情页已开分享。`react-row` 图标：`assets/icon/react-like|reply|favorite|share.png` 与 `-active`（评论按钮文件名仍是 `reply`，界面文案是「评论」）。
 
 ### tabBar 图标
 
@@ -160,7 +165,7 @@
 | `modules/me/services/` | 当前用户 | `GET/PATCH /api/v1/me` |
 | `modules/media/services/` | 上传图或评论语音 | `POST /api/v1/media` |
 | `modules/album/services/` | 相册列表 / 详情 / 上传 / 改 / 删 | `GET/POST /api/v1/album`，`GET/PATCH/DELETE /api/v1/album/{id}` |
-| `modules/community/services/` | 广场、发帖、详情、我的发布、点赞、收藏、评论、关注 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report`，`POST/DELETE /api/v1/community/follow` |
+| `modules/community/services/` | 广场、发帖、详情、我的发布、收藏列表、点赞、收藏、评论、关注、粉丝 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET /api/v1/community/post/favorite`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report`，`GET/POST/DELETE /api/v1/community/follow`，`GET /api/v1/community/follower` |
 | `modules/video/services/` | 创建任务、列表、详情、删 | `GET/POST /api/v1/video`，`GET/DELETE /api/v1/video/{id}` |
 | `modules/points/services/` | 汇总、流水、签到 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin` |
 
@@ -168,7 +173,7 @@
 
 **例外：** `media` 没有自己的页面。相册 / 发帖 / 创作 / 编辑资料在选图后可以调用 `modules/media/services` 拿 `url`，再交给本模块 service。阶段 F 的 mock 可以直接把微信临时路径当作 `url`；当前 `uploadMedia` 仍通过 `core/request` 传递路径，切真 API 前必须在内核补 `multipart` 上传适配。其它跨模块仍然只许跳路由，不许互相 import service。
 
-首页、我的若只展示其它模块的数据：首页帖预览走 **本模块** `community` service；积分入口只跳路由，不在 `me` 页面 import `points` 的 service。`GET /api/v1/me` 已带 `points_balance`，我的页展示余额用这个字段。
+首页、我的若只展示其它模块的数据：首页帖预览走 **本模块** `community` service；积分 / 相册 / 收藏 / 关注入口只跳路由，不在 `me` 页面 import 其它模块 service。`GET /api/v1/me` 已带 `points_balance` 和四个计数，我的页展示用这些字段。
 
 ### 页面做完的自检
 

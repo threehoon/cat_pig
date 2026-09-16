@@ -5,9 +5,14 @@ page {
 
 .me-head {
   display: flex;
+  flex-direction: column;
+  margin-bottom: 12rpx;
+}
+
+.me-head__profile {
+  display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 12rpx;
 }
 
 .me-meta {
@@ -33,8 +38,13 @@ page {
   color: var(--color-text-muted);
 }
 
+.me-stats {
+  margin-top: 28rpx;
+}
+
 .menu {
   padding: 8rpx 28rpx;
+  margin-bottom: 12rpx;
 }
 
 .menu-row {

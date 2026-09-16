@@ -16,11 +16,11 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：按 [dev/album.md](dev/album.md) 做相册 **切片 1**（上传页对标）。只做那一片，做完停住，把该片点验清单交给用户。用户说「切片 1 过了」再开切片 2。不要一次做完相册，不要改合同（切片 4 才改）。页面、`services/`、mock、评论区已接；真机调试可进。模拟器 `navigateTo` 空一拍、真机不卡，**不要回头改跳转**。不要先搭 FastAPI。不要重做视觉。不要把「已知风险」的延后项当成本轮必须做的事。
+下一对话目标：用微信开发者工具打开仓库根目录，按 [dev/me.md](dev/me.md) 点验「我的」丰富（资料卡四计数、分组菜单、收藏 / 关注 / 粉丝 / 设置）。页面、`services/`、mock 已接。相册上传 / 详情 / 可见性已在 HEAD。模拟器 `navigateTo` 空一拍、真机不卡，**不要回头改跳转**。不要先搭 FastAPI。不要重做视觉。不要把「已知风险」的延后项当成本轮必须做的事。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
-必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [dev/album.md](dev/album.md)（本轮只做当前切片）→ [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。写代码再读 [framework/code-standards.md](framework/code-standards.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
+必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [dev/me.md](dev/me.md)（点验清单）→ [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。写代码再读 [framework/code-standards.md](framework/code-standards.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
 
 开发走 `/app-pet`。打开仓库**根目录**。静态检查 `npm run typecheck`。
 
@@ -29,9 +29,9 @@
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（页面 / services / mock / 评论区已接；开发者工具已点开，界面正常） |
+| 状态 | 进行中（相册可见性已接；「我的」资料卡 / 收藏 / 关注 / 粉丝 / 设置已接 mock，等人点验） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-09-08 |
+| 最后更新 | 2026-09-16 |
 
 ## 阶段总览
 
@@ -39,7 +39,7 @@
 |---|---|---|
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
-| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（页面 / services / mock / 评论区已接；开发者工具已点开，界面正常） |
+| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（相册可见性已接；「我的」已接 mock，等人点验） |
 | 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 未开始（界面之后） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
@@ -81,11 +81,13 @@
 - 真机对照：点动态进详情不卡。模拟器 `navigateTo` 空一拍只当开发者工具现象。阶段 F 在此基础上继续，不再为跳转改详情。
 - 「我的」编辑资料页已接：点资料卡进 `modules/me/pages/profile/profile`；头像走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入 1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`catch-back` 仅本页开启。评论作者展示跟 `store.me`。
 - 开发 CLI 口径收口为 Grok / Codex / Claude Code。已删除 `docs/framework/hermes.md` 及相关路由；skill 仍由 `.grok/skills/` 一份副本供三个 CLI 读取。
-- 相册一次性开发文档已落盘：[dev/album.md](dev/album.md)。可见性、排版、切片和点验清单已锁定。未开始改 `miniprogram/`。不进 `AGENTS.md` / `docs/README.md`；全部切片点验通过后删除。
+- Hermes 重新接入：仍读根目录 `AGENTS.md`（自动注入），项目 skill 走已有 `.agents/skills` 软链，本机 `hermes skills trust`。不恢复 `docs/framework/hermes.md`。
+- 相册一次性开发文档已落盘：[dev/album.md](dev/album.md)。上传页、列表卡、详情、可见性三档已在 HEAD（`98621c9`）。不进 `AGENTS.md` / `docs/README.md`；点验通过后删除。
+- 「我的」丰富已接 mock：资料卡四计数（动态 / 获赞 / 关注 / 粉丝）；菜单分组；收藏 / 关注 / 粉丝 / 设置页。合同增加 `Me` 四计数与 `GET /community/post/favorite`、`GET /community/follow`、`GET /community/follower`。一次性文档 [dev/me.md](dev/me.md)，不进 `AGENTS.md` / README；点验通过后删除。
 
 ## 进行中
 
-- 阶段 F：页面、services、mock、评论区已接。真机调试可用。相册按 [dev/album.md](dev/album.md) 分切片做，当前是切片 1。
+- 阶段 F：页面、services、mock 已接。真机调试可用。「我的」丰富等人点验。
 
 ## 已知风险
 
@@ -101,9 +103,9 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 读 [dev/album.md](dev/album.md)，只做 **切片 1**（`miniprogram/modules/album/pages/upload/`：预览/删、封面、添加格、必填、自定义标签）。做完停住，把点验清单交给用户。不要做切片 2/3/4。不要改 [api/contract.md](api/contract.md)（切片 4 才改 `visibility`）。不要回头修 `navigateTo`（真机不卡，见 [miniprogram/README.md](miniprogram/README.md)）。不要先搭 FastAPI。不要把业务写进 `pages/index`、`pages/logs`。不要再建 `pet` / `journal` / `ledger` / `reminder`。不要改已锁定的 tab 路径。改皮走 [miniprogram/visual.md](miniprogram/visual.md)。
-2. 用户回复「切片 1 过了」之后，仍按 album.md 开切片 2。每片点验过关再往下。
-3. 不要每改一处就更新文档。切片 4 才改合同和 [product/benchmark.md](product/benchmark.md)。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。
+1. 用微信开发者工具打开仓库根目录，按 [dev/me.md](dev/me.md) 点验「我的」。不要先搭 FastAPI。不要回头修 `navigateTo`。不要改已锁定的 tab 路径。
+2. 点验通过后删除 [dev/me.md](dev/me.md)。相册 [dev/album.md](dev/album.md) 点验通过后同样删除。
+3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`）。这不是下一对话的默认任务。
 
 写后端（阶段 1 之后）时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
@@ -151,10 +153,12 @@
 | 2026-09-06 | 模拟器 `navigateTo` 空一拍不当作产品缺口 | 真机调试点动态进详情不卡；空一拍只出现在开发者工具验证 |
 | 2026-09-07 | 「我的」用独立编辑资料页改头像昵称；头像只走 `chooseAvatar`；昵称普通输入，不用微信昵称快捷填入；点保存才 PATCH | 微信已收回 getUserProfile 真头像；官方头像选择已含相册/相机；草稿预览避免误触写库；昵称不绑微信名 |
 | 2026-09-07 | Hermes 与 Grok / Codex / Claude Code 共用同一份 skill 和规范 | **已被 2026-09-08 覆盖**：当时接过 Hermes；现已停用 |
-| 2026-09-08 | 不再用 Hermes 开发 | 用户确认只保留 Grok / Codex / Claude Code；删除 `docs/framework/hermes.md`、相关路由和本机 Hermes 配置 |
+| 2026-09-08 | 不再用 Hermes 开发 | 用户确认只保留 Grok / Codex / Claude Code；删除 `docs/framework/hermes.md`、相关路由和本机 Hermes 配置。**已被 2026-09-16 覆盖** |
+| 2026-09-16 | 再用 Hermes 开发，与其它 CLI 共用 `AGENTS.md` 和 `.grok/skills/` | 用户要求 Hermes 自动读 skill 与 Agent 文档，且不影响 Grok / Codex / Claude。不恢复独立 `hermes.md`；本机 `hermes skills trust`，不要加 `.hermes.md`（会盖掉 `AGENTS.md`） |
 | 2026-09-07 | 相册 tab 是自己的管理页；可见性公开 / 私密 / 好友可见；好友 = 互相关注；别人的相册后期从内容进入；看别人只见公开 + 好友可见，私密当不存在 | 用户确认。黑名单后期插入同一套 `can_view`。本阶段仅公开可同步论坛 |
 | 2026-09-07 | 相册排版：列表 L3（分档 + 双列卡）、详情 D1（封面英雄图）、上传 V1（三芯片）；新建默认私密 | 用户确认。切片 2 先出卡、切片 4 再出分档和角标 |
 | 2026-09-07 | 相册按 [dev/album.md](dev/album.md) 分切片开发，每片点验过关再做下一片 | 用户要求先文档后代码；一次性文档，不进 `AGENTS.md` / README |
+| 2026-09-16 | 「我的」资料卡四计数；菜单分组；新页收藏 / 关注 / 粉丝 / 设置 | 用户确认。计数只在 `GET/PATCH /me`；收藏/关注/粉丝列表归 community；不进作者页、消息中心、商城 |
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 

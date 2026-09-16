@@ -54,11 +54,15 @@
   "id": "10101010-1010-1010-1010-101010101010",
   "nickname": "用户",
   "avatar_url": "https://example.com/a.jpg",
-  "points_balance": 180
+  "points_balance": 180,
+  "post_count": 1,
+  "like_received_count": 2,
+  "following_count": 1,
+  "follower_count": 2
 }
 ```
 
-`nickname`、`avatar_url` 可 `null`（未设时）。`points_balance` 始终是整数。用户保存时 `nickname` 去空白后须 1–16 字，空或超长返回 `VALIDATION`；未设仍允许 `null`。
+`nickname`、`avatar_url` 可 `null`（未设时）。`points_balance` 始终是整数。用户保存时 `nickname` 去空白后须 1–16 字，空或超长返回 `VALIDATION`；未设仍允许 `null`。四个计数均为非负整数。`GET /api/v1/me` 与 `PATCH /api/v1/me` 的响应都带。不另开统计接口。`post_count`：当前用户 `status` 为 `published` 的帖数。`like_received_count`：这些已发布帖的 `like_count` 之和。`following_count` / `follower_count`：关注数 / 粉丝数。
 
 ### Media
 
@@ -270,6 +274,10 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 `status` 可省略（全部）或为 `draft` \| `pending` \| `published` \| `rejected`。  
 实现时必须把 `/post/mine` 注册在 `/post/{id}` **前面**，避免 `mine` 被当成 id。
 
+`GET /api/v1/community/post/favorite?page=1&page_size=20`  
+只返回当前用户已收藏的帖。响应：`{ "data": { "items": [Post], "total", "page", "page_size" } }`。排序 `created_at` 新的在前。  
+实现时必须把 `/post/favorite` 注册在 `/post/{id}` **前面**，避免 `favorite` 被当成 id。
+
 `POST /api/v1/community/post`  
 请求：`{ "board", "title", "body", "image_urls", "topic_names", "status" }`  
 `status` 只允许 `draft` 或 `pending`。响应：`{ "data": Post }`
@@ -302,7 +310,13 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 
 `POST /api/v1/community/follow`  
 请求：`{ "user_id": "..." }` → `{ "data": { "ok": true } }`  
-已关注再调：`CONFLICT`
+已关注再调：`CONFLICT`。不能关注自己：`VALIDATION`。
+
+`GET /api/v1/community/follow?page=1&page_size=20`  
+我关注的人。响应：`{ "data": { "items": [Author], "total", "page", "page_size" } }`。
+
+`GET /api/v1/community/follower?page=1&page_size=20`  
+关注我的人。响应：`{ "data": { "items": [Author], "total", "page", "page_size" } }`。
 
 `DELETE /api/v1/community/follow/{user_id}` → `{ "data": { "ok": true } }`
 

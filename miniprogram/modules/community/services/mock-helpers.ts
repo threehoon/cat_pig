@@ -4,6 +4,7 @@ import {
   currentAuthor,
   store,
   type MockAlbum,
+  type MockAuthor,
   type MockComment,
   type MockPost,
 } from '../../../mocks/store'
@@ -19,6 +20,28 @@ export function presentPost(post: MockPost) {
     },
     followed: store.follows.indexOf(post.author.id) !== -1,
   }
+}
+
+export function presentUser(id: string): MockAuthor | null {
+  if (id === CURRENT_USER_ID) return currentAuthor()
+  let found: MockAuthor | null = null
+  for (let i = 0; i < store.authors.length; i += 1) {
+    if (store.authors[i].id === id) {
+      found = store.authors[i]
+      break
+    }
+  }
+  if (!found) return null
+  return copy(found)
+}
+
+export function presentUsers(ids: string[]): MockAuthor[] {
+  const items: MockAuthor[] = []
+  for (let i = ids.length - 1; i >= 0; i -= 1) {
+    const author = presentUser(ids[i])
+    if (author) items.push(author)
+  }
+  return items
 }
 
 function presentAuthor(author: MockComment['author']) {

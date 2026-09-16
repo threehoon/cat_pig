@@ -1,0 +1,30 @@
+page {
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.menu {
+  padding: 8rpx 28rpx;
+  margin-bottom: 12rpx;
+}
+
+.menu-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid var(--color-line);
+}
+
+.menu-row--last {
+  border-bottom: none;
+}
+
+.menu-row__value {
+  color: var(--color-text-muted);
+}
+
+.menu-row__danger {
+  color: var(--color-primary);
+}
