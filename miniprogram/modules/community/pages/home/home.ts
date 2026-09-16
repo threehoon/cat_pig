@@ -29,7 +29,7 @@ Page({
     wx.switchTab({ url: '/modules/community/pages/plaza/plaza' })
   },
   onCheckin() {
-    wx.navigateTo({ url: '/modules/points/pages/list/list?checkin=1' })
+    wx.navigateTo({ url: '/modules/points/pages/checkin/checkin' })
   },
   onMore() {
     wx.switchTab({ url: '/modules/community/pages/plaza/plaza' })

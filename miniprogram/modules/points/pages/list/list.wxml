@@ -1,7 +1,6 @@
 <page-shell title="积分明细" back="{{true}}">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
-      <view class="hint" wx:if="{{checkinHint}}">{{checkinHint}}</view>
       <view class="stat-bar">
         <view class="stat-bar__item">
           <view class="stat-bar__num">{{earned}}</view>
@@ -16,6 +15,20 @@
           <view class="stat-bar__label">当前积分</view>
         </view>
       </view>
+
+      <view class="card rules">
+        <text class="rules__title">怎么获得 / 消耗</text>
+        <text class="rules__line">注册 +100（一次）</text>
+        <text class="rules__line">每日签到 +10</text>
+        <text class="rules__line">连续第 3 天额外 +20，送 1 张补签卡</text>
+        <text class="rules__line">连续第 7 天额外 +50，送 1 张补签卡</text>
+        <text class="rules__line">发帖成功 +20（每天前 3 条）</text>
+        <text class="rules__line">评论 +5（每天 1 条）</text>
+        <text class="rules__line">点赞 +2（每天 3 条）</text>
+        <text class="rules__line">补签 +10（花 1 张补签卡）</text>
+        <text class="rules__line">图生视频 −50</text>
+      </view>
+
       <view class="chip-row chip-row--ledger">
         <view
           wx:for="{{filters}}"

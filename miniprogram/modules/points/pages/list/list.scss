@@ -7,6 +7,23 @@ page {
   margin: 20rpx 0;
 }
 
+.rules {
+  margin-top: 20rpx;
+}
+
+.rules__title {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.rules__line {
+  display: block;
+  font-size: var(--font-caption);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
 .ledger-left {
   display: flex;
   flex-direction: row;

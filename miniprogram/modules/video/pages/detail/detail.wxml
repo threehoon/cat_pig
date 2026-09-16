@@ -1,4 +1,4 @@
-<page-shell title="任务详情" back="{{true}}">
+<page-shell title="生成详情" back="{{true}}">
   <scroll-view class="page-scroll" type="list" scroll-y wx:if="{{video}}">
     <view class="page-pad">
       <view class="card">
@@ -12,7 +12,7 @@
         <text wx:if="{{video.result_url}}" class="detail-sub">结果已生成</text>
         <text wx:else class="detail-sub">生成完成后会在这里看到结果</text>
       </view>
-      <view wx:if="{{canDelete}}" class="btn btn--ghost upload-submit" bindtap="onDelete">删除任务</view>
+      <view wx:if="{{canDelete}}" class="btn btn--ghost upload-submit" bindtap="onDelete">删除记录</view>
     </view>
   </scroll-view>
 </page-shell>

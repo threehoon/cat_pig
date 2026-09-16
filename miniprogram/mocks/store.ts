@@ -98,12 +98,34 @@ const third: MockAuthor = {
   avatar_url: brandAssets.avatarDefault,
 }
 
+function pad2(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+function shiftFromToday(days: number): string {
+  const value = new Date()
+  value.setDate(value.getDate() + days)
+  return `${value.getFullYear()}-${pad2(value.getMonth() + 1)}-${pad2(value.getDate())}`
+}
+
+function demoCheckinDates(): string[] {
+  return [
+    shiftFromToday(0),
+    shiftFromToday(-2),
+    shiftFromToday(-3),
+    shiftFromToday(-4),
+    shiftFromToday(-5),
+    shiftFromToday(-6),
+  ]
+}
+
 export const store = {
   me,
   authors: [other, third] as MockAuthor[],
   follows: [OTHER_USER_ID] as string[],
   followers: [OTHER_USER_ID, THIRD_USER_ID] as string[],
-  last_checkin_date: null as string | null,
+  checkin_dates: demoCheckinDates(),
+  makeup_card_count: 1,
   albums: [
     {
       id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',

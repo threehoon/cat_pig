@@ -41,8 +41,12 @@
           <text>我的收藏</text>
           <text class="row-link__arrow">›</text>
         </view>
-        <view class="menu-row menu-row--last" bindtap="onAlbum">
+        <view class="menu-row" bindtap="onAlbum">
           <text>我的相册</text>
+          <text class="row-link__arrow">›</text>
+        </view>
+        <view class="menu-row menu-row--last" bindtap="onRecords">
+          <text>生成记录</text>
           <text class="row-link__arrow">›</text>
         </view>
       </view>
@@ -63,12 +67,8 @@
           <text>积分明细</text>
           <text class="row-link__arrow">›</text>
         </view>
-        <view class="menu-row" bindtap="onCheckin">
-          <text>每日签到</text>
-          <text class="row-link__arrow">›</text>
-        </view>
-        <view class="menu-row menu-row--last" bindtap="onTasks">
-          <text>任务管理</text>
+        <view class="menu-row menu-row--last" bindtap="onPointTasks">
+          <text>积分任务</text>
           <text class="row-link__arrow">›</text>
         </view>
       </view>

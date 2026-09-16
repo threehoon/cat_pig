@@ -1,13 +1,13 @@
 import {
+  bodyOf,
   copy,
   paginate,
   queryValue,
   sortByCreated,
-  todayDate,
   type MockRoute,
 } from '../../../core/mock-runtime'
 import { store } from '../../../mocks/store'
-import { addLedger, inLedgerRange, pointsSummary } from './mock-ledger'
+import { inLedgerRange, performCheckin, performMakeup, pointsSummary } from './mock-ledger'
 
 export const pointsMockRoutes: MockRoute[] = [
   { method: 'GET', pattern: '/api/v1/points/summary', handle: () => pointsSummary() },
@@ -26,13 +26,11 @@ export const pointsMockRoutes: MockRoute[] = [
   {
     method: 'POST',
     pattern: '/api/v1/points/checkin',
-    handle: () => {
-      const date = todayDate()
-      if (store.last_checkin_date === date)
-        return { awarded: 0, balance: store.me.points_balance, already_done: true, date }
-      addLedger('earn', 10, '签到')
-      store.last_checkin_date = date
-      return { awarded: 10, balance: store.me.points_balance, already_done: false, date }
-    },
+    handle: () => performCheckin(),
+  },
+  {
+    method: 'POST',
+    pattern: '/api/v1/points/makeup',
+    handle: (_params, options) => performMakeup(bodyOf(options).date),
   },
 ]

@@ -1,4 +1,4 @@
-<page-shell title="任务管理" back="{{true}}">
+<page-shell title="生成记录" back="{{true}}">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="stat-bar stat-bar--spaced">
@@ -23,7 +23,7 @@
       <empty-state
         wx:if="{{tasks.length === 0}}"
         image="{{emptyTasks}}"
-        title="还没有生成任务"
+        title="还没有生成记录"
         hint="选 2–9 张照片，做成一段短视频"
         action="去创作"
         bind:action="onCreate"

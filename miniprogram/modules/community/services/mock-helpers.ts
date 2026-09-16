@@ -8,7 +8,7 @@ import {
   type MockComment,
   type MockPost,
 } from '../../../mocks/store'
-import { addLedger } from '../../points/services/mock-ledger'
+import { awardPublishedPost } from '../../points/services/mock-ledger'
 
 export function presentPost(post: MockPost) {
   return {
@@ -87,7 +87,7 @@ export function assertOwnPost(post: MockPost) {
 export function publishPost(post: MockPost) {
   if (post.status === 'published') return
   post.status = 'published'
-  addLedger('earn', 20, '发布帖子')
+  awardPublishedPost()
 }
 
 export function syncCommentCount(post: MockPost) {

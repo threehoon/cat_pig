@@ -14,7 +14,7 @@ Page({
     const id = query.id || ''
     this.setData({ id })
     if (!id) {
-      wx.showToast({ title: '任务不存在', icon: 'none' })
+      wx.showToast({ title: '记录不存在', icon: 'none' })
       return
     }
     getVideo(id)
@@ -34,7 +34,7 @@ Page({
       return
     }
     wx.showModal({
-      title: '删除任务',
+      title: '删除记录',
       content: '删除后无法恢复',
       success: (res) => {
         if (!res.confirm) {

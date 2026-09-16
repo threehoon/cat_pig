@@ -11,6 +11,7 @@ import {
 } from '../../../core/mock-runtime'
 import { CURRENT_USER_ID, currentAuthor, store, type MockComment, type MockPost } from '../../../mocks/store'
 import { BOARDS, type Board, type CommentReportReason, type CommentStickerId } from '../types/post'
+import { awardComment, awardLike } from '../../points/services/mock-ledger'
 import {
   assertCanDeleteComment,
   assertOwnPost,
@@ -151,6 +152,7 @@ const postRoutes: MockRoute[] = [
       const post = findPost(params.id)
       post.liked = !post.liked
       post.like_count = Math.max(0, post.like_count + (post.liked ? 1 : -1))
+      if (post.liked) awardLike()
       return presentPost(post)
     },
   },
@@ -222,6 +224,7 @@ const commentRoutes: MockRoute[] = [
       }
       store.comments.push(comment)
       syncCommentCount(post)
+      awardComment()
       return presentComment(comment)
     },
   },

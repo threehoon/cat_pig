@@ -38,6 +38,7 @@
 - 图生视频 `image_urls` **2–9** 张
 - 帖子正文最多 500 字；标题可空字符串
 - 签到：同一自然日（用户本地时区）只能成功一次，重复调用返回已签到，不重复加分
+- 发帖变为 `published`：同一自然日最多给 **3** 条积分，超出不再加分、不报错
 - 发帖默认 `status` 为 `pending`（待审核）；存草稿为 `draft`
 - `DELETE` 只删当前用户自己的资源，否则 `FORBIDDEN`。例外：帖子作者可删该帖下任意一条评论（一次一条，不连带删别人的）。删帖时该帖全部评论一并删除。
 
@@ -193,9 +194,23 @@
 {
   "earned": 180,
   "spent": 0,
-  "balance": 180
+  "balance": 180,
+  "streak": 2,
+  "makeup_card_count": 0,
+  "today_checked": false,
+  "makeup_dates": ["2026-08-23"],
+  "checkin_dates": ["2026-08-23"],
+  "today_post_count": 0,
+  "today_comment_count": 0,
+  "today_like_count": 0
 }
 ```
+
+`earned` `spent` `balance` 仍是非负整数。追加字段：`streak`（当前连续签到天数，非负整数）、`makeup_card_count`（补签卡张数，非负整数）、`today_checked`（今天是否已签，boolean）、`makeup_dates`（可补签的本地自然日 `YYYY-MM-DD` 数组，新的日期在前；没有可补时为 `[]`）、`checkin_dates`（当前本地月 + 上一本地月里已签到或补签的 `YYYY-MM-DD` 数组）、`today_post_count` `today_comment_count` `today_like_count`（今天已给分次数，非负整数，不超过各自每日上限）。补签卡不是积分，不进流水、不进 `Me`。
+
+连续天数按用户本地自然日：有签到记录（含补签）的相邻日历日往回数。今天已签则算到今天；今天未签、昨天有记录则算到昨天；昨天也没有则为 0。第 8 天及以后只要不断，每天仍只发签到 +10，不再给第 3 / 7 天那种额外积分和补签卡。断一天且未补，连续归零。
+
+可补签的日子：今天之前、含今天在内共 7 个自然日里还没有签到记录的日子。不能补今天、不能补未来、不能补 7 天以外。
 
 ### PointsEntry
 
@@ -212,14 +227,21 @@
 
 `kind`：`earn` \| `spend`。`amount` 正整数。
 
-积分发放（接真 API 后由对应模块调 `points` service，合同里不另开发放接口）：
+积分发放（接真 API 后由对应模块调 `points` service，合同里不另开发放接口）。补签卡不是积分，不进流水。
 
-| 事件 | kind | amount | title |
-|---|---|---|---|
-| 注册 | earn | 100 | 注册 |
-| 每日签到 | earn | 10 | 签到 |
-| 帖子变为 published | earn | 20 | 发布帖子 |
-| 创建视频任务 | spend | 50 | 图生视频 |
+| 事件 | kind | amount | title | 限制 |
+|---|---|---|---|---|
+| 注册 | earn | 100 | 注册 | 账号一次 |
+| 每日签到 | earn | 10 | 签到 | 每个自然日一次 |
+| 连续第 3 天 | earn | 20 | 连续签到奖励 | 当前连续恰好为 3 的那次签到；另送 1 张补签卡 |
+| 连续第 7 天 | earn | 50 | 连续签到奖励 | 当前连续恰好为 7 的那次签到；另送 1 张补签卡 |
+| 帖子变为 published | earn | 20 | 发布帖子 | 用户本地自然日最多 3 条；第 4 条起不加、不报错 |
+| 发表评论 | earn | 5 | 评论 | 用户本地自然日最多 1 条；超出不加、不报错 |
+| 点赞帖子 | earn | 2 | 点赞 | 用户本地自然日最多 3 条；只算帖子点赞，不算评论点赞；取消不退分；超出不加、不报错 |
+| 补签 | earn | 10 | 补签 | 花 1 张补签卡；不触发连续额外积分，不送补签卡 |
+| 创建视频任务 | spend | 50 | 图生视频 | 余额不够 → `POINTS_NOT_ENOUGH` |
+
+第 3 / 7 天签到写 **两行** 流水：`签到` +10，再 `连续签到奖励` +20 或 +50。
 
 ---
 
@@ -344,8 +366,13 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 
 `POST /api/v1/points/checkin`  
 请求体空对象 `{}`。  
-响应：`{ "data": { "awarded": 10, "balance": 190, "already_done": false, "date": "2026-08-24" } }`  
-当日已签：`awarded` 为 0，`already_done` 为 true，不报错。
+响应：`{ "data": { "awarded": 10, "balance": 190, "already_done": false, "date": "2026-08-24", "streak": 1, "extra": 0, "makeup_cards_awarded": 0, "makeup_card_count": 0 } }`  
+`awarded` 为本次写入流水的积分合计（普通签到 10；第 3 天 30；第 7 天 60；已签则为 0）。`extra` 为本次额外积分，没有则为 0。`makeup_cards_awarded` 为本次送的卡，没有则为 0。`makeup_card_count` 为送完后的张数。当日已签：`awarded` 为 0，`already_done` 为 true，`extra` 与 `makeup_cards_awarded` 为 0，不报错。
+
+`POST /api/v1/points/makeup`  
+请求：`{ "date": "2026-09-14" }`（用户本地自然日 `YYYY-MM-DD`）。  
+响应：`{ "data": { "awarded": 10, "balance": 190, "date": "2026-09-14", "streak": 4, "makeup_card_count": 0 } }`  
+非法日期 / 无卡 / 那天已有签到或补签记录 / `date` 是今天：`VALIDATION`。成功则扣 1 张补签卡，写流水 `补签` +10，并按连续天数规则重算 `streak`。
 
 ---
 

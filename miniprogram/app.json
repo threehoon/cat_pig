@@ -19,7 +19,9 @@
     "modules/community/pages/favorites/favorites",
     "modules/community/pages/follow/follow",
     "modules/community/pages/follower/follower",
-    "modules/me/pages/settings/settings"
+    "modules/me/pages/settings/settings",
+    "modules/points/pages/tasks/tasks",
+    "modules/points/pages/checkin/checkin"
   ],
   "window": {
     "navigationBarTextStyle": "black",

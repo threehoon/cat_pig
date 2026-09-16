@@ -1,0 +1,25 @@
+<page-shell title="积分任务" back="{{true}}">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad">
+      <view class="hero">
+        <image class="hero__img" src="{{mascots}}" mode="aspectFit" />
+      </view>
+      <view
+        wx:for="{{tasks}}"
+        wx:key="key"
+        class="task"
+        data-key="{{item.key}}"
+        bindtap="onTask"
+      >
+        <image class="task__icon" src="{{item.icon}}" mode="aspectFill" />
+        <view class="task__body">
+          <text class="task__title">{{item.title}}</text>
+          <text class="task__meta">{{item.reward}} · {{item.progress}}/{{item.limit}}</text>
+        </view>
+        <view class="task__btn {{item.done ? 'task__btn--done' : ''}}">
+          {{item.done ? '已完成' : '去完成'}}
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

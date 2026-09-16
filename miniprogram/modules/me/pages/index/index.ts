@@ -62,10 +62,10 @@ Page({
   onPoints() {
     wx.navigateTo({ url: '/modules/points/pages/list/list' })
   },
-  onCheckin() {
-    wx.navigateTo({ url: '/modules/points/pages/list/list?checkin=1' })
+  onPointTasks() {
+    wx.navigateTo({ url: '/modules/points/pages/tasks/tasks' })
   },
-  onTasks() {
+  onRecords() {
     wx.navigateTo({ url: '/modules/video/pages/tasks/tasks' })
   },
   onSettings() {

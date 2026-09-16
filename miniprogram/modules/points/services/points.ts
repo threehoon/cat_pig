@@ -1,5 +1,12 @@
 import { ListResult, request } from '../../../core/request'
-import { CheckinResult, PointsEntry, PointsKind, PointsRange, PointsSummary } from '../types/points'
+import {
+  CheckinResult,
+  MakeupResult,
+  PointsEntry,
+  PointsKind,
+  PointsRange,
+  PointsSummary,
+} from '../types/points'
 
 export function getPointsSummary() {
   return request<PointsSummary>({
@@ -21,5 +28,13 @@ export function checkin() {
     method: 'POST',
     path: '/api/v1/points/checkin',
     data: {},
+  })
+}
+
+export function makeup(date: string) {
+  return request<MakeupResult>({
+    method: 'POST',
+    path: '/api/v1/points/makeup',
+    data: { date },
   })
 }

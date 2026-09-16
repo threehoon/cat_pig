@@ -1,0 +1,43 @@
+<page-shell title="每日签到" back="{{true}}">
+  <scroll-view class="page-scroll" type="list" scroll-y>
+    <view class="page-pad">
+      <view class="stat-bar stat-bar--spaced">
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{streak}}</view>
+          <view class="stat-bar__label">连续签到</view>
+        </view>
+        <view class="stat-bar__item">
+          <view class="stat-bar__num">{{makeup_card_count}}</view>
+          <view class="stat-bar__label">补签卡</view>
+        </view>
+      </view>
+
+      <view class="card cal">
+        <view class="cal__nav">
+          <text class="cal__nav-btn {{canPrev ? '' : 'cal__nav-btn--off'}}" bindtap="onPrev">‹</text>
+          <text class="cal__title">{{title}}</text>
+          <text class="cal__nav-btn {{canNext ? '' : 'cal__nav-btn--off'}}" bindtap="onNext">›</text>
+        </view>
+        <view class="cal__week">
+          <text wx:for="{{weekdays}}" wx:key="*this" class="cal__weekday">{{item}}</text>
+        </view>
+        <view class="cal__grid">
+          <view
+            wx:for="{{cells}}"
+            wx:key="key"
+            class="cal__cell {{item.empty ? 'cal__cell--empty' : ''}} {{item.signed ? 'cal__cell--signed' : ''}} {{item.today && !item.signed ? 'cal__cell--today' : ''}} {{item.future ? 'cal__cell--future' : ''}}"
+            data-date="{{item.date}}"
+            bindtap="onDay"
+          >
+            <text class="cal__num">{{item.label}}</text>
+            <view wx:if="{{item.signed}}" class="cal__dot"></view>
+            <text wx:elif="{{item.makeup}}" class="cal__makeup">可补签</text>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{today_checked}}" class="hint">今天已经签过了</view>
+      <view wx:else class="btn btn--primary" bindtap="onCheckin">今日签到</view>
+    </view>
+  </scroll-view>
+</page-shell>

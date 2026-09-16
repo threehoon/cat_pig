@@ -1,7 +1,7 @@
 import { brandAssets } from '../../../../assets/paths'
 import { toastRequestError } from '../../../../core/request'
 import { formatCreatedAt } from '../../../../utils/util'
-import { checkin, getPointsSummary, listLedger } from '../../services/points'
+import { getPointsSummary, listLedger } from '../../services/points'
 import { PointsEntry, PointsKind } from '../../types/points'
 
 type Filter = 'all' | PointsKind
@@ -32,7 +32,6 @@ function toRow(entry: PointsEntry): LedgerRow {
 
 Page({
   data: {
-    checkinHint: '',
     gift: brandAssets.gift,
     earned: 0,
     spent: 0,
@@ -41,22 +40,8 @@ Page({
     filters: FILTERS,
     rows: [] as LedgerRow[],
   },
-  onLoad(query: { checkin?: string }) {
-    const shouldCheckin = query.checkin === '1'
-    const load = () => this.reload()
-    if (!shouldCheckin) {
-      load()
-      return
-    }
-    checkin()
-      .then((result) => {
-        const checkinHint = result.already_done
-          ? '今天已经签过到了'
-          : `签到成功，积分 +${result.awarded}`
-        this.setData({ checkinHint })
-        load()
-      })
-      .catch(toastRequestError)
+  onShow() {
+    this.reload()
   },
   reload() {
     const kind = this.data.filter === 'all' ? undefined : this.data.filter
