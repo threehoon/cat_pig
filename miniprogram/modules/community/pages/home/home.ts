@@ -3,13 +3,23 @@ import { toastRequestError } from '../../../../core/request'
 import { replaceCard, toPostCard, PostCardView } from '../../post-view'
 import { favoritePost, likePost, listPosts } from '../../services/community'
 
+type HomeEntryId = 'video' | 'album' | 'plaza' | 'checkin'
+
+type HomeEntry = {
+  id: HomeEntryId
+  label: string
+  icon: string
+}
+
 Page({
   data: {
     banner: brandAssets.homeBanner,
-    entryVideo: brandAssets.entryVideo,
-    entryAlbum: brandAssets.entryAlbum,
-    entryPlaza: brandAssets.entryPlaza,
-    entryCheckin: brandAssets.entryCheckin,
+    entries: [
+      { id: 'video', label: '图生视频', icon: brandAssets.entryVideo },
+      { id: 'album', label: '相册', icon: brandAssets.entryAlbum },
+      { id: 'plaza', label: '论坛', icon: brandAssets.entryPlaza },
+      { id: 'checkin', label: '签到', icon: brandAssets.entryCheckin },
+    ] as HomeEntry[],
     posts: [] as PostCardView[],
   },
   onShow() {
@@ -18,6 +28,24 @@ Page({
         this.setData({ posts: result.items.map((post) => toPostCard(post)) })
       })
       .catch(toastRequestError)
+  },
+  onEntry(e: WechatMiniprogram.TouchEvent) {
+    const id = e.currentTarget.dataset.id as HomeEntryId
+    if (id === 'video') {
+      this.onVideo()
+      return
+    }
+    if (id === 'album') {
+      this.onAlbum()
+      return
+    }
+    if (id === 'plaza') {
+      this.onPlaza()
+      return
+    }
+    if (id === 'checkin') {
+      this.onCheckin()
+    }
   },
   onVideo() {
     wx.switchTab({ url: '/modules/video/pages/create/create' })

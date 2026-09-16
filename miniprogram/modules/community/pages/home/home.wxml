@@ -10,29 +10,17 @@
       </view>
 
       <view class="entry-grid">
-        <view class="entry-item" bindtap="onVideo">
+        <view
+          class="entry-item"
+          wx:for="{{entries}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onEntry"
+        >
           <view class="entry-icon">
-            <image class="entry-icon__img" src="{{entryVideo}}" mode="aspectFill" />
+            <image class="entry-icon__img" src="{{item.icon}}" mode="aspectFill" />
           </view>
-          <text class="entry-label">图生视频</text>
-        </view>
-        <view class="entry-item" bindtap="onAlbum">
-          <view class="entry-icon">
-            <image class="entry-icon__img" src="{{entryAlbum}}" mode="aspectFill" />
-          </view>
-          <text class="entry-label">相册</text>
-        </view>
-        <view class="entry-item" bindtap="onPlaza">
-          <view class="entry-icon">
-            <image class="entry-icon__img" src="{{entryPlaza}}" mode="aspectFill" />
-          </view>
-          <text class="entry-label">论坛</text>
-        </view>
-        <view class="entry-item" bindtap="onCheckin">
-          <view class="entry-icon">
-            <image class="entry-icon__img" src="{{entryCheckin}}" mode="aspectFill" />
-          </view>
-          <text class="entry-label">签到</text>
+          <text class="entry-label">{{item.label}}</text>
         </view>
       </view>
 

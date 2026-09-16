@@ -3,6 +3,10 @@ page {
   background: var(--color-bg);
 }
 
+.hero-banner {
+  height: 380rpx;
+}
+
 .hero-banner__copy {
   text-shadow: 0 2rpx 12rpx rgba(247, 240, 230, 0.9);
 }
