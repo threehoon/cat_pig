@@ -76,7 +76,7 @@
 - 微信开发者工具已打开仓库根目录：小程序可启动，界面与主路径正常。
 - 帖子互动改为点赞 / 评论 / 收藏 / 转发。点赞和收藏互相独立；评论区可连续发、可评论别人。删评论：本人只能删自己的，贴主可删该帖任意一条，不连带删别人的；删帖才清掉该帖全部评论。转发走微信分享。
 - 评论区补齐：点赞评论、三点菜单（复制 / 举报 / 有权限才删除）、配图（最多 9 张，列表最多露 3 张，超过叠放）、水彩贴纸资源可跟在正文后、语音评论、艾特。输入条：大圆角输入 + 相册 / @ / 表情 / 语音图标 + 发送。不做 AI 润色。艾特写入 `body` 的 `@昵称 `，评论列表里仅这段用主色；退格一次删掉整段。语音走 `audio_url` / `audio_duration`，按住说话松开发出。电脑端选图没有摄像头则退回相册；录音在电脑端可能失败。
-- Skyline 列表骨架：业务页纵向 `scroll-view` 补 `type="list"`；论坛横向标签加 `enable-flex`；首页 / 论坛 / 我的发布把 `post-card` 做成列表直接子节点；导航栏改为同步 `getSystemInfoSync` 并缓存。模拟器里 `navigateTo` 仍可能空一拍，**真机调试不卡**，见 [miniprogram/README.md](miniprogram/README.md)。
+- Skyline 列表骨架：业务页纵向 `scroll-view` 补 `type="list"`；广场横向滚动加 `enable-flex`；首页 / 广场 / 我的发布把 `post-card` 做成列表直接子节点；导航栏改为同步 `getSystemInfoSync` 并缓存。模拟器里 `navigateTo` 仍可能空一拍，**真机调试不卡**，见 [miniprogram/README.md](miniprogram/README.md)。
 - 真机调试：`detail-voice.ts` 去掉 `recordSink?.`，改成显式判断。`es6` / `enhance` 仍关闭。
 - 真机对照：点动态进详情不卡。模拟器 `navigateTo` 空一拍只当开发者工具现象。阶段 F 在此基础上继续，不再为跳转改详情。
 - 「我的」编辑资料页已接：点资料卡进 `modules/me/pages/profile/profile`；头像走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入 1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`catch-back` 仅本页开启。评论作者展示跟 `store.me`。

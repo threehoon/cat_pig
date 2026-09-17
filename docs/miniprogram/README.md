@@ -63,7 +63,7 @@ handlers 在 `modules/<feature>/services/mock.ts`。未命中路由时 `handleMo
 
 纵向 `scroll-view` 必须写 `type="list"`。横向再加 `enable-flex`。不设 `type` 会走退化路径，点击也不跟手。
 
-`type="list"` 时，列表项必须是 `scroll-view` 的直接子节点。不要用一个 `page-pad` 把头图和卡片全包进去再标 `type="list"`——那样按需渲染退化。首页 / 论坛 / 我的发布：头用 `page-pad--head`，`post-card` 做直接子节点，底部用 `list-end`（论坛带 FAB 用 `list-end--fab`）。短页（我的、发帖、上传）可以保留单个 `page-pad`，但仍要有 `type`。
+`type="list"` 时，列表项必须是 `scroll-view` 的直接子节点。不要用一个 `page-pad` 把头图和卡片全包进去再标 `type="list"`——那样按需渲染退化。首页 / 广场 / 我的发布：头用 `page-pad--head`，`post-card` 做直接子节点，底部用 `list-end`（广场带 FAB 用 `list-end--fab`）。广场「大家都在看」横向 `scroll-view` 加 `enable-flex`。短页（我的、发帖、上传）可以保留单个 `page-pad`，但仍要有 `type`。
 
 ### 导航栏
 
