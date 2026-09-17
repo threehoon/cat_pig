@@ -95,8 +95,8 @@
 
       <view class="row-link">
         <view>
-          <text>同步到论坛</text>
-          <text class="sync-sub">仅公开相册可以同步到论坛</text>
+          <text>同步到广场</text>
+          <text class="sync-sub">仅公开相册可以同步到广场</text>
         </view>
         <switch
           color="#F0783C"

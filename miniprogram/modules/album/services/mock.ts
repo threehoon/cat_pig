@@ -31,7 +31,7 @@ function readVisibility(data: Record<string, unknown>, fallback: AlbumVisibility
 
 function assertSyncAllowed(visibility: AlbumVisibility, syncToForum: boolean) {
   if (syncToForum && visibility !== 'public') {
-    fail('VALIDATION', '只有公开相册可以同步到论坛')
+    fail('VALIDATION', '只有公开相册可以同步到广场')
   }
 }
 

@@ -5,7 +5,7 @@
     </view>
     <view class="post-card__meta">
       <text class="post-card__author">{{author}}</text>
-      <text class="post-card__sub">{{time}} · {{board}}</text>
+      <text class="post-card__sub">{{time}}</text>
     </view>
     <view wx:if="{{board}}" class="chip chip--ghost">{{board}}</view>
   </view>

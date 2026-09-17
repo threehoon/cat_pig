@@ -130,13 +130,13 @@
 }
 ```
 
-`board`：`qa` \| `show` \| `share` \| `help` \| `daily` \| `experience`。  
+`board`：`qa` \| `show` \| `share` \| `help` \| `daily` \| `experience`。响应里始终有。发帖请求可省略，省略视为 `daily`。相册同步论坛仍发 `show`。界面不用板块当房间。  
 `status`：`draft` \| `pending` \| `published` \| `rejected`。  
 `liked` / `favorited`：当前用户是否已点赞 / 已收藏，布尔。点赞和收藏互相独立。  
 `like_count` / `comment_count` / `favorite_count`：非负整数。  
 `title` 可空字符串。`body` 可空字符串，但与 `image_urls` 不能同时空。`topic_names` 始终是数组。预设话题：`可爱瞬间` `日常` `生日` `旅行` `活动`，允许新字符串。
 
-广场 tab 查询值 `tab`：`recommend` \| `following` \| 与 `board` 相同的六个值。
+广场 tab 查询值 `tab`：主路径 `recommend` \| `following`。仍接受与 `board` 相同的六个值（兼容）。`topic` 可省略；有则只返回 `topic_names` 含该字符串的帖。
 
 ### Comment（嵌在帖子下，不是独立模块）
 
@@ -286,8 +286,8 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 
 ### community
 
-`GET /api/v1/community/post?tab=recommend&q=&page=1&page_size=20`  
-`tab` 默认 `recommend`。`q` 可省略（搜标题和正文）。  
+`GET /api/v1/community/post?tab=recommend&q=&topic=&page=1&page_size=20`  
+`tab` 默认 `recommend`。`q` 可省略（搜标题、正文、话题名）。`topic` 可省略。  
 `tab=following` 为已关注作者的已发布帖。  
 响应：`{ "data": { "items": [Post], "total", "page", "page_size" } }`  
 列表不包含 `draft` / `pending` / `rejected`（除非走 `/post/mine`）。
@@ -302,7 +302,7 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 
 `POST /api/v1/community/post`  
 请求：`{ "board", "title", "body", "image_urls", "topic_names", "status" }`  
-`status` 只允许 `draft` 或 `pending`。响应：`{ "data": Post }`
+`board` 可省略（视为 `daily`）。`status` 只允许 `draft` 或 `pending`。响应：`{ "data": Post }`
 
 `GET /api/v1/community/post/{id}` → `{ "data": Post }`  
 `PATCH /api/v1/community/post/{id}` 子集（含把 `draft` 改为 `pending`）→ `{ "data": Post }`  

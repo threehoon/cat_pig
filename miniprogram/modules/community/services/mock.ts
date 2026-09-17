@@ -56,12 +56,19 @@ const postRoutes: MockRoute[] = [
     handle: (_params, options) => {
       const tab = queryValue(options.query, 'tab') || 'recommend'
       const q = (queryValue(options.query, 'q') || '').trim()
+      const topic = (queryValue(options.query, 'topic') || '').trim()
       const items = sortByCreated(
         store.posts.filter((post) => {
           if (post.status !== 'published') return false
           if (tab === 'following' && store.follows.indexOf(post.author.id) === -1) return false
           if ((BOARD_IDS as readonly string[]).indexOf(tab) !== -1 && post.board !== tab) return false
-          return !q || post.title.indexOf(q) !== -1 || post.body.indexOf(q) !== -1
+          if (topic && post.topic_names.indexOf(topic) === -1) return false
+          return (
+            !q ||
+            post.title.indexOf(q) !== -1 ||
+            post.body.indexOf(q) !== -1 ||
+            post.topic_names.some((name) => name.indexOf(q) !== -1)
+          )
         }),
       ).map(presentPost)
       return paginate(items, options.query)
@@ -72,7 +79,7 @@ const postRoutes: MockRoute[] = [
     pattern: '/api/v1/community/post',
     handle: (_params, options) => {
       const data = bodyOf(options)
-      const board = String(data.board || '')
+      const board = String(data.board || 'daily')
       const status = String(data.status || '')
       const title = typeof data.title === 'string' ? data.title : ''
       const body = typeof data.body === 'string' ? data.body : ''

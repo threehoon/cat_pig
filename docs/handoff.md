@@ -8,7 +8,7 @@
 
 阶段 **F（前端界面先行）**，进行中。`useMock: true`。不要先搭 FastAPI。不要重做视觉（除非用户点名某一页）。
 
-下一轮：按 [dev/checkin-streak.md](dev/checkin-streak.md) 点验签到页近 7 天进度条。不要先搭 FastAPI。不要重做视觉。相册 / 「我的」/ 签到月历与积分任务已在 HEAD。微信开发者工具打开仓库根目录。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：点验广场公开动态流（发动态不选板块、推荐 / 关注、「大家都在看」横滑进详情、底栏「广场」）。签到近 7 天进度条仍待点验，见 [dev/checkin-streak.md](dev/checkin-streak.md)。不要先搭 FastAPI。不要重做视觉。微信开发者工具打开仓库根目录。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
@@ -43,11 +43,11 @@
 | `me` | 当前用户资料、「我的」页 | 有 |
 | `media` | 图片 / 语音文件上传与 URL | 无独立页；被相册、帖子、评论、视频引用 |
 | `album` | 独立相册 | 有 |
-| `community` | 首页门户、广场 / 论坛、帖子 | 有 |
+| `community` | 首页门户、广场动态、帖子 | 有 |
 | `video` | 图生视频任务 | 有 |
 | `points` | 积分流水、签到 | 有 |
 
-禁止再用 `pet`、`journal`、`ledger`、`reminder`、`user`、`diary`、`forum`、`plaza`、`bill` 当模块目录名。广场和论坛是 `community` 的页面，不是两个模块。任务管理是 `video` 的列表页，不是独立模块。
+禁止再用 `pet`、`journal`、`ledger`、`reminder`、`user`、`diary`、`forum`、`plaza`、`bill` 当模块目录名。广场是 `community` 的页面，不是独立模块。任务管理是 `video` 的列表页，不是独立模块。
 
 ## 界面先行：Tab 与页面
 
@@ -58,7 +58,7 @@
 | 1 | 首页 | `modules/community/pages/home/home`（首页） |
 | 2 | 相册 | `modules/album/pages/list/list` |
 | 3 | 创作 | `modules/video/pages/create/create`（中间加号） |
-| 4 | 论坛 | `modules/community/pages/plaza/plaza` |
+| 4 | 广场 | `modules/community/pages/plaza/plaza` |
 | 5 | 我的 | `modules/me/pages/index/index` |
 
 非 tab、从上面推进去的页：
@@ -66,7 +66,7 @@
 | 模块 | 路径 | 做什么 |
 |---|---|---|
 | album | `modules/album/pages/upload/upload` | 上传到相册 |
-| community | `modules/community/pages/compose/compose` | 发布 / 编辑帖子、存草稿 |
+| community | `modules/community/pages/compose/compose` | 发布 / 编辑动态、存草稿 |
 | community | `modules/community/pages/detail/detail` | 帖子详情 |
 | community | `modules/community/pages/mine/mine` | 我的发布 |
 | community | `modules/community/pages/favorites/favorites` | 我的收藏 |
@@ -95,8 +95,9 @@
 
 | 字段 | 值 → 文案 |
 |---|---|
-| 广场 `tab` | `recommend` 推荐；`following` 关注；其余同 `board` |
-| 帖子 `board` | `qa` 问答；`show` 晒宠；`share` 分享；`help` 求助；`daily` 日常；`experience` 经验 |
+| 广场 `tab` | `recommend` 推荐；`following` 关注。六个 `board` 值仍接受，不作主路径 |
+| 帖子 `board` | 响应仍有；发帖可省略，默认 `daily`。界面不展示板块房间 |
+| 广场 `topic` | 列表 query 仍可带；广场界面不用话题芯片筛 |
 | 帖子 `status` | `draft` 草稿；`pending` 审核中；`published` 已发布；`rejected` 未通过 |
 | 帖子动作 | 点赞 / 评论 / 收藏 / 转发（转发走微信分享，无单独接口） |
 | 视频 `status` | `pending` 待执行；`running` 执行中；`success` 执行成功；`failed` 执行失败 |
@@ -104,10 +105,10 @@
 
 ### 入口约定（避免各写各的）
 
-- 首页四个入口：图生视频 → 创作 tab；相册 → 相册 tab；论坛 → 论坛 tab；签到 → `modules/points/pages/checkin/checkin`。禁止首页 import `points` service。带着 `?checkin=1` 进积分明细不会自动签到。
-- 首页下方动态：`GET /api/v1/community/post?tab=recommend`。点「更多」切到论坛 tab。
-- 论坛 tab：搜索走 query `q`；顶部分栏对应 `tab`（推荐 / 关注 / 六个板块）。
-- 创作 tab 打开即为图生视频表单，不是发帖。发帖从广场 / 我的发布进入。
+- 首页四个入口：图生视频 → 创作 tab；相册 → 相册 tab；广场 → 广场 tab；签到 → `modules/points/pages/checkin/checkin`。禁止首页 import `points` service。带着 `?checkin=1` 进积分明细不会自动签到。
+- 首页下方动态：`GET /api/v1/community/post?tab=recommend`。点「更多」切到广场 tab。
+- 广场 tab：搜索走 query `q`；顶部分栏 `tab`（推荐 / 关注，下划线不是芯片）。「大家都在看」横滑封面进详情，数据来自 `tab=recommend` 且带图的帖。不在广场用话题芯片筛选。发动态不传 `board`。
+- 创作 tab 打开即为图生视频表单，不是发动态。发动态从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
 - 「我的」：头像昵称和四计数走 `GET /api/v1/me`。点头像/昵称进编辑资料页；点「动态 / 获赞」进我的发布；点「关注 / 粉丝」进对应列表。菜单分组：我的发布 / 我的收藏 / 我的相册（`switchTab` 相册 tab）/ 生成记录；我的关注 / 粉丝；积分明细 / 积分任务；设置。没有「每日签到」菜单（签到只从首页进）。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。设置页无接口：关于写「宠物记录 / 开发版」；注销只提示「开发期不能注销」。关注 / 粉丝行不进作者页。
 
@@ -134,7 +135,7 @@
 
 评论行 UI 在 `modules/community/components/comment-row/`。艾特切分在 `modules/community/mentions.ts`。贴纸目录在 `modules/community/stickers.ts`。
 
-首页 / 论坛 / 我的发布 / 我的收藏 / 详情页已开分享。`react-row` 图标：`assets/icon/react-like|reply|favorite|share.png` 与 `-active`（评论按钮文件名仍是 `reply`，界面文案是「评论」）。
+首页 / 广场 / 我的发布 / 我的收藏 / 详情页已开分享。`react-row` 图标：`assets/icon/react-like|reply|favorite|share.png` 与 `-active`（评论按钮文件名仍是 `reply`，界面文案是「评论」）。
 
 ### tabBar 图标
 

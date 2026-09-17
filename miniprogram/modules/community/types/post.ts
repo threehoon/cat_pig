@@ -65,7 +65,7 @@ export type CommentWrite = {
 export type CommentReportReason = 'spam' | 'abuse' | 'porn' | 'other'
 
 export type PostWrite = {
-  board: Board
+  board?: Board
   title: string
   body: string
   image_urls: string[]
@@ -82,20 +82,12 @@ export const BOARDS: { id: Board; label: string }[] = [
   { id: 'experience', label: '经验' },
 ]
 
+export const TOPIC_PRESETS = ['可爱瞬间', '日常', '生日', '旅行', '活动']
+
 export const PLAZA_TABS: { id: PostTab; label: string }[] = [
   { id: 'recommend', label: '推荐' },
   { id: 'following', label: '关注' },
-  ...BOARDS,
 ]
-
-export const BOARD_LABEL: Record<Board, string> = {
-  qa: '问答',
-  show: '晒宠',
-  share: '分享',
-  help: '求助',
-  daily: '日常',
-  experience: '经验',
-}
 
 export const POST_STATUS_LABEL: Record<PostStatus, string> = {
   draft: '草稿',
@@ -103,5 +95,3 @@ export const POST_STATUS_LABEL: Record<PostStatus, string> = {
   published: '已发布',
   rejected: '未通过',
 }
-
-export const TOPIC_PRESETS = ['可爱瞬间', '日常', '生日', '旅行', '活动']

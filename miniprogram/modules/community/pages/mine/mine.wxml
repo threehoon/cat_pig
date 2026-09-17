@@ -1,5 +1,5 @@
 <page-shell title="我的发布" back="{{true}}">
-  <view slot="right" class="nav-action" bindtap="onCompose">发帖</view>
+  <view slot="right" class="nav-action" bindtap="onCompose">发动态</view>
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad page-pad--head">
       <view class="chip-row chip-row--mine">

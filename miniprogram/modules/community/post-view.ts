@@ -1,6 +1,6 @@
 import { brandAssets } from '../../assets/paths'
 import { formatCreatedAt } from '../../utils/util'
-import { BOARD_LABEL, POST_STATUS_LABEL, Post } from './types/post'
+import { POST_STATUS_LABEL, Post } from './types/post'
 
 export type PostCardView = {
   id: string
@@ -19,7 +19,7 @@ export type PostCardView = {
 }
 
 export function toPostCard(post: Post, mode: 'board' | 'status' = 'board'): PostCardView {
-  const board = mode === 'status' ? POST_STATUS_LABEL[post.status] : BOARD_LABEL[post.board]
+  const board = mode === 'status' ? POST_STATUS_LABEL[post.status] : post.topic_names[0] || ''
   const covers = post.image_urls.slice(0, 2)
   return {
     id: post.id,

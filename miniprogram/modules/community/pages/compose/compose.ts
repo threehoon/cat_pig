@@ -2,13 +2,11 @@ import { toastRequestError } from '../../../../core/request'
 import { chooseLocalImages } from '../../../media/choose'
 import { uploadImages } from '../../../media/services/media'
 import { createPost, getPost, patchPost } from '../../services/community'
-import { Board, BOARDS, TOPIC_PRESETS } from '../../types/post'
+import { TOPIC_PRESETS } from '../../types/post'
 
 Page({
   data: {
     id: '',
-    board: 'qa' as Board,
-    boards: BOARDS,
     title: '',
     body: '',
     image_urls: [] as string[],
@@ -25,7 +23,6 @@ Page({
     getPost(id)
       .then((post) => {
         this.setData({
-          board: post.board,
           title: post.title,
           body: post.body,
           image_urls: post.image_urls,
@@ -37,9 +34,6 @@ Page({
         })
       })
       .catch(toastRequestError)
-  },
-  onBoard(e: WechatMiniprogram.TouchEvent) {
-    this.setData({ board: e.currentTarget.dataset.id as Board })
   },
   onTitle(e: WechatMiniprogram.Input) {
     this.setData({ title: e.detail.value })
@@ -95,7 +89,6 @@ Page({
     this.setData({ busy: true })
     wx.showLoading({ title: status === 'draft' ? '保存中' : '发布中', mask: true })
     const payload = {
-      board: this.data.board,
       title: this.data.title,
       body: this.data.body,
       image_urls: this.data.image_urls,

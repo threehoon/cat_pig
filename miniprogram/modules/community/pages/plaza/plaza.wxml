@@ -1,4 +1,4 @@
-<page-shell title="论坛">
+<page-shell title="广场">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad page-pad--head">
       <view class="search card">
@@ -13,17 +13,33 @@
         <text class="search__btn" bindtap="onSearch">搜索</text>
       </view>
 
-      <scroll-view class="chip-scroll" type="list" scroll-x enable-flex show-scrollbar="{{false}}">
-        <view class="chip-inner">
-          <view
-            wx:for="{{tabs}}"
-            wx:key="id"
-            class="chip chip--tab {{tab === item.id ? 'chip--on' : ''}}"
-            data-id="{{item.id}}"
-            bindtap="onTab"
-          >{{item.label}}</view>
+      <view class="feed-tabs">
+        <view
+          wx:for="{{tabs}}"
+          wx:key="id"
+          class="feed-tab {{tab === item.id ? 'feed-tab--on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onTab"
+        >{{item.label}}</view>
+      </view>
+
+      <block wx:if="{{watching.length}}">
+        <view class="watch-head">
+          <text class="section-title">大家都在看</text>
         </view>
-      </scroll-view>
+        <scroll-view class="watch-scroll" type="list" scroll-x enable-flex show-scrollbar="{{false}}">
+          <view
+            wx:for="{{watching}}"
+            wx:key="id"
+            class="watch-card"
+            data-id="{{item.id}}"
+            bindtap="onWatch"
+          >
+            <image class="watch-card__img" src="{{item.cover}}" mode="aspectFill" />
+            <text class="watch-card__cap" max-lines="1">{{item.body}}</text>
+          </view>
+        </scroll-view>
+      </block>
 
       <view class="card hot">
         <text class="hot__kicker">本周热聊</text>
@@ -62,5 +78,5 @@
     />
     <view class="list-end list-end--fab"></view>
   </scroll-view>
-  <view class="fab" bindtap="onCompose">发帖</view>
+  <view class="fab" bindtap="onCompose">发动态</view>
 </page-shell>

@@ -53,7 +53,7 @@
       },
       {
         "pagePath": "modules/community/pages/plaza/plaza",
-        "text": "论坛",
+        "text": "广场",
         "iconPath": "assets/tab/plaza.png",
         "selectedIconPath": "assets/tab/plaza-active.png"
       },

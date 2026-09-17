@@ -1,17 +1,6 @@
-<page-shell title="发布帖子" back="{{true}}">
+<page-shell title="发动态" back="{{true}}">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
-      <text class="field__label">选择板块</text>
-      <view class="chip-row chip-row--boards">
-        <view
-          wx:for="{{boards}}"
-          wx:key="id"
-          class="chip {{board === item.id ? 'chip--on' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="onBoard"
-        >{{item.label}}</view>
-      </view>
-
       <view class="field">
         <input class="field__input" placeholder="写个吸引人的标题" value="{{title}}" bindinput="onTitle" />
       </view>
@@ -26,7 +15,7 @@
       </view>
 
       <view class="section-head">
-        <text class="section-title">话题</text>
+        <text class="section-title">话题（可选）</text>
       </view>
       <view class="chip-row">
         <view
@@ -53,7 +42,7 @@
 
       <view class="btn-row">
         <view class="btn btn--ghost" bindtap="onDraft">保存草稿</view>
-        <view class="btn btn--primary" bindtap="onPublish">发布帖子</view>
+        <view class="btn btn--primary" bindtap="onPublish">发布</view>
       </view>
     </view>
   </scroll-view>

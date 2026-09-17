@@ -13,7 +13,7 @@ import {
   unfollowUser,
   createComment,
 } from '../../services/community'
-import { BOARD_LABEL, Post } from '../../types/post'
+import { Post } from '../../types/post'
 import { CommentView, MentionUser, collectMentions, collectNicknames, groupComments } from './detail-view'
 import { likeCommentAction, moreCommentAction, previewCommentAction } from './comment-actions'
 import {
@@ -53,7 +53,6 @@ Page({
     avatar: brandAssets.avatarDefault as string,
     nickname: '用户',
     time: '',
-    boardLabel: '',
     isOwn: false,
     followLabel: '关注',
     comments: [] as CommentView[],
@@ -123,12 +122,13 @@ Page({
     Promise.all([getPost(id), listComments(id, 1, 50)])
       .then(([post, comments]) => {
         const currentUserId = getUserId()
+        const time = formatCreatedAt(post.created_at)
+        const topic = post.topic_names[0] || ''
         this.setData({
           post,
           avatar: post.author.avatar_url || brandAssets.avatarDefault,
           nickname: post.author.nickname || '用户',
-          time: formatCreatedAt(post.created_at),
-          boardLabel: BOARD_LABEL[post.board],
+          time: topic ? `${time} · ${topic}` : time,
           isOwn: post.author.id === currentUserId,
           followLabel: post.followed ? '已关注' : '关注',
           comments: groupComments(

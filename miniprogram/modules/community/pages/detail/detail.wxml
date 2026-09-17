@@ -14,7 +14,7 @@
           </view>
           <view class="detail-meta">
             <text class="detail-name">{{nickname}}</text>
-            <text class="detail-sub">{{time}} · {{boardLabel}}</text>
+            <text class="detail-sub">{{time}}</text>
           </view>
           <view
             wx:if="{{!isOwn}}"

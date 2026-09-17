@@ -16,11 +16,11 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：用微信开发者工具打开仓库根目录，按 [dev/checkin-streak.md](dev/checkin-streak.md) 点验签到页「近 7 天」进度条（种子：昨天+前天已签、今天未签、补签卡 0）。相册上传 / 详情 / 可见性、「我的」资料卡与列表、签到月历 / 补签 / 积分任务已在 HEAD。模拟器 `navigateTo` 空一拍、真机不卡，**不要回头改跳转**。不要先搭 FastAPI。不要重做视觉。不要把「已知风险」的延后项当成本轮必须做的事。
+下一对话目标：用微信开发者工具打开仓库根目录，点验广场公开动态流（发动态不选板块；底栏/首页入口「广场」；推荐 / 关注是下划线；「大家都在看」横滑封面进详情，不是话题分类）。签到近 7 天进度条仍待点验，见 [dev/checkin-streak.md](dev/checkin-streak.md)。模拟器 `navigateTo` 空一拍、真机不卡，**不要回头改跳转**。不要先搭 FastAPI。不要重做视觉。不要把「已知风险」的延后项当成本轮必须做的事。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
-必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [dev/checkin-streak.md](dev/checkin-streak.md)（点验清单）→ [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。写代码再读 [framework/code-standards.md](framework/code-standards.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
+必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。点验签到进度条时再打开 [dev/checkin-streak.md](dev/checkin-streak.md)。写代码再读 [framework/code-standards.md](framework/code-standards.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
 
 开发走 `/app-pet`。打开仓库**根目录**。静态检查 `npm run typecheck`。
 
@@ -29,9 +29,9 @@
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（P0/P1 页面与 mock 已接；签到近 7 天进度条等人点验） |
+| 状态 | 进行中（P0/P1 页面与 mock 已接；广场公开动态流、签到进度条等人点验） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-09-16 |
+| 最后更新 | 2026-09-17 |
 
 ## 阶段总览
 
@@ -39,7 +39,7 @@
 |---|---|---|
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
-| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（P0/P1 页面与 mock 已接；签到进度条等人点验） |
+| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（P0/P1 页面与 mock 已接；广场动态流、签到进度条等人点验） |
 | 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 未开始（界面之后） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
@@ -86,10 +86,11 @@
 - 「我的」丰富已接 mock：资料卡四计数（动态 / 获赞 / 关注 / 粉丝）；菜单分组；收藏 / 关注 / 粉丝 / 设置页。合同增加 `Me` 四计数与 `GET /community/post/favorite`、`GET /community/follow`、`GET /community/follower`。一次性文档 [dev/me.md](dev/me.md)，不进 `AGENTS.md` / README；点验通过后删除。
 - 积分任务与独立签到页已接 mock（`319b846`）：首页「签到」进 `modules/points/pages/checkin/checkin`（当月月历、可回上个月、近 7 天补签）；积分任务只留发帖 / 评论 / 点赞（每天 3 / 1 / 3，自动入账）；合同增加 `PointsSummary` 的 `checkin_dates`、三个今日计数，以及 `POST /api/v1/points/makeup`。一次性文档 [dev/points.md](dev/points.md)，点验通过后删除。
 - 签到页近 7 天进度条已接（未点验）：第 1–7 天节点（第 3 天 +30 送卡、第 7 天 +60 送卡），只读 `streak` / `today_checked`，不加合同字段。种子改为昨天+前天、补签卡 0。一次性文档 [dev/checkin-streak.md](dev/checkin-streak.md)。
+- 广场改为公开动态流已接（未点验）：发动态不选板块；底栏与首页入口文案「广场」；推荐 / 关注为下划线；「大家都在看」横滑封面进详情。合同：`board` 发帖可省略（默认 `daily`），列表可带 `topic`（界面不用芯片筛）。相册同步文案改为「广场」，字段仍是 `sync_to_forum`。
 
 ## 进行中
 
-- 阶段 F：P0/P1 页面、services、mock 已接。真机调试可用。签到进度条等人点验。
+- 阶段 F：P0/P1 页面、services、mock 已接。真机调试可用。广场公开动态流、签到进度条等人点验。
 
 ## 已知风险
 
@@ -105,8 +106,8 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 用微信开发者工具打开仓库根目录，按 [dev/checkin-streak.md](dev/checkin-streak.md) 点验签到进度条。不要先搭 FastAPI。不要回头修 `navigateTo`。不要改已锁定的 tab 路径。
-2. 点验通过后删除 [dev/checkin-streak.md](dev/checkin-streak.md)。相册 [dev/album.md](dev/album.md)、「我的」[dev/me.md](dev/me.md)、积分 [dev/points.md](dev/points.md) 点验通过后同样删除。
+1. 用微信开发者工具打开仓库根目录，点验广场：发动态不选板块、推荐里能看到刚发的、大家都在看点进详情、底栏是「广场」。不要先搭 FastAPI。不要回头修 `navigateTo`。不要改已锁定的 tab 路径。
+2. 仍待点验：签到进度条，按 [dev/checkin-streak.md](dev/checkin-streak.md)。点验通过后删除该文件。相册 [dev/album.md](dev/album.md)、「我的」[dev/me.md](dev/me.md)、积分 [dev/points.md](dev/points.md) 点验通过后同样删除。
 3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`）。这不是下一对话的默认任务。
 
@@ -163,6 +164,7 @@
 | 2026-09-16 | 「我的」资料卡四计数；菜单分组；新页收藏 / 关注 / 粉丝 / 设置 | 用户确认。计数只在 `GET/PATCH /me`；收藏/关注/粉丝列表归 community；不进作者页、消息中心、商城 |
 | 2026-09-16 | 签到从积分任务拆到独立页；任务只留发帖 / 评论 / 点赞 | 首页「签到」进月历页，不铺日历、不调积分接口。发帖每天前 3 条 +20，评论每天 1 条 +5，点赞帖子每天 3 条 +2（取消不退）。连续第 3 / 7 天额外积分并各送 1 张补签卡；补签只 +10 |
 | 2026-09-16 | 签到页上方面「第 1–7 天」进度条，不是周一到周日 | 月历管哪天签过、点哪天补签；进度条只展示连续加码。合同不加字段，页面用已有 `streak` / `today_checked` |
+| 2026-09-17 | 广场是公开动态流，不是论坛板块房间 | 发帖必选板块像进房间。推荐 / 关注留下；话题可写在帖上，不当广场分类条。「大家都在看」横滑图进详情。底栏文案「广场」。`board` 响应仍有，发帖可省略默认 `daily` |
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 

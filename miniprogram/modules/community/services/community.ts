@@ -1,11 +1,11 @@
 import { ListResult, request } from '../../../core/request'
 import { Author, Comment, CommentReportReason, CommentWrite, Post, PostStatus, PostTab, PostWrite } from '../types/post'
 
-export function listPosts(tab: PostTab = 'recommend', q?: string, page = 1, pageSize = 20) {
+export function listPosts(tab: PostTab = 'recommend', q?: string, page = 1, pageSize = 20, topic?: string) {
   return request<ListResult<Post>>({
     method: 'GET',
     path: '/api/v1/community/post',
-    query: { tab, q, page, page_size: pageSize },
+    query: { tab, q, page, page_size: pageSize, topic },
   })
 }
 

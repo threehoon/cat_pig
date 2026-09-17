@@ -17,7 +17,7 @@ Page({
     entries: [
       { id: 'video', label: '图生视频', icon: brandAssets.entryVideo },
       { id: 'album', label: '相册', icon: brandAssets.entryAlbum },
-      { id: 'plaza', label: '论坛', icon: brandAssets.entryPlaza },
+      { id: 'plaza', label: '广场', icon: brandAssets.entryPlaza },
       { id: 'checkin', label: '签到', icon: brandAssets.entryCheckin },
     ] as HomeEntry[],
     posts: [] as PostCardView[],
