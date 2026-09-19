@@ -48,7 +48,7 @@ Page({
     }
   },
   onVideo() {
-    wx.switchTab({ url: '/modules/video/pages/create/create' })
+    wx.navigateTo({ url: '/modules/video/pages/create/create' })
   },
   onAlbum() {
     wx.switchTab({ url: '/modules/album/pages/list/list' })

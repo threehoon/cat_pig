@@ -9,6 +9,7 @@
 - **P0**：没有则「内容小程序」不成立。阶段 F 把 P0+P1 **页面和 mock 一起铺上**（必须走各模块 `services/`，见 [handoff.md](../handoff.md)）；接真数据时仍先打通 P0。
 - **P1**：积分、签到、关注、审核状态、点赞 / 评论 / 收藏 / 转发。阶段 F 要有对应页；扣积分 / 真审核放到接 API 之后。
 - **P2**：图生视频 **真出片**（异步 worker）。阶段 F 只要创作页和生成记录能点；结果用占位。
+- **P3**：对标之外已批准的自身能力（助手 / 问诊 / 经验）。顺序和边界见 [expansion.md](expansion.md)。未开工前不建目录。
 - 未列入 benchmark 的：未改文档前当作需求不存在。
 
 ## P0 — 主路径（门户 + 相册 + 广场）
@@ -50,13 +51,23 @@ P0 主路径（必须能演示）：
 
 小程序只：提交任务、拉列表、看状态 / 结果 URL。密钥和模型只放服务端。
 
+## P3 — 自身加的（对标之外）
+
+| 能力簇 | 要做到 | 模块目录 | 何时 |
+|---|---|---|---|
+| 站内助手 | 底栏「小x」；对话；`source` 分流；相近帖摘要 | `assistant` | mock 已接；真 RAG 按 [expansion.md](expansion.md) 回答流水 |
+| 问诊 | 结构化问诊单、建议、免责 | `consult` | 后期；需要生成时调 assistant 公开 service |
+| 养宠经验 | 用户分享经验的列表 / 详情 / 发布 | `experience` | 后期；不是广场动态分类 |
+
+细则只认 [expansion.md](expansion.md)。一次只加一个模块。问诊和经验现在不画页面、不写合同 path。
+
 ## 未开放
 
-随手记、账单、提醒、宠物档案模块、商城、问诊：见 [benchmark.md](benchmark.md) 下表。禁止借旧方案之名加回来。
+随手记、账单、提醒、宠物档案模块、商城、上门、活体：见 [benchmark.md](benchmark.md) 下表。禁止借旧方案之名加回来。问诊和养宠经验已批准后期，见 [expansion.md](expansion.md)，未开工前当作不存在。
 
 ## Agent 实现时
 
-1. 先读 [positioning.md](positioning.md) 和 [benchmark.md](benchmark.md)，再读本文件。
+1. 先读 [positioning.md](positioning.md) 和 [benchmark.md](benchmark.md)，再读本文件。做助手 / 问诊 / 经验 / RAG 再读 [expansion.md](expansion.md)。
 2. 一次只加一个能力簇，按 [adding-a-module.md](../framework/adding-a-module.md)。
-3. 积分不要写进 `community` / `video` 的 `models.py`；视频任务不要写进 `points`。
+3. 积分不要写进 `community` / `video` 的 `models.py`；视频任务不要写进 `points`。助手对话不要写进 `community`；问诊不要写进助手会话表；经验不要写成 `Post`。
 4. 禁止为了长得像对标截图去改 `core`，禁止使用对方品牌名与插画。

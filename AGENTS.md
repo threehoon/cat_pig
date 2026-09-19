@@ -21,6 +21,7 @@ Grok、Codex、Claude Code、Hermes 共用本文件和 `docs/`，不各写一套
 | 产品做什么、对标谁、学什么不学什么 | [docs/product/positioning.md](docs/product/positioning.md) |
 | 和「萌爪日记」同类功能是否对等 | [docs/product/benchmark.md](docs/product/benchmark.md) |
 | 能力优先级、P0/P1 实现顺序 | [docs/product/capabilities.md](docs/product/capabilities.md) |
+| **助手 / 问诊 / 养宠经验 / RAG / 向量库** | [docs/product/expansion.md](docs/product/expansion.md)、[docs/product/capabilities.md](docs/product/capabilities.md)、[docs/framework/adding-a-module.md](docs/framework/adding-a-module.md) |
 | 产品文档目录 | [docs/product/README.md](docs/product/README.md) |
 | 改目录、动内核、理解仓库骨架 | [docs/framework/overview.md](docs/framework/overview.md) |
 | 加功能、拆模块、判断代码放哪 | [docs/framework/modules.md](docs/framework/modules.md) |
@@ -54,7 +55,7 @@ Grok、Codex、Claude Code、Hermes 共用本文件和 `docs/`，不各写一套
 5. 已发布的 API 字段不改名、不改类型、不改成必填。破坏性变更走新路径或 `/api/v2`。
 6. 加功能时，`app.json` 只允许**追加** `pages`；不准把业务塞进 `app.ts` / `globalData`。
 7. 完成一个**阶段**、用户要求整理 / 总结 / 更新对接文档、或合同 / 路由 / Agent 入口变化时，才更新 [docs/progress.md](docs/progress.md)。日常小修代码不改文档。
-8. 实现用户可见功能前必须读 [docs/product/positioning.md](docs/product/positioning.md)、[docs/product/benchmark.md](docs/product/benchmark.md)、[docs/product/capabilities.md](docs/product/capabilities.md)。benchmark 标明「无」的当作需求不存在。对标功能对等，禁止使用「萌爪日记」品牌名、插画与文案原句。
+8. 实现用户可见功能前必须读 [docs/product/positioning.md](docs/product/positioning.md)、[docs/product/benchmark.md](docs/product/benchmark.md)、[docs/product/capabilities.md](docs/product/capabilities.md)。benchmark 对标「无」且未列入「自身加的」当作需求不存在。做助手 / 问诊 / 经验 / RAG 再读 [docs/product/expansion.md](docs/product/expansion.md)。对标功能对等，禁止使用「萌爪日记」品牌名、插画与文案原句。
 9. **接口只认 [docs/api/contract.md](docs/api/contract.md)。** 前端 mock、services 的 path/字段、后端 router/schema 必须与该文件逐字一致（含 `snake_case`、字符串 id、积分为整数）。禁止另起一套。改接口先改合同文件。页面只调 `services/` → `core/request`。没有对应 service 的页面不算做完。
 
 ## 如何新增或修改规范

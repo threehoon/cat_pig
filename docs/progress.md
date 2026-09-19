@@ -16,11 +16,11 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：用微信开发者工具打开仓库根目录，点验广场公开动态流（发动态不选板块；底栏/首页入口「广场」；推荐 / 关注是下划线；「大家都在看」横滑封面进详情，不是话题分类）。签到近 7 天进度条仍待点验，见 [dev/checkin-streak.md](dev/checkin-streak.md)。模拟器 `navigateTo` 空一拍、真机不卡，**不要回头改跳转**。不要先搭 FastAPI。不要重做视觉。不要把「已知风险」的延后项当成本轮必须做的事。
+下一对话目标：点验底栏「小x」对话（三档来源、拒答、相近帖）以及首页进创作页。广场动态流、签到进度条点验可并行。不要先搭 FastAPI。不要接真向量库 / LLM。不要建 `consult` / `experience`。不要回头改 `navigateTo`。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
-必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [miniprogram/README.md](miniprogram/README.md)。点验签到进度条时再打开 [dev/checkin-streak.md](dev/checkin-streak.md)。写代码再读 [framework/code-standards.md](framework/code-standards.md)。改观感才读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
+必读（按顺序）：[AGENTS.md](../AGENTS.md) → 本文件 → [handoff.md](handoff.md) → [api/contract.md](api/contract.md) → [product/expansion.md](product/expansion.md)。改小x 界面再读 [miniprogram/visual.md](miniprogram/visual.md)。产品范围：[product/benchmark.md](product/benchmark.md)。
 
 开发走 `/app-pet`。打开仓库**根目录**。静态检查 `npm run typecheck`。
 
@@ -29,9 +29,9 @@
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（P0/P1 页面与 mock 已接；广场公开动态流、签到进度条等人点验） |
-| 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；界面用 mock，不接真 API |
-| 最后更新 | 2026-09-17 |
+| 状态 | 进行中（P0/P1 与 `assistant` mock 已接；小x 对话、广场动态流、签到进度条等人点验） |
+| 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）已接 mock，见 [product/expansion.md](product/expansion.md) |
+| 最后更新 | 2026-09-19 |
 
 ## 阶段总览
 
@@ -39,7 +39,7 @@
 |---|---|---|
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
-| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（P0/P1 页面与 mock 已接；广场动态流、签到进度条等人点验） |
+| F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（P0/P1 与 assistant mock 已接；小x / 广场动态流 / 签到进度条等人点验） |
 | 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 未开始（界面之后） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
@@ -57,11 +57,11 @@
 - 结构锁定：稳定内核 + 可增删的 `modules/<feature>`；不预建空业务模块（界面开工时才建小程序模块目录）。
 - 文档体系落地：根目录 `AGENTS.md` 做路由，细则在 `docs/`。
 - 产品改向：对标「萌爪日记」同类（相册、图生视频、广场、积分）；「有猫的生活」方案作废。见 `docs/product/`。
-- 模块英文名锁定：`auth` / `me` / `media` / `album` / `community` / `video` / `points`。
+- 模块英文名锁定：`auth` / `me` / `media` / `album` / `community` / `video` / `points` / `assistant`（`consult` / `experience` 仍只预约）。
 - 对接文档、API 合同已按新产品重写。
 - 对标截图放入 `docs/product/reference/`（只对照，不进小程序包）。handoff 已锁定枚举中文、media 调用例外、mock 发帖直接 published。
 - 小程序内核与空壳：`core`（`useMock: true`，请求 / 登录 / 存储 / mock 运行时）、`components/page-shell`、五个 tab、原生 tabBar 图标。`app.json` 首页为 `modules/community/pages/home/home`。
-- 五个 tab 画出可辨认界面（首页入口+动态、相册卡、创作表单、论坛分栏、我的入口）；二级页可跳：上传、发帖、详情、我的发布、积分明细、任务管理、任务详情。
+- 五个 tab 画出可辨认界面（首页入口+动态、相册卡、小x 对话、广场分栏、我的入口）；二级页可跳：上传、发帖、详情、我的发布、积分明细、任务管理、任务详情、创作（图生视频）。
 - 项目 skill 已装到 `.grok/skills/`：`app-pet`（本仓库路由）+ `frontend-design` + 微信官方 Skyline 七件套 + FastAPI 官方 + 筛选后的 mattpocock 工程 skill。清单见 `docs/framework/skills.md`。
 - 界面观感：奶油水彩 + 圆脸腮红。token 在 `miniprogram/styles/`，插画在 `assets/brand|icon|tab`，跨页组件 `empty-state` / `react-row`。规范 [miniprogram/visual.md](miniprogram/visual.md)。
 - 阶段 F mock：各模块 `services/` + `types/` 已按 [api/contract.md](api/contract.md) 建好；`core/request` 在 `useMock: true` 时按 method+path 返回信封内 `data`；未命中仍 `MOCK_NOT_IMPLEMENTED`。页面改为只调本模块 service（相册/发帖/创作可调 `media`）。mock 种子：当前用户、两本相册、若干帖（含草稿）、一条视频任务、积分流水合计 180。发帖 `pending` 直接 `published` 并记 +20 积分。
@@ -87,10 +87,12 @@
 - 积分任务与独立签到页已接 mock（`319b846`）：首页「签到」进 `modules/points/pages/checkin/checkin`（当月月历、可回上个月、近 7 天补签）；积分任务只留发帖 / 评论 / 点赞（每天 3 / 1 / 3，自动入账）；合同增加 `PointsSummary` 的 `checkin_dates`、三个今日计数，以及 `POST /api/v1/points/makeup`。一次性文档 [dev/points.md](dev/points.md)，点验通过后删除。
 - 签到页近 7 天进度条已接（未点验）：第 1–7 天节点（第 3 天 +30 送卡、第 7 天 +60 送卡），只读 `streak` / `today_checked`，不加合同字段。种子改为昨天+前天、补签卡 0。一次性文档 [dev/checkin-streak.md](dev/checkin-streak.md)。
 - 广场改为公开动态流已接（未点验）：发动态不选板块；底栏与首页入口文案「广场」；推荐 / 关注为下划线；「大家都在看」横滑封面进详情。合同：`board` 发帖可省略（默认 `daily`），列表可带 `topic`（界面不用芯片筛）。相册同步文案改为「广场」，字段仍是 `sync_to_forum`。
+- 产品文档纳入自身能力：助手 `assistant`、问诊 `consult`、养宠经验 `experience`。正文 [product/expansion.md](product/expansion.md)。RAG 行为规范已锁。
+- 助手 `assistant` mock 已接：合同 `GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`；底栏中间 C 位「小x」进 `modules/assistant/pages/chat/chat`；广场无入口。图生视频改从首页四入口 `navigateTo` 创作页。mock 关键词假装 `knowledge` / `search` / `generated`；看病用药固定拒答，`source` 仍为 `generated`。未点验。
 
 ## 进行中
 
-- 阶段 F：P0/P1 页面、services、mock 已接。真机调试可用。广场公开动态流、签到进度条等人点验。
+- 阶段 F：P0/P1 与 `assistant` mock 已接。真机调试可用。等人点验底栏「小x」与首页进创作。
 
 ## 已知风险
 
@@ -106,8 +108,8 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 用微信开发者工具打开仓库根目录，点验广场：发动态不选板块、推荐里能看到刚发的、大家都在看点进详情、底栏是「广场」。不要先搭 FastAPI。不要回头修 `navigateTo`。不要改已锁定的 tab 路径。
-2. 仍待点验：签到进度条，按 [dev/checkin-streak.md](dev/checkin-streak.md)。点验通过后删除该文件。相册 [dev/album.md](dev/album.md)、「我的」[dev/me.md](dev/me.md)、积分 [dev/points.md](dev/points.md) 点验通过后同样删除。
+1. 微信开发者工具打开仓库根目录，点验底栏「小x」（空态推荐问题、三档来源、拒答不编药名、相近帖进详情）以及首页「图生视频」进创作页能返回。`npm run typecheck`。不要先搭 FastAPI。不要接真向量库 / LLM。不要建 `consult` / `experience`。
+2. 广场动态流、签到进度条仍待点验。点验通过后再删 [dev/checkin-streak.md](dev/checkin-streak.md) 等一次性文档。
 3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`）。这不是下一对话的默认任务。
 
@@ -165,6 +167,11 @@
 | 2026-09-16 | 签到从积分任务拆到独立页；任务只留发帖 / 评论 / 点赞 | 首页「签到」进月历页，不铺日历、不调积分接口。发帖每天前 3 条 +20，评论每天 1 条 +5，点赞帖子每天 3 条 +2（取消不退）。连续第 3 / 7 天额外积分并各送 1 张补签卡；补签只 +10 |
 | 2026-09-16 | 签到页上方面「第 1–7 天」进度条，不是周一到周日 | 月历管哪天签过、点哪天补签；进度条只展示连续加码。合同不加字段，页面用已有 `streak` / `today_checked` |
 | 2026-09-17 | 广场是公开动态流，不是论坛板块房间 | 发帖必选板块像进房间。推荐 / 关注留下；话题可写在帖上，不当广场分类条。「大家都在看」横滑图进详情。底栏文案「广场」。`board` 响应仍有，发帖可省略默认 `daily` |
+| 2026-09-19 | 对标之外加助手、问诊、养宠经验；三块三模块 | 产品要多元化。问诊从「明确不做」改为后期。助手先 mock 再接 RAG。经验不是广场分类。正文 `docs/product/expansion.md`。不预建空目录，合同 path 开工再写 |
+| 2026-09-19 | 助手知识库未命中时走 LLM + 工具 | **已被同日「RAG 行为规范」覆盖**：不再是未命中就调 LLM |
+| 2026-09-19 | 助手 RAG：相关度门 → 改写检索问法 → 有限工具 | 用「段落能不能当证据」打分，不是看有没有返回行。不够格先内部改写问法再搜同一库（最多 1～2 次），仍不够才 LLM + 最多 2 轮工具。常识可 `generated`；看病/用药拒答。正文 `docs/product/expansion.md` 回答流水 |
+| 2026-09-19 | 下一对话开工助手 mock | **已被同日落地覆盖**：`assistant` mock 已接，见本文件已完成 |
+| 2026-09-19 | 助手界面名「小x」；底栏中间 C 位；创作不占 tab | 用户确认。五个 tab：首页 / 相册 / 小x / 广场 / 我的。图生视频从首页四入口 `navigateTo` 创作页。广场不加助手入口。mock 拒答不新增 `source`，仍用 `generated` |
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 

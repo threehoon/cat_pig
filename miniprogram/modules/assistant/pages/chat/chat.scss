@@ -1,0 +1,175 @@
+page {
+  height: 100%;
+  background: var(--color-bg);
+}
+
+.chat-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.page-scroll--docked {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
+.chat-empty {
+  padding-top: 48rpx;
+}
+
+.chat-hello {
+  display: block;
+  font-size: var(--font-title);
+  font-weight: 600;
+}
+
+.chat-hello-sub {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--color-text-muted);
+  font-size: 26rpx;
+}
+
+.chat-suggest {
+  margin-top: 28rpx;
+}
+
+.chat-list {
+  padding-bottom: 24rpx;
+}
+
+.bubble-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20rpx;
+}
+
+.bubble-row--user {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 20rpx 24rpx;
+  border-radius: var(--radius);
+  box-sizing: border-box;
+}
+
+.bubble--user {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.bubble--assistant {
+  background: var(--color-card);
+  box-shadow: var(--shadow);
+}
+
+.bubble__text {
+  font-size: var(--font-body);
+}
+
+.bubble__source {
+  margin-top: 16rpx;
+  align-self: flex-start;
+}
+
+.cite-list {
+  margin-top: 16rpx;
+}
+
+.cite {
+  padding: 12rpx 0 0;
+}
+
+.cite__title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.cite__snip {
+  display: block;
+  margin-top: 4rpx;
+  color: var(--color-text-muted);
+  font-size: var(--font-caption);
+}
+
+.related {
+  margin-top: 20rpx;
+}
+
+.related__head {
+  display: block;
+  margin-bottom: 12rpx;
+  color: var(--color-text-muted);
+  font-size: var(--font-caption);
+}
+
+.related-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 12rpx;
+  padding: 12rpx;
+  background: var(--color-bg);
+  border-radius: 24rpx;
+}
+
+.related-card__img {
+  width: 88rpx;
+  height: 88rpx;
+  margin-right: 16rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+}
+
+.related-card__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.related-card__title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.related-card__body {
+  display: block;
+  margin-top: 4rpx;
+  color: var(--color-text-muted);
+  font-size: var(--font-caption);
+}
+
+.chat-dock {
+  flex-shrink: 0;
+  padding: 16rpx 32rpx 28rpx;
+  background: var(--color-card);
+}
+
+.chat-compose {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 8rpx 8rpx 8rpx 24rpx;
+  background: var(--color-bg);
+  border-radius: var(--radius-pill);
+}
+
+.chat-compose__input {
+  flex: 1;
+  font-size: 26rpx;
+}
+
+.chat-compose__send {
+  margin-left: 12rpx;
+  padding: 12rpx 24rpx;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-pill);
+  font-size: 24rpx;
+}

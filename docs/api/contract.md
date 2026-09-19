@@ -12,7 +12,7 @@
 
 | 项 | 规定 |
 |---|---|
-| 前缀 | `/api/v1/<module>`，module 只能是 `auth` `me` `media` `album` `community` `video` `points` |
+| 前缀 | `/api/v1/<module>`，module 只能是 `auth` `me` `media` `album` `community` `video` `points` `assistant` |
 | 字段 | 全部 `snake_case`。前端 types 也用下划线，不要在页面再转驼峰当传输层 |
 | id | 字符串（uuid）。不要用数字 id |
 | 日期 | `YYYY-MM-DD` |
@@ -243,6 +243,47 @@
 
 第 3 / 7 天签到写 **两行** 流水：`签到` +10，再 `连续签到奖励` +20 或 +50。
 
+### AssistantSuggestion
+
+```json
+{
+  "id": "e1111111-1111-1111-1111-111111111111",
+  "question": "夏天怎么给狗降温"
+}
+```
+
+空态可点的推荐问题。`question` 非空。
+
+### AssistantAsk
+
+```json
+{
+  "conversation_id": "f1111111-1111-1111-1111-111111111111",
+  "answer": "避开正午出门，给足阴凉饮水。",
+  "source": "knowledge",
+  "citations": [
+    {
+      "id": "k1111111-1111-1111-1111-111111111111",
+      "title": "夏天给狗降温",
+      "snippet": "避开正午出门，室内通风，提供阴凉饮水。"
+    }
+  ],
+  "related_posts": [
+    {
+      "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "title": "给两只小狗起个标题",
+      "body": "想把两只小狗放到草地上跑一跑，有人试过图生视频吗？",
+      "cover_url": "https://example.com/1.jpg"
+    }
+  ]
+}
+```
+
+`source`：`knowledge` | `search` | `generated`。  
+`citations`、`related_posts` 始终是数组，可 `[]`。  
+`related_posts` 是已发布帖摘要，不当回答证据；`cover_url` 无图时为 `null`；`title` 可空字符串。  
+响应里的 `conversation_id` 始终是字符串。请求里可 `null`（新开对话）；之后把上次响应的 id 原样传回。
+
 ---
 
 ## 接口清单
@@ -373,6 +414,16 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 请求：`{ "date": "2026-09-14" }`（用户本地自然日 `YYYY-MM-DD`）。  
 响应：`{ "data": { "awarded": 10, "balance": 190, "date": "2026-09-14", "streak": 4, "makeup_card_count": 0 } }`  
 非法日期 / 无卡 / 那天已有签到或补签记录 / `date` 是今天：`VALIDATION`。成功则扣 1 张补签卡，写流水 `补签` +10，并按连续天数规则重算 `streak`。
+
+### assistant
+
+`GET /api/v1/assistant/suggestion?page=1&page_size=20`  
+响应：`{ "data": { "items": [AssistantSuggestion], "total", "page", "page_size" } }`
+
+`POST /api/v1/assistant/ask`  
+请求：`{ "question", "conversation_id" }`  
+`conversation_id` 可 `null`。`question` 去空白后为空 → `VALIDATION`。  
+响应：`{ "data": AssistantAsk }`
 
 ---
 

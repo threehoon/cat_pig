@@ -6,7 +6,7 @@
 
 ## 命名
 
-- 模块目录用 [handoff.md](../handoff.md) 已锁定的英文名：`auth`、`me`、`media`、`album`、`community`、`video`、`points`。文件名、组件名用 `kebab-case`。
+- 模块目录用 [handoff.md](../handoff.md) 已锁定或已预约的英文名。文件名、组件名用 `kebab-case`。
 - TypeScript：变量 / 函数 / 属性 `camelCase`，类型 / 接口 / class `PascalCase`，常量 `UPPER_SNAKE_CASE`。
 - 页面方法：`on` + 生命周期或 WXML 事件名（`onShow`、`onLike`）。页面专用 helper 可用动词。不要给 Page 方法规定 `handleSubmit` 这种前缀。
 - Python：模块 / 函数 / 变量 `snake_case`，类 `PascalCase`，常量 `UPPER_SNAKE_CASE`。

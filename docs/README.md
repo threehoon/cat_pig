@@ -24,6 +24,7 @@
 | [product/positioning.md](product/positioning.md) | 产品 | 定位、对标「萌爪日记」同类 |
 | [product/benchmark.md](product/benchmark.md) | 产品 | 与对标产品的功能逐条对照 |
 | [product/capabilities.md](product/capabilities.md) | 产品 | P0/P1/P2 实现顺序与模块边界 |
+| [product/expansion.md](product/expansion.md) | 产品 | 助手 / 问诊 / 养宠经验：预约模块、边界、预留接口 |
 | [product/reference/](product/reference/README.md) | 产品 | 对标截图（只对照，不进小程序包） |
 | [handoff.md](handoff.md) | 前后端联调 + 界面先行 | 模块名、tab/页面路径、必须预留的 service、mock、环境、登录 |
 | [api/contract.md](api/contract.md) | 前端 mock + 后端 API | **路径和字段的唯一合同** |

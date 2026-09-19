@@ -50,7 +50,7 @@ Path and JSON fields: [docs/api/contract.md](../../../docs/api/contract.md) only
 
 - Pages call `modules/<feature>/services/` → `core/request`. A page without its service is not done.
 - Mock handlers: `modules/<feature>/services/mock.ts`. Seed: `miniprogram/mocks/store.ts`. Entry: `core/mock.ts` (register + match only, no product nouns). Runtime: `core/mock-runtime.ts` (no product nouns).
-- Module names: `auth` / `me` / `media` / `album` / `community` / `video` / `points`. New module: [docs/framework/adding-a-module.md](../../../docs/framework/adding-a-module.md).
+- Module names: `auth` / `me` / `media` / `album` / `community` / `video` / `points` / `assistant`. New module: [docs/framework/adding-a-module.md](../../../docs/framework/adding-a-module.md).
 
 ## Phase gate
 

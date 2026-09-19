@@ -1,4 +1,5 @@
 import { albumMockRoutes } from '../modules/album/services/mock'
+import { assistantMockRoutes } from '../modules/assistant/services/mock'
 import { authMockRoutes } from '../modules/auth/services/mock'
 import { communityMockRoutes } from '../modules/community/services/mock'
 import { mediaMockRoutes } from '../modules/media/services/mock'
@@ -20,6 +21,7 @@ const routes: MockRoute[] = [
   ...communityMockRoutes,
   ...videoMockRoutes,
   ...pointsMockRoutes,
+  ...assistantMockRoutes,
 ]
 
 export function handleMock(options: MockOptions): MockResult {

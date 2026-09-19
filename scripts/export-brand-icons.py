@@ -68,13 +68,6 @@ def draw_album(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> 
     d.polygon([(s * 0.44, s * 0.62), (s * 0.56, s * 0.44), (s * 0.70, s * 0.62)], fill=c)
 
 
-def draw_create(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
-    d.ellipse((s * 0.16, s * 0.16, s * 0.84, s * 0.84), fill=c)
-    bar = s * 0.10
-    d.rounded_rectangle((s * 0.30, s / 2 - bar / 2, s * 0.70, s / 2 + bar / 2), radius=bar / 2, fill=(255, 251, 246, 255))
-    d.rounded_rectangle((s / 2 - bar / 2, s * 0.30, s / 2 + bar / 2, s * 0.70), radius=bar / 2, fill=(255, 251, 246, 255))
-
-
 def draw_plaza(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
     d.rounded_rectangle((s * 0.20, s * 0.22, s * 0.80, s * 0.64), radius=s * 0.16, fill=c)
     d.polygon([(s * 0.32, s * 0.60), (s * 0.28, s * 0.78), (s * 0.50, s * 0.62)], fill=c)
@@ -86,6 +79,27 @@ def draw_plaza(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> 
 def draw_me(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
     d.ellipse((s * 0.36, s * 0.18, s * 0.64, s * 0.46), fill=c)
     d.rounded_rectangle((s * 0.24, s * 0.50, s * 0.76, s * 0.82), radius=s * 0.18, fill=c)
+
+
+def draw_spark(d: ImageDraw.ImageDraw, cx: float, cy: float, r: float, c: tuple[int, int, int, int]) -> None:
+    d.polygon(
+        [
+            (cx, cy - r),
+            (cx + r * 0.22, cy - r * 0.22),
+            (cx + r, cy),
+            (cx + r * 0.22, cy + r * 0.22),
+            (cx, cy + r),
+            (cx - r * 0.22, cy + r * 0.22),
+            (cx - r, cy),
+            (cx - r * 0.22, cy - r * 0.22),
+        ],
+        fill=c,
+    )
+
+
+def draw_assistant(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> None:
+    d.ellipse((s * 0.16, s * 0.16, s * 0.84, s * 0.84), fill=c)
+    draw_spark(d, s * 0.50, s * 0.50, s * 0.22, CREAM)
 
 
 def export_tab(name: str, painter) -> None:
@@ -202,7 +216,7 @@ def draw_gift(d: ImageDraw.ImageDraw, c: tuple[int, int, int, int], s: int) -> N
 def main() -> None:
     export_tab("home", draw_home)
     export_tab("album", draw_album)
-    export_tab("create", draw_create)
+    export_tab("assistant", draw_assistant)
     export_tab("plaza", draw_plaza)
     export_tab("me", draw_me)
     export_react("like", draw_like, LIKE)

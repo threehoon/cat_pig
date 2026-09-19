@@ -8,13 +8,13 @@
 
 阶段 **F（前端界面先行）**，进行中。`useMock: true`。不要先搭 FastAPI。不要重做视觉（除非用户点名某一页）。
 
-下一轮：点验广场公开动态流（发动态不选板块、推荐 / 关注、「大家都在看」横滑进详情、底栏「广场」）。签到近 7 天进度条仍待点验，见 [dev/checkin-streak.md](dev/checkin-streak.md)。不要先搭 FastAPI。不要重做视觉。微信开发者工具打开仓库根目录。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：点验底栏「小x」与首页进创作。不要先搭 FastAPI。不要接真向量库 / LLM。不要建 `consult` / `experience`。不要重做视觉。微信开发者工具打开仓库根目录。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
 | 按用户点名继续小程序功能 | `server/` 可运行工程 |
 | 保持 `useMock: true` 与合同里的 path / 字段 | 真 `wx.request` 打真实 API |
-| 保持已锁定的 tab 路径和视觉 token | 接微信登录换 JWT、真出片、真审核 |
+| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token | 接微信登录换 JWT、真出片、真审核 |
 | 页面只调本模块 `services/` | 把 mock 写进页面；未点名就重做视觉；每改一处就改文档 |
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
@@ -23,10 +23,10 @@
 
 | 项 | 值 |
 |---|---|
-| 模块 | `auth` `me` `media` `album` `community` `video` `points`（`auth` / `media` 无独立页） |
-| 业务 service | 6 个（`me` `media` `album` `community` `video` `points`）；登录在 `core/auth` |
-| mock | 各模块 `services/mock.ts`；community 另有 `mock-helpers.ts`；points 另有 `mock-ledger.ts`；种子 `miniprogram/mocks/store.ts`；入口 `core/mock.ts`（只注册 / 匹配） |
-| 页面 | `app.json` 22 项：20 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
+| 模块 | `auth` `me` `media` `album` `community` `video` `points` `assistant`（`auth` / `media` 无独立页） |
+| 业务 service | 7 个（`me` `media` `album` `community` `video` `points` `assistant`）；登录在 `core/auth` |
+| mock | 各模块 `services/mock.ts`；community 另有 `mock-helpers.ts`；points 另有 `mock-ledger.ts`；assistant 另有 `mock-knowledge.ts`；种子 `miniprogram/mocks/store.ts`；入口 `core/mock.ts`（只注册 / 匹配） |
+| 页面 | `app.json` 23 项：21 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
 | 渲染 | `"renderer": "skyline"`；公共 `libVersion` `3.7.0` |
 | 检查 | `npm run typecheck`（typescript 5.6） |
 | 详情页 | `community/pages/detail/detail.ts` 保留 `Page({...})`，不要再抽 `detail-page.ts`；录音走 `recordSink` |
@@ -44,10 +44,18 @@
 | `media` | 图片 / 语音文件上传与 URL | 无独立页；被相册、帖子、评论、视频引用 |
 | `album` | 独立相册 | 有 |
 | `community` | 首页门户、广场动态、帖子 | 有 |
-| `video` | 图生视频任务 | 有 |
+| `video` | 图生视频任务 | 有（创作页不是 tab） |
 | `points` | 积分流水、签到 | 有 |
+| `assistant` | 站内助手「小x」；以后向量库 / RAG | 有（底栏中间 tab） |
 
-禁止再用 `pet`、`journal`、`ledger`、`reminder`、`user`、`diary`、`forum`、`plaza`、`bill` 当模块目录名。广场是 `community` 的页面，不是独立模块。任务管理是 `video` 的列表页，不是独立模块。
+禁止再用 `pet`、`journal`、`ledger`、`reminder`、`user`、`diary`、`forum`、`plaza`、`bill`、`ai`、`rag`、`doctor` 当模块目录名。广场是 `community` 的页面，不是独立模块。任务管理是 `video` 的列表页，不是独立模块。
+
+已预约、尚未建目录（产品边界见 [product/expansion.md](product/expansion.md)）。`consult` / `experience` 仍不建空目录、不写合同 path：
+
+| 英文目录 / API feature | 能力 | 何时 |
+|---|---|---|
+| `consult` | 问诊 | 后期 |
+| `experience` | 养宠经验分享 | 后期 |
 
 ## 界面先行：Tab 与页面
 
@@ -57,7 +65,7 @@
 |---|---|---|
 | 1 | 首页 | `modules/community/pages/home/home`（首页） |
 | 2 | 相册 | `modules/album/pages/list/list` |
-| 3 | 创作 | `modules/video/pages/create/create`（中间加号） |
+| 3 | 小x | `modules/assistant/pages/chat/chat`（中间 C 位） |
 | 4 | 广场 | `modules/community/pages/plaza/plaza` |
 | 5 | 我的 | `modules/me/pages/index/index` |
 
@@ -75,6 +83,7 @@
 | points | `modules/points/pages/list/list` | 积分明细 |
 | points | `modules/points/pages/tasks/tasks` | 积分任务（发帖 / 评论 / 点赞） |
 | points | `modules/points/pages/checkin/checkin` | 每日签到（月历、补签、近 7 天进度） |
+| video | `modules/video/pages/create/create` | 图生视频表单（从首页入口进入，不是 tab） |
 | video | `modules/video/pages/tasks/tasks` | 任务管理（生成任务列表） |
 | video | `modules/video/pages/detail/detail` | 一条生成任务详情 |
 | album | `modules/album/pages/detail/detail` | 相册详情 |
@@ -87,7 +96,7 @@
 
 导航栏工作标题用 **「宠物记录」**（正式品名未定，不要擅自用对标品牌名）。
 
-视觉：暖米色底、橙色主按钮；细则只认 [miniprogram/visual.md](miniprogram/visual.md)。气质可学 [product/reference/](product/reference/README.md) 截图，不贴对方素材。阶段 F 用**原生 tabBar**，第三项是加号；中间凸起不阻塞。
+视觉：暖米色底、橙色主按钮；细则只认 [miniprogram/visual.md](miniprogram/visual.md)。气质可学 [product/reference/](product/reference/README.md) 截图，不贴对方素材。阶段 F 用**原生 tabBar**，第三项是小x。
 
 相册编辑：同一 upload 页带 `?id=`。快捷提示词、分辨率选项是页面本地文案，写入 `prompt` / `resolution` 字段，不新开接口。「我的发布」顶部四个数字从 `GET /api/v1/community/post/mine` 聚合，不另开统计接口。资料卡「动态 / 获赞 / 关注 / 粉丝」走 `GET /api/v1/me` 的四个计数，不另开统计接口。收藏列表 `GET /api/v1/community/post/favorite`；关注 / 粉丝列表 `GET /api/v1/community/follow`、`GET /api/v1/community/follower`（item 为 Author）。
 
@@ -105,10 +114,11 @@
 
 ### 入口约定（避免各写各的）
 
-- 首页四个入口：图生视频 → 创作 tab；相册 → 相册 tab；广场 → 广场 tab；签到 → `modules/points/pages/checkin/checkin`。禁止首页 import `points` service。带着 `?checkin=1` 进积分明细不会自动签到。
+- 首页四个入口：图生视频 → `navigateTo` `modules/video/pages/create/create`；相册 → 相册 tab；广场 → 广场 tab；签到 → `modules/points/pages/checkin/checkin`。禁止首页 import `points` service。带着 `?checkin=1` 进积分明细不会自动签到。
 - 首页下方动态：`GET /api/v1/community/post?tab=recommend`。点「更多」切到广场 tab。
 - 广场 tab：搜索走 query `q`；顶部分栏 `tab`（推荐 / 关注，下划线不是芯片）。「大家都在看」横滑封面进详情，数据来自 `tab=recommend` 且带图的帖。不在广场用话题芯片筛选。发动态不传 `board`。
-- 创作 tab 打开即为图生视频表单，不是发动态。发动态从广场 / 我的发布进入。
+- 小x tab：底栏中间进 `modules/assistant/pages/chat/chat`。广场不加助手入口。相近帖点进已有详情，不 import community service。
+- 创作页打开即为图生视频表单，不是发动态，也不是 tab。发动态从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
 - 「我的」：头像昵称和四计数走 `GET /api/v1/me`。点头像/昵称进编辑资料页；点「动态 / 获赞」进我的发布；点「关注 / 粉丝」进对应列表。菜单分组：我的发布 / 我的收藏 / 我的相册（`switchTab` 相册 tab）/ 生成记录；我的关注 / 粉丝；积分明细 / 积分任务；设置。没有「每日签到」菜单（签到只从首页进）。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。设置页无接口：关于写「宠物记录 / 开发版」；注销只提示「开发期不能注销」。关注 / 粉丝行不进作者页。
 
@@ -139,7 +149,7 @@
 
 ### tabBar 图标
 
-五个 tab 必须都有未选中 / 选中两套图标（`miniprogram/assets/tab/`，文件名锁死：`home` / `album` / `create` / `plaza` / `me` 各一套普通 + `-active`）。现为圆润色块，重出用 `scripts/export-brand-icons.py`。颜色写入 `app.json` 的 `tabBar`（选中色橙色）。第三个 tab 用加号图，表示创作。
+五个 tab 必须都有未选中 / 选中两套图标（`miniprogram/assets/tab/`，文件名锁死：`home` / `album` / `assistant` / `plaza` / `me` 各一套普通 + `-active`）。现为圆润色块，重出用 `scripts/export-brand-icons.py`。颜色写入 `app.json` 的 `tabBar`（选中色橙色）。第三个 tab 文案「小x」。
 
 阶段 F 允许改 `app.json` 的 `pages` 顺序、`tabBar`、以及选图 / 录音所需的 `permission` / `requiredPrivateInfos`（这是对 [adding-a-module.md](framework/adding-a-module.md)「不改 window」的明确例外）。选图：`scope.camera` 文案「用于上传宠物照片到相册、帖子、评论和视频」。录音：`scope.record` 文案「用于录制评论语音」。不需要定位权限。微信隐私协议页上线前再补。
 
@@ -171,6 +181,7 @@
 | `modules/community/services/` | 广场、发帖、详情、我的发布、收藏列表、点赞、收藏、评论、关注、粉丝 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET /api/v1/community/post/favorite`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report`，`GET/POST/DELETE /api/v1/community/follow`，`GET /api/v1/community/follower` |
 | `modules/video/services/` | 创建任务、列表、详情、删 | `GET/POST /api/v1/video`，`GET/DELETE /api/v1/video/{id}` |
 | `modules/points/services/` | 汇总、流水、签到、补签 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin`，`POST /api/v1/points/makeup` |
+| `modules/assistant/services/` | 推荐问题、提问 | `GET /api/v1/assistant/suggestion`，`POST /api/v1/assistant/ask` |
 
 页面事件处理里只出现 `xxxService.list()` 这类调用。字段名用下划线：`image_urls`、`sync_to_forum`、`points_balance`，不要在页面层再映射一套驼峰再丢掉。
 
@@ -271,7 +282,7 @@
 
 1. [AGENTS.md](../AGENTS.md)
 2. [progress.md](progress.md)（阶段、下一步、已知风险）
-3. [dev/checkin-streak.md](dev/checkin-streak.md)（本轮：点验签到进度条）
+3. [product/expansion.md](product/expansion.md)（助手 / 问诊 / 经验边界）
 4. 本文件（模块名、tab / 页面路径、帖子互动、service、mock 布局）
 5. [api/contract.md](api/contract.md)（path 和 JSON）
 6. [miniprogram/README.md](miniprogram/README.md)

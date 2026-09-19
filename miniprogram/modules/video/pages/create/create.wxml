@@ -1,4 +1,4 @@
-<page-shell title="创作">
+<page-shell title="创作" back="{{true}}">
   <scroll-view class="page-scroll" type="list" scroll-y>
     <view class="page-pad">
       <view class="card upload-area">

@@ -50,7 +50,7 @@ Page({
       .catch(toastRequestError)
   },
   onCreate() {
-    wx.switchTab({ url: '/modules/video/pages/create/create' })
+    wx.navigateTo({ url: '/modules/video/pages/create/create' })
   },
   onDetail(e: WechatMiniprogram.TouchEvent) {
     const id = e.currentTarget.dataset.id as string

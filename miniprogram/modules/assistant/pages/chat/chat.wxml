@@ -1,0 +1,83 @@
+<page-shell title="小x">
+  <view class="chat-wrap">
+    <scroll-view
+      class="page-scroll page-scroll--docked"
+      type="list"
+      scroll-y
+      scroll-into-view="{{scrollInto}}"
+    >
+      <view wx:if="{{messages.length === 0}}" class="page-pad chat-empty">
+        <text class="chat-hello">我是小x</text>
+        <text class="chat-hello-sub">养猫养狗、日常常识都可以问。看病用药请去医院。</text>
+        <view class="chip-row chat-suggest">
+          <view
+            wx:for="{{suggestions}}"
+            wx:key="id"
+            class="chip"
+            data-question="{{item.question}}"
+            bindtap="onSuggest"
+          >
+            <text>{{item.question}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:else class="page-pad chat-list">
+        <view
+          wx:for="{{messages}}"
+          wx:key="id"
+          id="{{item.anchor}}"
+          class="bubble-row {{item.role === 'user' ? 'bubble-row--user' : ''}}"
+        >
+          <view class="bubble {{item.role === 'user' ? 'bubble--user' : 'bubble--assistant'}}">
+            <text class="bubble__text">{{item.text}}</text>
+            <view wx:if="{{item.sourceLabel}}" class="chip chip--ghost bubble__source">
+              <text>{{item.sourceLabel}}</text>
+            </view>
+            <view wx:if="{{item.citations.length}}" class="cite-list">
+              <view wx:for="{{item.citations}}" wx:for-item="cite" wx:key="id" class="cite">
+                <text class="cite__title">{{cite.title}}</text>
+                <text class="cite__snip">{{cite.snippet}}</text>
+              </view>
+            </view>
+            <view wx:if="{{item.related_posts.length}}" class="related">
+              <text class="related__head">相近动态</text>
+              <view
+                wx:for="{{item.related_posts}}"
+                wx:for-item="post"
+                wx:key="id"
+                class="related-card"
+                data-id="{{post.id}}"
+                bindtap="onRelated"
+              >
+                <image
+                  wx:if="{{post.cover_url}}"
+                  class="related-card__img"
+                  src="{{post.cover_url}}"
+                  mode="aspectFill"
+                />
+                <view class="related-card__copy">
+                  <text wx:if="{{post.title}}" class="related-card__title" max-lines="1">{{post.title}}</text>
+                  <text class="related-card__body" max-lines="2">{{post.body}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="chat-dock">
+      <view class="chat-compose">
+        <input
+          class="chat-compose__input"
+          placeholder="问小x"
+          value="{{draft}}"
+          confirm-type="send"
+          adjust-position="{{true}}"
+          bindinput="onInput"
+          bindconfirm="onSend"
+        />
+        <text class="chat-compose__send" bindtap="onSend">发送</text>
+      </view>
+    </view>
+  </view>
+</page-shell>

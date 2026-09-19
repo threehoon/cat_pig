@@ -58,7 +58,7 @@ Skyline：用 flex，不用 grid；滚动用 `scroll-view`；阴影用 `box-shad
 | 帖子动作、礼物 | `assets/icon/react-like|reply|favorite|share.png` 与 `-active`、`gift.png` |
 | 评论输入图标 | `assets/icon/compose-album|emoji|at|mic.png` 与 `-active` |
 | 评论贴纸 | `assets/icon/sticker-blush|happy|cry|paw|heart|sleep|wow|kiss.jpg` |
-| 底栏 5×2 | `assets/tab/<name>.png` 与 `<name>-active.png` |
+| 底栏 5×2 | `assets/tab/home|album|assistant|plaza|me.png` 与 `-active` |
 
 `.mention-mark` 在 `primitives.scss`：只把艾特这段（`@昵称`）设成 `--color-primary`，不改字重、不加底。输入框不叠高亮层。
 

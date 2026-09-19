@@ -11,7 +11,7 @@
 
 ## 1. 英文名
 
-必须用 [handoff.md](../handoff.md) 已锁定的名字：`auth` / `me` / `media` / `album` / `community` / `video` / `points`。禁止中文目录和旧别名（`forum`、`plaza`、`journal`、`pet`）。后端开工时目录名必须与小程序一致。
+必须用 [handoff.md](../handoff.md) 已锁定或已预约的英文名。禁止中文目录和旧别名（`forum`、`plaza`、`journal`、`pet`、`ai`、`rag`、`doctor`）。后端开工时目录名必须与小程序一致。
 
 ## 2. 新 path / 字段
 

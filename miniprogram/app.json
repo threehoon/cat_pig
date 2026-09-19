@@ -2,9 +2,10 @@
   "pages": [
     "modules/community/pages/home/home",
     "modules/album/pages/list/list",
-    "modules/video/pages/create/create",
+    "modules/assistant/pages/chat/chat",
     "modules/community/pages/plaza/plaza",
     "modules/me/pages/index/index",
+    "modules/video/pages/create/create",
     "modules/album/pages/upload/upload",
     "modules/community/pages/compose/compose",
     "modules/community/pages/detail/detail",
@@ -46,10 +47,10 @@
         "selectedIconPath": "assets/tab/album-active.png"
       },
       {
-        "pagePath": "modules/video/pages/create/create",
-        "text": "创作",
-        "iconPath": "assets/tab/create.png",
-        "selectedIconPath": "assets/tab/create-active.png"
+        "pagePath": "modules/assistant/pages/chat/chat",
+        "text": "小x",
+        "iconPath": "assets/tab/assistant.png",
+        "selectedIconPath": "assets/tab/assistant-active.png"
       },
       {
         "pagePath": "modules/community/pages/plaza/plaza",
