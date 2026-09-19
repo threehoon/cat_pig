@@ -43,6 +43,7 @@ Page({
     suggestions: [] as AssistantSuggestion[],
     messages: [] as ChatBubble[],
     draft: '',
+    inputFocus: false,
     conversationId: null as string | null,
     sending: false,
     seq: 0,
@@ -63,7 +64,12 @@ Page({
     if (!question) {
       return
     }
-    this.sendQuestion(question)
+    this.setData({ draft: question, inputFocus: false }, () => {
+      this.setData({ inputFocus: true })
+    })
+  },
+  onInputBlur() {
+    this.setData({ inputFocus: false })
   },
   onSend() {
     this.sendQuestion(this.data.draft)
@@ -92,6 +98,7 @@ Page({
     this.setData({
       sending: true,
       draft: '',
+      inputFocus: false,
       seq,
       messages: this.data.messages.concat([user]),
       scrollInto: `m-${userId}`,

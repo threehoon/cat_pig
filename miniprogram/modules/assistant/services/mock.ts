@@ -38,12 +38,36 @@ function matchKnowledge(text: string): KnowledgeEntry | null {
   return null
 }
 
-function relatedPosts(): AssistantRelatedPost[] {
+const RELATED_WORDS = ['降温', '夏天', '医院', '疫苗', '公园', '午睡', '沙发', '图生视频', '散步']
+
+function isRelatedPost(question: string, title: string, body: string): boolean {
+  const hay = `${title}${body}`
+  if (!question || !hay) {
+    return false
+  }
+  if (question.indexOf('狗') !== -1 && hay.indexOf('狗') !== -1) {
+    return true
+  }
+  if (question.indexOf('猫') !== -1 && hay.indexOf('猫') !== -1) {
+    return true
+  }
+  let i = 0
+  while (i < RELATED_WORDS.length) {
+    const word = RELATED_WORDS[i]
+    if (question.indexOf(word) !== -1 && hay.indexOf(word) !== -1) {
+      return true
+    }
+    i += 1
+  }
+  return false
+}
+
+function relatedPosts(question: string): AssistantRelatedPost[] {
   const items: AssistantRelatedPost[] = []
   let i = 0
   while (i < store.posts.length && items.length < 2) {
     const post = store.posts[i]
-    if (post.status === 'published') {
+    if (post.status === 'published' && isRelatedPost(question, post.title, post.body)) {
       const cover = post.image_urls.length > 0 ? post.image_urls[0] : null
       items.push({
         id: post.id,
@@ -71,7 +95,7 @@ function buildAsk(question: string, conversationId: string): AssistantAsk {
       answer: REFUSE_ANSWER,
       source: 'generated',
       citations: [],
-      related_posts: relatedPosts(),
+      related_posts: relatedPosts(question),
     }
   }
   const hit = matchKnowledge(question)
@@ -81,7 +105,7 @@ function buildAsk(question: string, conversationId: string): AssistantAsk {
       answer: hit.answer,
       source: 'knowledge',
       citations: [citationOf(hit)],
-      related_posts: relatedPosts(),
+      related_posts: relatedPosts(question),
     }
   }
   let source: AssistantSource = 'generated'
@@ -97,7 +121,7 @@ function buildAsk(question: string, conversationId: string): AssistantAsk {
     answer,
     source,
     citations: [],
-    related_posts: relatedPosts(),
+    related_posts: relatedPosts(question),
   }
 }
 

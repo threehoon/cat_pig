@@ -71,9 +71,11 @@
           class="chat-compose__input"
           placeholder="问小x"
           value="{{draft}}"
+          focus="{{inputFocus}}"
           confirm-type="send"
           adjust-position="{{true}}"
           bindinput="onInput"
+          bindblur="onInputBlur"
           bindconfirm="onSend"
         />
         <text class="chat-compose__send" bindtap="onSend">发送</text>
