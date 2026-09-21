@@ -16,7 +16,7 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：点验底栏「小x」对话（三档来源、拒答、相近帖）以及首页进创作页。广场动态流、签到进度条点验可并行。不要先搭 FastAPI。不要接真向量库 / LLM。不要建 `consult` / `experience`。不要回头改 `navigateTo`。
+下一对话目标：按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 做切片 B（`server/app/modules/auth/` 登录）。合同不改，`useMock` 保持 true，小程序零 diff。不要接真向量库 / LLM。不要建 `consult` / `experience`。阶段 F 的小x、广场动态流、签到进度条仍待人点验，可并行。不要回头改 `navigateTo`。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -28,10 +28,10 @@
 
 | 项 | 值 |
 |---|---|
-| 阶段 | F — 前端界面先行 |
-| 状态 | 进行中（P0/P1 与 `assistant` mock 已接；小x 对话、广场动态流、签到进度条等人点验） |
+| 阶段 | F — 前端界面先行；并行 1a 后端切片 |
+| 状态 | 进行中（小程序等人点验；1a 切片 A 已通过，下一片是 B） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）已接 mock，见 [product/expansion.md](product/expansion.md) |
-| 最后更新 | 2026-09-19 |
+| 最后更新 | 2026-09-22 |
 
 ## 阶段总览
 
@@ -40,7 +40,7 @@
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
 | F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（P0/P1 与 assistant mock 已接；小x / 广场动态流 / 签到进度条等人点验） |
-| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 未开始（界面之后） |
+| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 进行中（1a 切片 A 已通过；B 登录、C 知识库、D `/ask` 未开始） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
 | 3b | P1 接真数据：积分、签到、关注、表态 | 未开始 |
@@ -89,10 +89,12 @@
 - 广场改为公开动态流已接（未点验）：发动态不选板块；底栏与首页入口文案「广场」；推荐 / 关注为下划线；「大家都在看」横滑封面进详情。合同：`board` 发帖可省略（默认 `daily`），列表可带 `topic`（界面不用芯片筛）。相册同步文案改为「广场」，字段仍是 `sync_to_forum`。
 - 产品文档纳入自身能力：助手 `assistant`、问诊 `consult`、养宠经验 `experience`。正文 [product/expansion.md](product/expansion.md)。RAG 行为规范已锁。
 - 助手 `assistant` mock 已接：合同 `GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`；底栏中间 C 位「小x」进 `modules/assistant/pages/chat/chat`；广场无入口。图生视频改从首页四入口 `navigateTo` 创作页。mock 关键词假装 `knowledge` / `search` / `generated`；看病用药固定拒答，`source` 仍为 `generated`。未点验。
+- 1a 切片 A：FastAPI 内核、Docker Postgres（`pgvector/pgvector:pg16`）、Alembic `0001` 只建 `vector`、统一信封、`GET /health`。无业务表。`server/tests/core` 17 passed。合同与小程序未改。一次性说明 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md)。
 
 ## 进行中
 
 - 阶段 F：P0/P1 与 `assistant` mock 已接。真机调试可用。等人点验底栏「小x」与首页进创作。
+- 1a：切片 A 已通过。下一片是 B（`server/app/modules/auth/`），见 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md)。
 
 ## 已知风险
 
@@ -108,12 +110,12 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 微信开发者工具打开仓库根目录，点验底栏「小x」（空态推荐问题、三档来源、拒答不编药名、相近帖进详情）以及首页「图生视频」进创作页能返回。`npm run typecheck`。不要先搭 FastAPI。不要接真向量库 / LLM。不要建 `consult` / `experience`。
-2. 广场动态流、签到进度条仍待点验。点验通过后再删 [dev/checkin-streak.md](dev/checkin-streak.md) 等一次性文档。
+1. 按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 做切片 B。只改该片列出的路径。合同不改，`useMock` 保持 true，`miniprogram/**` 零 diff。不要接真向量库 / LLM。不要建 `consult` / `experience`。
+2. 微信开发者工具打开仓库根目录，点验底栏「小x」（空态推荐问题、三档来源、拒答不编药名、相近帖进详情）以及首页「图生视频」进创作页能返回。`npm run typecheck`。广场动态流、签到进度条仍待点验。点验通过后再删 [dev/checkin-streak.md](dev/checkin-streak.md) 等一次性文档。1a 文档要等 A–D 都过了再删。
 3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`）。这不是下一对话的默认任务。
 
-写后端（阶段 1 之后）时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
+写后端时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
 
 ## 决策日志
 
@@ -174,6 +176,7 @@
 | 2026-09-19 | 助手界面名「小x」；底栏中间 C 位；创作不占 tab | 用户确认。五个 tab：首页 / 相册 / 小x / 广场 / 我的。图生视频从首页四入口 `navigateTo` 创作页。广场不加助手入口。mock 拒答不新增 `source`，仍用 `generated` |
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
+| 2026-09-22 | 从阶段 F 开 1a，切片 A 先落地内核 | 用户点名做后端内核与小x知识库。A 只建 FastAPI、pgvector、信封和 `GET /health`，不建业务表，不改合同与小程序。B/C/D 按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行 |
 
 ## 未决（不阻塞阶段 F）
 

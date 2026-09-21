@@ -6,16 +6,16 @@
 
 ## 新对话从这里开始
 
-阶段 **F（前端界面先行）**，进行中。`useMock: true`。不要先搭 FastAPI。不要重做视觉（除非用户点名某一页）。
+阶段 **F** 仍在进行，`useMock: true`。1a 后端按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行；切片 A 已通过。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
 
-下一轮：点验底栏「小x」与首页进创作。不要先搭 FastAPI。不要接真向量库 / LLM。不要建 `consult` / `experience`。不要重做视觉。微信开发者工具打开仓库根目录。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：做切片 B（登录）。不要接真向量库 / LLM。不要建 `consult` / `experience`。小程序点验可并行。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 按用户点名继续小程序功能 | `server/` 可运行工程 |
-| 保持 `useMock: true` 与合同里的 path / 字段 | 真 `wx.request` 打真实 API |
-| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token | 接微信登录换 JWT、真出片、真审核 |
-| 页面只调本模块 `services/` | 把 mock 写进页面；未点名就重做视觉；每改一处就改文档 |
+| 按 1a 文档做当前切片；小程序保持 mock | 关 `useMock`、真 `wx.request` 打真实 API |
+| 保持 `useMock: true` 与合同里的 path / 字段 | 真出片、真审核 |
+| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token | 把 mock 写进页面；未点名就重做视觉 |
+| 页面只调本模块 `services/` | 每改一处就改文档 |
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -217,16 +217,18 @@
 
 ## 本地怎么对上（后端落地之后）
 
-现在还没有这些进程。目标：
+切片 A 已能在本机跑 Postgres 和 `GET /health`。小程序仍走 mock，不连这台 API。
 
-1. Docker Compose 只跑 PostgreSQL（以及可选的 MinIO）。
-2. FastAPI：`http://127.0.0.1:8000`。
+1. Docker Compose 只跑 PostgreSQL（`pgvector/pgvector:pg16`，库 `app_pet` 与 `app_pet_test`）。
+2. FastAPI：`http://127.0.0.1:8000`，`GET /health`。
 3. 微信开发者工具打开本仓库根目录；开发期关闭「校验合法域名」。
-4. `apiBaseUrl` 指向 `http://127.0.0.1:8000`（真机预览改为电脑局域网 IP）。
+4. 关 `useMock` 之后，`apiBaseUrl` 才指向 `http://127.0.0.1:8000`（真机预览改为电脑局域网 IP）。
 
 `wx.request` 不是浏览器，没有 CORS。正式版要配微信公众平台 request / uploadFile 合法域名。
 
-## 环境变量（后端，界面先行可暂不建）
+## 环境变量（后端）
+
+样例在 `server/.env.example`。本地复制为 `server/.env`（gitignore，不提交）。
 
 | 变量 | 含义 | 本地 |
 |---|---|---|
@@ -238,10 +240,13 @@
 | `WECHAT_APPID` | 小程序 AppId | 与 `project.config.json` 一致：`wxe7c6ce42979250cd` |
 | `WECHAT_SECRET` | 小程序 AppSecret | 只放环境变量或未提交文件，不进 git |
 | `MEDIA_ROOT` | 开发期本地上传目录 | 例如 `server/var/media` |
-| `API_PREFIX` | 固定 | `/api/v1` |
+| `API_PREFIX` | 固定。Settings 声明，路由前缀在 `main.py` 写死 | `/api/v1` |
+| `EMBEDDING_BASE_URL` | 嵌入服务根地址 | 空。C 才读；空则走假向量 |
+| `EMBEDDING_API_KEY` | 嵌入密钥 | 空，不进 git |
+| `EMBEDDING_MODEL` | 嵌入模型名 | 空 |
+| `EMBEDDING_DIM` | 向量维度 | `1024` |
+| `EMBEDDING_MIN_COSINE` | 余弦下限 | `0.25` |
 | 视频出片密钥 | 只放服务端 `.env` | 接 P2 真出片时再登记，不进小程序 |
-
-本地用 `server/.env`（忽略提交）。
 
 ## HTTP 契约
 
@@ -289,6 +294,6 @@
 7. 写代码时再读 [framework/code-standards.md](framework/code-standards.md)
 8. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
 
-改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。不要先做 FastAPI。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)（阶段 F 不要建后端目录）。
+改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。后端只做 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 的当前切片。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)。阶段 F 的小程序改动不要顺手建后端业务目录。
 
 开发走 `/app-pet`。静态检查：`npm run typecheck`。页面改动请人在开发者工具点一下。已知延后项（media multipart、mock 单用户点赞、种子仍一份 store）见 [progress.md](progress.md)，不要当阶段 F 缺口去「顺便做掉」。

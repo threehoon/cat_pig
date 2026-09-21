@@ -67,4 +67,4 @@ Grok、Codex、Claude Code、Hermes 共用本文件和 `docs/`，不各写一套
 
 ## 当前阶段
 
-以 [docs/progress.md](docs/progress.md) 为准。当前是 **阶段 F：前端界面先行**。页面、`services/` 与 mock 已存在。下一步以进度文件为准，不要先搭 FastAPI。日常改代码不要改 `docs/`，用户说「整理 / 总结 / 更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。
+以 [docs/progress.md](docs/progress.md) 为准。阶段 F 的小程序界面仍在点验。1a 后端按进度里的下一步做，细则只看 [docs/dev/backend-assistant-1a.md](docs/dev/backend-assistant-1a.md)。日常改代码不要改 `docs/`，用户说「整理」「总结」「更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。
