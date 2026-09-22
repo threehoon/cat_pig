@@ -177,6 +177,7 @@ def test_metadata_registers_user_and_knowledge_tables() -> None:
         "users",
         "knowledge_article",
         "knowledge_chunk",
+        "conversation",
     }
     assert {column.name for column in User.__table__.columns} == {
         "id",

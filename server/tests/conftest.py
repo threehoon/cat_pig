@@ -57,7 +57,7 @@ async def prepare_database() -> AsyncIterator[None]:
     async with engine.begin() as conn:
         await conn.execute(
             text(
-                "TRUNCATE TABLE knowledge_chunk, knowledge_article, users CASCADE"
+                "TRUNCATE TABLE conversation, knowledge_chunk, knowledge_article, users CASCADE"
             )
         )
     await engine.dispose()

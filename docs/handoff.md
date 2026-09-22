@@ -6,13 +6,13 @@
 
 ## 新对话从这里开始
 
-阶段 **F** 仍在进行，`useMock: true`。1a 后端按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行；切片 A、B 已通过，切片 C（知识库，无 HTTP）2026-09-22 已通过。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
+阶段 **F** 页面已点验，`useMock: true`。1a 切片 A–D 已通过（内核、登录、知识库、`/suggestion` 与 `/ask`）。小程序仍走 mock，不连 `127.0.0.1:8000`。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
 
-下一轮：只做切片 D（`/suggestion` + `/ask`）。不要接 LLM。不要关 `useMock`。不要建 `consult` / `experience`。小程序点验可并行。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：关 `useMock` 之前先做 `GET/PATCH /api/v1/me` 和注册积分 +100，并在 `miniprogram/core/request.ts` 补 media multipart。不要接 LLM。不要建 `consult` / `experience`。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 按 1a 文档做当前切片；小程序保持 mock | 关 `useMock`、真 `wx.request` 打真实 API |
+| 先做 `/me` 与注册积分；小程序保持 mock | 关 `useMock`、真 `wx.request` 打真实 API |
 | 保持 `useMock: true` 与合同里的 path / 字段 | 真出片、真审核 |
 | 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token | 把 mock 写进页面；未点名就重做视觉 |
 | 页面只调本模块 `services/` | 每改一处就改文档 |
@@ -217,7 +217,7 @@
 
 ## 本地怎么对上（后端落地之后）
 
-切片 A 已能在本机跑 Postgres 和 `GET /health`。小程序仍走 mock，不连这台 API。
+1a 已能在本机跑 Postgres、`GET /health`、`POST /api/v1/auth/login`、`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。Alembic head 为 `0004_assistant_conversation`。小程序仍走 mock，不连这台 API。
 
 1. Docker Compose 只跑 PostgreSQL（`pgvector/pgvector:pg16`，库 `app_pet` 与 `app_pet_test`）。
 2. FastAPI：`http://127.0.0.1:8000`，`GET /health`。
@@ -294,6 +294,6 @@
 7. 写代码时再读 [framework/code-standards.md](framework/code-standards.md)
 8. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
 
-改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。后端只做 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 的当前切片。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)。阶段 F 的小程序改动不要顺手建后端业务目录。
+改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。下一刀按 [progress.md](progress.md) 的下一步：`/me`、注册积分、media multipart。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)。小程序改动不要顺手建后端业务目录。
 
 开发走 `/app-pet`。静态检查：`npm run typecheck`。页面改动请人在开发者工具点一下。已知延后项（media multipart、mock 单用户点赞、种子仍一份 store）见 [progress.md](progress.md)，不要当阶段 F 缺口去「顺便做掉」。

@@ -4,7 +4,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.modules.assistant.models import KnowledgeArticle, KnowledgeChunk
+from app.modules.assistant.models import Conversation, KnowledgeArticle, KnowledgeChunk
 
 
 class KnowledgeRepository:
@@ -104,3 +104,17 @@ class KnowledgeRepository:
             )
         )
         await self._session.flush()
+
+
+class ConversationRepository:
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def get(self, conversation_id: uuid.UUID) -> Conversation | None:
+        return await self._session.get(Conversation, conversation_id)
+
+    async def add(self, user_id: uuid.UUID) -> Conversation:
+        conversation = Conversation(user_id=user_id)
+        self._session.add(conversation)
+        await self._session.flush()
+        return conversation

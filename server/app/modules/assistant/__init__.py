@@ -1,2 +1,3 @@
-"""Knowledge base for the assistant. No HTTP router in this slice.
-"""
+from app.modules.assistant.router import router
+
+__all__ = ["router"]

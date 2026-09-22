@@ -95,3 +95,19 @@ class KnowledgeChunk(Base):
     )
 
     article: Mapped[KnowledgeArticle] = relationship(back_populates="chunks")
+
+
+class Conversation(Base):
+    __tablename__ = "conversation"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=sql_text("now()"),
+    )
