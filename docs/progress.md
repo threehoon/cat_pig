@@ -16,7 +16,7 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 做切片 C（`server/app/modules/assistant/` 知识库，无 HTTP）。合同不改，`useMock` 保持 true，小程序零 diff。不要接真向量库 / LLM。不要建 `consult` / `experience`。阶段 F 的小x、广场动态流、签到进度条仍待人点验，可并行。不要回头改 `navigateTo`。
+下一对话目标：按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 做切片 D（`/suggestion` + `/ask`）。合同不改，`useMock` 保持 true，小程序零 diff。不要接 LLM。不要建 `consult` / `experience`。阶段 F 的小x、广场动态流、签到进度条仍待人点验，可并行。不要回头改 `navigateTo`。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -29,7 +29,7 @@
 | 项 | 值 |
 |---|---|
 | 阶段 | F — 前端界面先行；并行 1a 后端切片 |
-| 状态 | 进行中（小程序等人点验；1a 切片 A、B 已通过，下一片是 C，尚未开始） |
+| 状态 | 进行中（小程序等人点验；1a 切片 A、B、C 已通过，下一片是 D，尚未开始） |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）已接 mock，见 [product/expansion.md](product/expansion.md) |
 | 最后更新 | 2026-09-22 |
 
@@ -40,7 +40,7 @@
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
 | F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 进行中（P0/P1 与 assistant mock 已接；小x / 广场动态流 / 签到进度条等人点验） |
-| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 进行中（1a 切片 A、B 已通过；C 知识库、D `/ask` 未开始） |
+| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres | 进行中（1a 切片 A、B、C 已通过；D `/ask` 未开始） |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
 | 3b | P1 接真数据：积分、签到、关注、表态 | 未开始 |
@@ -91,11 +91,12 @@
 - 助手 `assistant` mock 已接：合同 `GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`；底栏中间 C 位「小x」进 `modules/assistant/pages/chat/chat`；广场无入口。图生视频改从首页四入口 `navigateTo` 创作页。mock 关键词假装 `knowledge` / `search` / `generated`；看病用药固定拒答，`source` 仍为 `generated`。未点验。
 - 1a 切片 A：FastAPI 内核、Docker Postgres（`pgvector/pgvector:pg16`）、Alembic `0001` 只建 `vector`、统一信封、`GET /health`。无业务表。`server/tests/core` 17 passed。合同与小程序未改。一次性说明 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md)。
 - 1a 切片 B：登录模块 `server/app/modules/auth/`，迁移 `0002_auth_users`。`POST /api/v1/auth/login` upsert 用户并返回 `{data:{token, expires_in}}`。`app_pet` Alembic 在 `0002_auth_users`。`users` 列：`id` uuid PK，`openid` varchar(64) unique not null，`nickname` text null，`avatar_url` text null，`created_at` timestamptz not null；无积分列。`cd server && uv run pytest tests/core tests/modules/auth -q` → 31 passed。本机 curl `{"code":"test"}` 两次均 200，JWT `sub` 相同，`expires_in` 604800，一行 `openid` `local:test`。未写注册 +100。合同未改，`useMock` 保持 true，小程序零 diff。
+- 1a 切片 C：知识库 `server/app/modules/assistant/`，无 HTTP，迁移 `0003_assistant_knowledge`。表 `knowledge_article`、`knowledge_chunk`。一篇种子一块，`chunk.text` 为标题加换行再加 `body`。三个嵌入配置都空，`embedding_model` 为 `hash`。`app_pet` Alembic 在 `0003_assistant_knowledge`。ingest 连续两次后三行都是 `published`（`summer-dog-cooling.md`、`leash-walk.md`、`cat-water.md`），每行一块。HNSW 索引 `ix_knowledge_chunk_embedding` 使用 `vector_cosine_ops`。`cd server && uv run pytest tests/modules/assistant -q` → 8 passed。`cd server && uv run pytest tests/core tests/modules/auth -q` → 31 passed。没有 `/ask`。合同未改，`useMock` 保持 true，小程序零 diff。
 
 ## 进行中
 
 - 阶段 F：P0/P1 与 `assistant` mock 已接。真机调试可用。等人点验底栏「小x」与首页进创作。
-- 1a：切片 A、B 已通过。下一片是 C（`server/app/modules/assistant/` 知识库，无 HTTP），尚未开始。见 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md)。
+- 1a：切片 A、B、C 已通过。下一片是 D（`/suggestion` + `/ask`），尚未开始。见 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md)。
 
 ## 已知风险
 
@@ -111,7 +112,7 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 做切片 C（`server/app/modules/assistant/` 知识库，无 HTTP）。只改该片列出的路径。合同不改，`useMock` 保持 true，`miniprogram/**` 零 diff。不要接真向量库 / LLM。不要建 `consult` / `experience`。
+1. 按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 做切片 D（`/suggestion` + `/ask`）。只改该片列出的路径。合同不改，`useMock` 保持 true，`miniprogram/**` 零 diff。不要接 LLM。不要建 `consult` / `experience`。
 2. 微信开发者工具打开仓库根目录，点验底栏「小x」（空态推荐问题、三档来源、拒答不编药名、相近帖进详情）以及首页「图生视频」进创作页能返回。`npm run typecheck`。广场动态流、签到进度条仍待点验。点验通过后再删 [dev/checkin-streak.md](dev/checkin-streak.md) 等一次性文档。1a 文档要等 A–D 都过了再删。
 3. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 4. 阶段 2 接真 API 前，先在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`）。这不是下一对话的默认任务。
@@ -179,6 +180,7 @@
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 | 2026-09-22 | 从阶段 F 开 1a，切片 A 先落地内核 | 用户点名做后端内核与小x知识库。A 只建 FastAPI、pgvector、信封和 `GET /health`，不建业务表，不改合同与小程序。B/C/D 按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行 |
 | 2026-09-22 | 1a 切片 B–D 的 `POST /api/v1/auth/login` 不写注册积分 +100。这是项目负责人批准的临时契约例外。登录路径和响应字段仍按合同。该副作用留到关 `useMock` 之前，与 `/me` 和 `points` service 一起做 | 合同要求入账，但 1a 禁止积分表、积分列和 `/me`。登录响应不含积分。mock 的 login 也不写这条流水 |
+| 2026-09-22 | 知识库向量列在 `pgvector.sqlalchemy.Vector` 上覆盖 `bind_processor`，绑定 Python list。迁移 DDL 仍用库自带的 `Vector(1024)`。HNSW 只写在 `0003` 的 `op.execute`，不写进 model | 切片 A 已注册 asyncpg 二进制 codec。pgvector 0.5 的默认 bind 会把向量收成文本，插入失败。测试库走 `create_all`，不建这棵索引；主库迁移里有 |
 
 ## 未决（不阻塞阶段 F）
 

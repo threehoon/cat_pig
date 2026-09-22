@@ -172,8 +172,12 @@ async def test_service_login_upserts_one_user() -> None:
     assert len(rows) == 1
 
 
-def test_metadata_registers_only_users() -> None:
-    assert set(Base.metadata.tables) == {"users"}
+def test_metadata_registers_user_and_knowledge_tables() -> None:
+    assert set(Base.metadata.tables) == {
+        "users",
+        "knowledge_article",
+        "knowledge_chunk",
+    }
     assert {column.name for column in User.__table__.columns} == {
         "id",
         "openid",

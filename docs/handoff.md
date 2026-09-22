@@ -6,9 +6,9 @@
 
 ## 新对话从这里开始
 
-阶段 **F** 仍在进行，`useMock: true`。1a 后端按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行；切片 A 已通过，切片 B（登录）2026-09-22 已通过。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
+阶段 **F** 仍在进行，`useMock: true`。1a 后端按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行；切片 A、B 已通过，切片 C（知识库，无 HTTP）2026-09-22 已通过。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
 
-下一轮：只做切片 C（知识库，无 HTTP）。不要做 D。不要接真向量库 / LLM。不要关 `useMock`。不要建 `consult` / `experience`。小程序点验可并行。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：只做切片 D（`/suggestion` + `/ask`）。不要接 LLM。不要关 `useMock`。不要建 `consult` / `experience`。小程序点验可并行。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|
@@ -241,7 +241,7 @@
 | `WECHAT_SECRET` | 小程序 AppSecret | 只放环境变量或未提交文件，不进 git |
 | `MEDIA_ROOT` | 开发期本地上传目录 | 例如 `server/var/media` |
 | `API_PREFIX` | 固定。Settings 声明，路由前缀在 `main.py` 写死 | `/api/v1` |
-| `EMBEDDING_BASE_URL` | 嵌入服务根地址 | 空。C 才读；空则走假向量 |
+| `EMBEDDING_BASE_URL` | 嵌入服务根地址 | 空。C 起读取；三个嵌入项都空则走假向量 |
 | `EMBEDDING_API_KEY` | 嵌入密钥 | 空，不进 git |
 | `EMBEDDING_MODEL` | 嵌入模型名 | 空 |
 | `EMBEDDING_DIM` | 向量维度 | `1024` |

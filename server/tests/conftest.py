@@ -15,6 +15,7 @@ os.environ["DATABASE_URL"] = (
 from app.core.db import Base, engine  # noqa: E402
 from app.core.settings import get_settings  # noqa: E402
 import app.modules.auth.models  # noqa: E402, F401
+import app.modules.assistant.models  # noqa: E402, F401
 
 
 get_settings.cache_clear()
@@ -54,6 +55,10 @@ async def prepare_database() -> AsyncIterator[None]:
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with engine.begin() as conn:
-        await conn.execute(text("TRUNCATE TABLE users CASCADE"))
+        await conn.execute(
+            text(
+                "TRUNCATE TABLE knowledge_chunk, knowledge_article, users CASCADE"
+            )
+        )
     await engine.dispose()
     get_settings.cache_clear()

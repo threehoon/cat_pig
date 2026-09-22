@@ -2,15 +2,15 @@
 
 **用完即删。** 按切片开发；A–D 全部点验通过后删除本文件。不要登记进 `AGENTS.md` / `docs/README.md`。不要当长期规范。
 
-**当前切片：C — 知识库（无 HTTP）**
+**当前切片：D — `/suggestion` + `/ask`**
 
-A 已通过（2026-09-22）。B 已通过（2026-09-22）。不要重做 A。不要重做 B。
+A 已通过（2026-09-22）。B 已通过（2026-09-22）。C 已通过（2026-09-22）。不要重做 A。不要重做 B。不要重做 C。
 
-新对话：先读本文件 → 只做当前切片 C → 停住等用户说「C 过了」。用户回复「C 过了 / D 过了」才把「当前切片」改成下一片并动手。没过先修这一片。不要一次做完 C–D。不要跳到 D。不要 git commit，除非用户点名提交。
+新对话：先读本文件 → 只做当前切片 D → 停住等用户说「D 过了」。没过先修这一片。不要跳过 D 去改小程序或关 `useMock`。不要 git commit，除非用户点名提交。
 
 以本文件为准。`.hermes/plans/2026-09-21_234353-backend-assistant-1a.md` 是旧稿（`chunk.text = body`、用缩短句做 overlap），不要照它写。
 
-阶段：用户已批准从阶段 F 开这一刀（1a）。切片 A、B 已通过。下一片只做 C。不要跳到 D。合同不改，`useMock` 保持 true，小程序零 diff。`docs/framework/stack.md` 仍不改。进度和 handoff 只在用户要求更新文档时改。
+阶段：用户已批准从阶段 F 开这一刀（1a）。切片 A、B、C 已通过。下一片只做 D。合同不改，`useMock` 保持 true，小程序零 diff。`docs/framework/stack.md` 仍不改。进度和 handoff 只在用户要求更新文档时改。
 
 ---
 
@@ -417,7 +417,9 @@ cd server && uv run pytest tests/modules/assistant -q
 
 前两行写 **app_pet**。pytest 写 **app_pet_test**。还没有 `/ask`。
 
-**停。** 等「C 过了」。
+**状态：已通过（2026-09-22）。** `cd server && uv run pytest tests/modules/assistant -q` 为 8 passed。`cd server && uv run pytest tests/core tests/modules/auth -q` 仍为 31 passed。主库 `app_pet` 的 alembic head 为 `0003_assistant_knowledge`。`python -m app.modules.assistant.ingest` 连续两次后，`knowledge_article` 三行都是 `published`（`summer-dog-cooling.md`、`leash-walk.md`、`cat-water.md`），每行一块，`chunk.text` 为标题加换行再加 `body`。`embedding_model` 为 `hash`。HNSW 索引 `ix_knowledge_chunk_embedding` 在 `public.knowledge_chunk`，操作符类 `vector_cosine_ops`。没有 `router.py`，没有 `/ask`。合同未改，`useMock` 保持 true，小程序零 diff。
+
+**已通过。** 停在这里的条件已满足。下一片是 D。
 
 ---
 
