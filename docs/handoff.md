@@ -6,9 +6,9 @@
 
 ## 新对话从这里开始
 
-阶段 **F** 仍在进行，`useMock: true`。1a 后端按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行；切片 A 已通过。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
+阶段 **F** 仍在进行，`useMock: true`。1a 后端按 [dev/backend-assistant-1a.md](dev/backend-assistant-1a.md) 串行；切片 A 已通过，切片 B（登录）2026-09-22 已通过。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
 
-下一轮：做切片 B（登录）。不要接真向量库 / LLM。不要建 `consult` / `experience`。小程序点验可并行。阶段、已知风险只认 [progress.md](progress.md)。
+下一轮：只做切片 C（知识库，无 HTTP）。不要做 D。不要接真向量库 / LLM。不要关 `useMock`。不要建 `consult` / `experience`。小程序点验可并行。阶段、已知风险只认 [progress.md](progress.md)。
 
 | 现在做 | 现在不做 |
 |---|---|

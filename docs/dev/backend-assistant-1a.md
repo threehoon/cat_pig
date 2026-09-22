@@ -2,15 +2,15 @@
 
 **用完即删。** 按切片开发；A–D 全部点验通过后删除本文件。不要登记进 `AGENTS.md` / `docs/README.md`。不要当长期规范。
 
-**当前切片：B — 鉴权**
+**当前切片：C — 知识库（无 HTTP）**
 
-A 已通过（2026-09-22）。不要重做 A。
+A 已通过（2026-09-22）。B 已通过（2026-09-22）。不要重做 A。不要重做 B。
 
-新对话：先读本文件 → 只做当前切片 → 停住等用户说「B 过了」。用户回复「B 过了 / C 过了 / D 过了」才把「当前切片」改成下一片并动手。没过先修这一片。不要一次做完 B–D。不要 git commit，除非用户点名提交。
+新对话：先读本文件 → 只做当前切片 C → 停住等用户说「C 过了」。用户回复「C 过了 / D 过了」才把「当前切片」改成下一片并动手。没过先修这一片。不要一次做完 C–D。不要跳到 D。不要 git commit，除非用户点名提交。
 
 以本文件为准。`.hermes/plans/2026-09-21_234353-backend-assistant-1a.md` 是旧稿（`chunk.text = body`、用缩短句做 overlap），不要照它写。
 
-阶段：用户已批准从阶段 F 开这一刀（1a）。切片 A 已通过。下一片只做 B。合同不改，`useMock` 保持 true，小程序零 diff。`docs/framework/stack.md` 仍不改。进度和 handoff 只在用户要求更新文档时改。
+阶段：用户已批准从阶段 F 开这一刀（1a）。切片 A、B 已通过。下一片只做 C。不要跳到 D。合同不改，`useMock` 保持 true，小程序零 diff。`docs/framework/stack.md` 仍不改。进度和 handoff 只在用户要求更新文档时改。
 
 ---
 
@@ -278,11 +278,13 @@ curl -s http://127.0.0.1:8000/no-such-route
 
 期望：pytest 绿。health 为 `{"data":{"ok":true}}`。未知路径是 `{error:{code,message}}`。
 
-**已通过。** 停在这里的条件已满足。下一片是 B。
+**已通过。** 停在这里的条件已满足。随后的 B 也已通过。当前切片见文首。
 
 ---
 
 ## 切片 B — 鉴权
+
+**状态：已通过（2026-09-22）。** `cd server && uv run pytest tests/core tests/modules/auth -q` 为 31 passed。主库 `app_pet` 的 alembic head 为 `0002_auth_users`。表 `users` 正好这些列：`id` uuid 主键、`openid` varchar(64) unique not null、`nickname` text null、`avatar_url` text null、`created_at` timestamptz not null。没有积分列。两次 curl `POST http://127.0.0.1:8000/api/v1/auth/login`，body `{"code":"test"}`：都是 HTTP 200，同一个 token `sub`，`expires_in` 为 604800，`users` 只有一行，`openid` 为 `local:test`。无密钥的 prod 由 auth 测试覆盖（502 `WECHAT_LOGIN_FAILED`，不插入）；没有另做手工 prod curl。注册 +100 未做。
 
 **做完标准：** pytest 绿；curl login 有 token；同一 code 两次不 500；`APP_ENV=prod` 且无 secret → `WECHAT_LOGIN_FAILED`。用户说「B 过了」。
 
@@ -325,7 +327,7 @@ curl -s -X POST http://127.0.0.1:8000/api/v1/auth/login \
 
 `alembic` 打在 `app_pet`。pytest 打在 `app_pet_test`。curl 打在正在跑的本机 API（连 `app_pet`）。
 
-**停。** 等「B 过了」。
+**已通过。** 停在这里的条件已满足。下一片是 C。
 
 ---
 
