@@ -1,6 +1,6 @@
 # API 合同（前后端唯一依据）
 
-前端 mock、小程序 `services/`、以后 FastAPI 的 router/schema **只准实现这份文件里的路径和字段**。
+前端 mock、小程序 `services/` 和已有的 FastAPI router/schema **只准实现这份文件里的路径和字段**。
 
 对不上时改的是实现，不是各写一套。要加字段：先改本文件（只加可选字段或新路径），再改 mock，再改后端。禁止静默改名（`userId` / `user_id` 混用）。
 
@@ -38,8 +38,9 @@
 - 图生视频 `image_urls` **2–9** 张
 - 帖子正文最多 500 字；标题可空字符串
 - 签到：同一自然日（用户本地时区）只能成功一次，重复调用返回已签到，不重复加分
+- 在接口有时区字段之前，服务端使用 Asia/Shanghai（`server/app/core/clock.py`）。
 - 发帖变为 `published`：同一自然日最多给 **3** 条积分，超出不再加分、不报错
-- 发帖默认 `status` 为 `pending`（待审核）；存草稿为 `draft`
+- 发帖默认 `status` 为 `pending`（待审核）；存草稿为 `draft`。当前服务端和小程序 mock 都把请求的 `pending` 存成 `published`（创建，以及把 `draft` 更新为 `pending`），并适用「帖子变为 published」的积分规则；审核模块还不存在；`draft` 仍是 `draft`。请求值仍然只允许 `draft` 或 `pending`。
 - `DELETE` 只删当前用户自己的资源，否则 `FORBIDDEN`。例外：帖子作者可删该帖下任意一条评论（一次一条，不连带删别人的）。删帖时该帖全部评论一并删除。
 
 `GET /health` → `{ "data": { "ok": true } }`。
@@ -208,7 +209,7 @@
 
 `earned` `spent` `balance` 仍是非负整数。追加字段：`streak`（当前连续签到天数，非负整数）、`makeup_card_count`（补签卡张数，非负整数）、`today_checked`（今天是否已签，boolean）、`makeup_dates`（可补签的本地自然日 `YYYY-MM-DD` 数组，新的日期在前；没有可补时为 `[]`）、`checkin_dates`（当前本地月 + 上一本地月里已签到或补签的 `YYYY-MM-DD` 数组）、`today_post_count` `today_comment_count` `today_like_count`（今天已给分次数，非负整数，不超过各自每日上限）。补签卡不是积分，不进流水、不进 `Me`。
 
-连续天数按用户本地自然日：有签到记录（含补签）的相邻日历日往回数。今天已签则算到今天；今天未签、昨天有记录则算到昨天；昨天也没有则为 0。第 8 天及以后只要不断，每天仍只发签到 +10，不再给第 3 / 7 天那种额外积分和补签卡。断一天且未补，连续归零。
+连续天数按用户本地自然日：有签到记录（含补签）的相邻日历日往回数。今天已签则算到今天；今天未签、昨天有记录则算到昨天；昨天也没有则为 0。第 8 天及以后只要不断，每天仍只发签到 +10，不再给第 3 / 7 天那种额外积分和补签卡。断一天且未补，连续归零。在接口有时区字段之前，服务端使用 Asia/Shanghai（`server/app/core/clock.py`）。
 
 可补签的日子：今天之前、含今天在内共 7 个自然日里还没有签到记录的日子。不能补今天、不能补未来、不能补 7 天以外。
 
@@ -343,10 +344,12 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 
 `POST /api/v1/community/post`  
 请求：`{ "board", "title", "body", "image_urls", "topic_names", "status" }`  
-`board` 可省略（视为 `daily`）。`status` 只允许 `draft` 或 `pending`。响应：`{ "data": Post }`
+`board` 可省略（视为 `daily`）。`status` 只允许 `draft` 或 `pending`。保存结果见上面总规则里的发帖 `status`。响应：`{ "data": Post }`
 
 `GET /api/v1/community/post/{id}` → `{ "data": Post }`  
 `PATCH /api/v1/community/post/{id}` 子集（含把 `draft` 改为 `pending`）→ `{ "data": Post }`  
+保存结果见上面总规则里的发帖 `status`。
+
 `DELETE /api/v1/community/post/{id}` → `{ "data": { "ok": true } }`
 
 `POST /api/v1/community/post/{id}/like`  
@@ -403,7 +406,7 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 
 `GET /api/v1/points/ledger?kind=&range=all&page=1&page_size=20`  
 `kind` 可省略或 `earn` \| `spend`。  
-`range`：`all` \| `month` \| `quarter`（当前自然月 / 近三个自然月，用户本地时区）。
+`range`：`all` \| `month` \| `quarter`（当前自然月 / 近三个自然月，用户本地时区）。在接口有时区字段之前，服务端使用 Asia/Shanghai（`server/app/core/clock.py`）。
 
 `POST /api/v1/points/checkin`  
 请求体空对象 `{}`。  

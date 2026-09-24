@@ -16,7 +16,7 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：关 `useMock` 之前，先做 `GET/PATCH /api/v1/me` 和注册积分 +100（与 `points` 一起；`users` 不加积分列）。并在 `miniprogram/core/request.ts` 补 media 的 multipart（`wx.uploadFile`，字段名 `file`）。这两件完成前不要把 `useMock` 改成 false。不要接 LLM。不要建 `consult` / `experience`。不要回头改 `navigateTo`。
+下一对话目标：小程序仍 `useMock: true`，不打 `127.0.0.1:8000`。当前页面要的后端已经在 Postgres（库 `app_pet`，Alembic head `0010_video_task`）。下一处代码只改 `miniprogram/core/request.ts`：`POST /api/v1/media` 用 `wx.uploadFile`，字段名 `file`。这条上传落地前保持 `useMock: true`。不要在同一次改动里把 `useMock` 改成 false。不要接 LLM，不要建 `consult` / `experience`，不要加视频 worker。不要重做 `/me`、积分、相册、广场、media、视频任务的表和路由。不要回头改 `navigateTo`。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -28,10 +28,10 @@
 
 | 项 | 值 |
 |---|---|
-| 阶段 | F 已点验；1a 后端切片 A–D 已通过。下一刀是关 `useMock` 前的 `/me` 与注册积分 |
-| 状态 | 阶段 F 已完成（页面已点验，`useMock` 仍为 true）。阶段 1 的 1a 已完成。阶段 2 未开始 |
+| 阶段 | F 已点验。登录、`/me`、积分、media 元数据、相册、广场、视频任务已入库。阶段 2（小程序关 mock）未开始 |
+| 状态 | 阶段 F 已完成（页面已点验，`useMock` 仍为 true）。上列后端产品模块已在库。阶段 2 未开始 |
 | 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）已接 mock，见 [product/expansion.md](product/expansion.md) |
-| 最后更新 | 2026-09-22 |
+| 最后更新 | 2026-09-24 |
 
 ## 阶段总览
 
@@ -41,9 +41,10 @@
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
 | F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 已完成（页面已点验；`useMock` 仍为 true） |
 | 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres；1a 接到 `/ask` | 已完成（1a 切片 A–D：内核、登录、知识库、`/suggestion` 与 `/ask`） |
+| 1b | 当前页面的服务端：登录、`/me`、积分、media 元数据、相册、广场、视频任务 | 已入库（`app_pet` head `0010_video_task`）。小程序仍读 mock |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
-| 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 未开始 |
-| 3b | P1 接真数据：积分、签到、关注、表态 | 未开始 |
+| 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 服务端已在 1b；小程序切真数据未开始 |
+| 3b | P1 接真数据：积分、签到、关注、表态 | 服务端已在 1b；小程序切真数据未开始 |
 | 3c | P2 真出片：视频 worker | 未开始 |
 | 4 及以后 | 每加一个产品能力 = 一个新模块，不改内核 | 未开始 |
 
@@ -93,10 +94,11 @@
 - 1a 切片 B：登录模块 `server/app/modules/auth/`，迁移 `0002_auth_users`。`POST /api/v1/auth/login` upsert 用户并返回 `{data:{token, expires_in}}`。`app_pet` Alembic 在 `0002_auth_users`。`users` 列：`id` uuid PK，`openid` varchar(64) unique not null，`nickname` text null，`avatar_url` text null，`created_at` timestamptz not null；无积分列。`cd server && uv run pytest tests/core tests/modules/auth -q` → 31 passed。本机 curl `{"code":"test"}` 两次均 200，JWT `sub` 相同，`expires_in` 604800，一行 `openid` `local:test`。未写注册 +100。合同未改，`useMock` 保持 true，小程序零 diff。
 - 1a 切片 C：知识库 `server/app/modules/assistant/`，当时无 HTTP，迁移 `0003_assistant_knowledge`。表 `knowledge_article`、`knowledge_chunk`。一篇种子一块，`chunk.text` 为标题加换行再加 `body`。三个嵌入配置都空，`embedding_model` 为 `hash`。ingest 连续两次后三行都是 `published`（`summer-dog-cooling.md`、`leash-walk.md`、`cat-water.md`），每行一块。HNSW 索引 `ix_knowledge_chunk_embedding` 使用 `vector_cosine_ops`。`cd server && uv run pytest tests/modules/assistant -q` → 8 passed。`cd server && uv run pytest tests/core tests/modules/auth -q` → 31 passed。合同未改，`useMock` 保持 true，小程序零 diff。
 - 1a 切片 D：`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`，迁移 `0004_assistant_conversation`（`conversation`：`id`、`user_id` → `users.id`、`created_at`）。四条推荐问题写死并内存分页。拒答词先拦。过线条件 `distance <= 1 - EMBEDDING_MIN_COSINE`（默认 0.25）：`source=knowledge`，`answer` 为 `article.body`；否则短 generated。`related_posts` 恒 `[]`。没有 LLM，没有 `search`。`app_pet` Alembic 在 `0004_assistant_conversation`。`cd server && uv run pytest -q` → 66 passed。用户 curl「夏天怎么给狗降温」为 `knowledge`，正文与降温种子一致。同机 curl「猫咪发烧该吃什么药」为拒答原文，「今天上证指数多少」为短 generated。合同未改，`useMock` 保持 true，小程序零 diff。一次性 1a 文档已删。
+- 2026-09-24：当前页面的服务端已入库，未提交。`auth` 登录；`me` 的 `GET/PATCH /api/v1/me`；`points` 的 summary、ledger、checkin、makeup；`media` 的 `POST /api/v1/media`；`album`；`community`；`video`。助手未改（无 LLM，`related_posts` 仍 `[]`）。未建 `consult` / `experience`，未加视频 worker。`app_pet` Alembic head `0010_video_task`（`0005_points_entry` → `0006_points_checkin` → `0007_media_object` → `0008_community` → `0009_album` → `0010_video_task`）。`cd server && uv run pytest -q` → 145 passed。`useMock` 仍为 true，小程序无 diff。公开缝：points 的 `award_published_post` / `award_comment` / `award_like` / `spend`；community 的 `profile_counts` / `publish_album_show`；`me` 读这些计数。
 
 ## 进行中
 
-- 无。阶段 F 页面已点验。1a 切片 A–D 已通过。阶段 2（关 `useMock`）未开始。
+- 无。未提交的服务端是上述模块和迁移（`0005_points_entry` 至 `0010_video_task`，含登录入账）。这次后端工作的小程序 diff 为空。阶段 2 未开始。
 
 ## 已知风险
 
@@ -104,18 +106,20 @@
 
 | 项 | 状态 | 何时处理 |
 |---|---|---|
-| `POST /api/v1/media` 真上传 | mock 按路径后缀区分图（`image/jpeg`）和语音（`audio/mpeg`），`url` 仍是微信临时路径。`core/request` 还没有 `wx.uploadFile` / multipart | **阶段 2** 关 `useMock` 之前 |
-| mock 点赞/收藏 | 资源上的布尔，不是每用户一条；单用户先行够用 | 接真 API 后由后端处理 |
+| `POST /api/v1/media` | 服务端已收 `file`，字节在 `settings.media_root`，`url` 为 `/media/{stored_name}`。缺口只剩 `miniprogram/core/request.ts` 的 `wx.uploadFile`。没有这条之前不能把 `useMock` 改成 false | 下一处代码。同一次改动不要关 mock |
+| 点赞 / 收藏 / 关注 | 服务端是每用户一行。小程序 mock 的点赞和收藏仍是帖子上的一个共享布尔 | 关 `useMock` 时以服务端为准。这个 mock 限制还在 |
+| 发帖 `pending` | 创建，或草稿改为 `pending`，存成 `published`，并只调用一次 `award_published_post`。草稿保持草稿。没有审核模块 | 有审核模块之前保持这样，与 mock 一致 |
+| 视频任务不出片 | 创建扣 50（标题 `图生视频`），`video_task.status` 为 `pending`，`result_url` 为空。没有 worker，没有外部渲染 | 阶段 3c。现在不要加 worker |
 | mock 种子仍是一份 `mocks/store.ts` | 写路径已走 community `mock-helpers` / points `mock-ledger`；再按模块拆种子不阻塞阶段 F | 按需，不是现在 |
 | 本机 `project.private.config.json` 覆盖基础库 | 已 gitignore。本机已点开正常。换机器或 DevTools 改回旧 `libVersion` 时，把私有配置改成与公共 `3.7.0` 一致 | 换环境若 Skyline 未亮 |
 | 开发者工具 Skyline 模拟器 `navigateTo` 空一拍 | 模拟器里点动态 / 二级页抬手后转场会迟一拍；**真机调试不卡**。已补 `scroll-view type` 与导航栏同步 | 不当作产品缺口。不要为修模拟器去改详情第一帧或重做已撤回的详情 WXML |
 
 ## 下一步（给新对话，按此顺序）
 
-1. 做 `GET /api/v1/me` 与 `PATCH /api/v1/me`，字段按 [api/contract.md](api/contract.md) 的 `Me`。登录的注册积分 +100 与 `points` 一起入账；`users` 不加积分列。`useMock` 保持 true，小程序先零 diff。
-2. 在 `miniprogram/core/request.ts` 补 `POST /api/v1/media` 的 multipart（`wx.uploadFile`，字段名 `file`）。
-3. 上面两件完成前不要把 `useMock` 改成 false。不要接 LLM。不要建 `consult` / `experience`。
-4. 不要每改一处就更新文档。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
+1. 只改 `miniprogram/core/request.ts`：`POST /api/v1/media` 走 `wx.uploadFile`，字段名 `file`。字段以 [api/contract.md](api/contract.md) 为准。这次保持 `useMock: true`。
+2. 上传路径单独落地之后，再另一次改动关掉 `useMock`。不要和上传写在同一次改动里。
+3. 不要接 LLM。不要建 `consult` / `experience`。不要加视频 worker。不要重做 `/me`、积分、相册、广场、media、视频任务的表和路由。
+4. 日常改代码不要改本文件。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
 写后端时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
 
@@ -179,9 +183,14 @@
 | 2026-09-03 | 改 WXML 必须保持标签配对 | 为修卡顿重写详情时少闭合导致编译失败，已撤回；编译不过先还原，不要继续堆新文件 |
 | 2026-09-05 | 业务代码不写 `?.` / `??` | `es6`/`enhance` 为 false，真机调试把 `recordSink?.` 编进 js 后 SyntaxError，已改成显式判断 |
 | 2026-09-22 | 从阶段 F 开 1a，切片 A 先落地内核 | 用户点名做后端内核与小x知识库。A 只建 FastAPI、pgvector、信封和 `GET /health`，不建业务表，不改合同与小程序。B/C/D 按当时的一次性文档串行，A–D 通过后该文档已删 |
-| 2026-09-22 | 阶段 F 页面点验通过；1a 在 D 收口 | 用户确认小程序页面。D 用距离门占位，不接 LLM。关 `useMock` 仍要先有 `/me` 和注册积分 |
-| 2026-09-22 | 1a 切片 B–D 的 `POST /api/v1/auth/login` 不写注册积分 +100。这是项目负责人批准的临时契约例外。登录路径和响应字段仍按合同。该副作用留到关 `useMock` 之前，与 `/me` 和 `points` service 一起做 | 合同要求入账，但 1a 禁止积分表、积分列和 `/me`。登录响应不含积分。mock 的 login 也不写这条流水 |
+| 2026-09-22 | 阶段 F 页面点验通过；1a 在 D 收口 | 用户确认小程序页面。D 用距离门占位，不接 LLM。当时关 `useMock` 仍要先有 `/me` 和注册积分；这两项已在 2026-09-24 入库 |
+| 2026-09-22 | 1a 切片 B–D 的登录不写注册积分 +100 | **已被 2026-09-24 覆盖**。当时 1a 不建积分表；登录响应仍只有 `token` 和 `expires_in` |
 | 2026-09-22 | 知识库向量列在 `pgvector.sqlalchemy.Vector` 上覆盖 `bind_processor`，绑定 Python list。迁移 DDL 仍用库自带的 `Vector(1024)`。HNSW 只写在 `0003` 的 `op.execute`，不写进 model | 切片 A 已注册 asyncpg 二进制 codec。pgvector 0.5 的默认 bind 会把向量收成文本，插入失败。测试库走 `create_all`，不建这棵索引；主库迁移里有 |
+| 2026-09-24 | 上面暂缓的注册 +100 已实现。首次成功登录若没有 `event_key` `register:<user_id>`，写一条 earn 100、标题 `注册`。`users` 仍无积分列；余额是最新 `points_entry.balance_after` | 例外已经补上。不要再做一遍入账 |
+| 2026-09-24 | 积分的本地自然日固定 `Asia/Shanghai`（`server/app/core/clock.py`） | 合同写用户本地时区，接口没有时区字段 |
+| 2026-09-24 | 请求里的 `pending` 存成 `published`，直到有审核模块。草稿保持草稿 | 与小程序 mock 一致。不要另建审核 |
+| 2026-09-24 | 视频 worker 不做。创建只扣 50 并插入 `pending`，`result_url` 保持空 | 阶段 3c 再出片 |
+| 2026-09-24 | 开发期 media 的 `url` 是 `/media/{stored_name}`。API 进程的 cwd 是仓库根，`MEDIA_ROOT=server/var/media` 才落到 `server/var/media` | 相对路径按进程 cwd 解析。`main.py` 用 StaticFiles 挂 `/media` |
 
 ## 未决（不阻塞阶段 F）
 

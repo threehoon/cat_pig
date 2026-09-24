@@ -12,11 +12,20 @@ from app.main import create_app
 from app.modules.auth.models import User
 from app.modules.auth.repository import UserRepository
 from app.modules.auth.service import AuthService
+from app.modules.points.models import PointsEntry
+from app.modules.points.repository import PointsRepository
+from app.modules.points.service import PointsService
 
 
 async def fetch_users() -> list[User]:
     async with SessionFactory() as session:
         rows = await session.scalars(select(User))
+        return list(rows.all())
+
+
+async def fetch_entries() -> list[PointsEntry]:
+    async with SessionFactory() as session:
+        rows = await session.scalars(select(PointsEntry))
         return list(rows.all())
 
 
@@ -64,6 +73,14 @@ async def test_same_code_twice_reuses_one_user() -> None:
     assert len(rows) == 1
     assert rows[0].nickname is None
     assert rows[0].avatar_url is None
+    entries = await fetch_entries()
+    assert len(entries) == 1
+    assert entries[0].user_id == rows[0].id
+    assert entries[0].kind == "earn"
+    assert entries[0].amount == 100
+    assert entries[0].title == "注册"
+    assert entries[0].balance_after == 100
+    assert entries[0].event_key == f"register:{rows[0].id}"
 
 
 async def test_trimmed_code_matches_untrimmed_code() -> None:
@@ -98,6 +115,7 @@ async def test_blank_code_is_validation(code: str) -> None:
 
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "VALIDATION"
+    assert await fetch_entries() == []
 
 
 async def test_missing_code_is_validation() -> None:
@@ -106,6 +124,7 @@ async def test_missing_code_is_validation() -> None:
 
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "VALIDATION"
+    assert await fetch_entries() == []
 
 
 async def test_openid_at_column_limit_logs_in() -> None:
@@ -126,6 +145,7 @@ async def test_openid_past_column_limit_is_validation() -> None:
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "VALIDATION"
     assert await fetch_users() == []
+    assert await fetch_entries() == []
 
 
 async def test_prod_without_secret_is_wechat_login_failed(
@@ -140,6 +160,7 @@ async def test_prod_without_secret_is_wechat_login_failed(
         assert response.status_code == 502
         assert response.json()["error"]["code"] == "WECHAT_LOGIN_FAILED"
         assert await fetch_users() == []
+        assert await fetch_entries() == []
     finally:
         monkeypatch.undo()
         get_settings.cache_clear()
@@ -158,11 +179,15 @@ async def test_concurrent_same_code_returns_one_user() -> None:
         second.json()["data"]["token"]
     )
     assert len(await fetch_users()) == 1
+    assert len(await fetch_entries()) == 1
 
 
 async def test_service_login_upserts_one_user() -> None:
     async with SessionFactory() as session:
-        service = AuthService(UserRepository(session))
+        service = AuthService(
+            UserRepository(session),
+            PointsService(PointsRepository(session)),
+        )
         first = await service.login("svc-code")
         second = await service.login("svc-code")
         await session.commit()
@@ -170,15 +195,17 @@ async def test_service_login_upserts_one_user() -> None:
     assert decode_access_token(first.token) == decode_access_token(second.token)
     rows = await fetch_users()
     assert len(rows) == 1
+    assert len(await fetch_entries()) == 1
 
 
 def test_metadata_registers_user_and_knowledge_tables() -> None:
-    assert set(Base.metadata.tables) == {
+    assert {
         "users",
         "knowledge_article",
         "knowledge_chunk",
         "conversation",
-    }
+        "points_entry",
+    }.issubset(set(Base.metadata.tables))
     assert {column.name for column in User.__table__.columns} == {
         "id",
         "openid",

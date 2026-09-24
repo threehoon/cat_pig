@@ -1,11 +1,15 @@
 import os
+import pkgutil
 from collections.abc import AsyncIterator
+from importlib import import_module, util
 
 import asyncpg
 import pytest
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.engine.url import make_url
+
+from app import modules
 
 
 os.environ["DATABASE_URL"] = (
@@ -14,8 +18,19 @@ os.environ["DATABASE_URL"] = (
 
 from app.core.db import Base, engine  # noqa: E402
 from app.core.settings import get_settings  # noqa: E402
-import app.modules.auth.models  # noqa: E402, F401
-import app.modules.assistant.models  # noqa: E402, F401
+
+
+def _import_module_models() -> None:
+    prefix = f"{modules.__name__}."
+    for module_info in pkgutil.iter_modules(modules.__path__, prefix):
+        if not module_info.ispkg:
+            continue
+        models_name = f"{module_info.name}.models"
+        if util.find_spec(models_name) is not None:
+            import_module(models_name)
+
+
+_import_module_models()
 
 
 get_settings.cache_clear()
@@ -55,10 +70,7 @@ async def prepare_database() -> AsyncIterator[None]:
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with engine.begin() as conn:
-        await conn.execute(
-            text(
-                "TRUNCATE TABLE conversation, knowledge_chunk, knowledge_article, users CASCADE"
-            )
-        )
+        names = ", ".join(sorted(Base.metadata.tables))
+        await conn.execute(text(f"TRUNCATE TABLE {names} CASCADE"))
     await engine.dispose()
     get_settings.cache_clear()

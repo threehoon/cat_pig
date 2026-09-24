@@ -4,7 +4,7 @@
 
 实现 router/schema 时对照合同逐条打勾。字段名、类型与合同不一致视为错误，不要「顺便」改成驼峰或数字 id。
 
-可运行的 FastAPI 工程从 1a 切片 A 落地。本文件约束以后怎么写，避免先堆成单文件再拆。
+可运行的 FastAPI 工程已在 1a 切片 A 落地。本文件约束现在怎么写，避免先堆成单文件再拆。
 
 ## 包结构
 
@@ -45,7 +45,7 @@ server/
 ## 数据库
 
 - 异步 SQLAlchemy 2 + Alembic。
-- 每个模块自己的 `models.py` 必须能被 Alembic 的 `env.py`  import 到（阶段 1 做成自动 import 所有模块 models）。
+- 每个模块自己的 `models.py` 必须能被 Alembic 的 `env.py` import 到（`env.py` 已自动 import 所有模块的 models）。
 - 迁移文件名带模块语义更好，但必须是新文件。
 
 ## 测试

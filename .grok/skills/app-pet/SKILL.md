@@ -54,7 +54,7 @@ Path and JSON fields: [docs/api/contract.md](../../../docs/api/contract.md) only
 
 ## Phase gate
 
-Phase and next step = [docs/progress.md](../../../docs/progress.md). Do that phase's work; do not skip ahead. Phase F: do not create a runnable FastAPI. Do not restyle unless the user asks.
+Phase and next step are [docs/progress.md](../../../docs/progress.md). Do that work. Do not rebuild existing server modules. Do not turn `useMock` off unless progress says so. Do not restyle unless the user asks.
 
 Phase 1+: `fastapi` skill + [docs/backend/README.md](../../../docs/backend/README.md). Same contract file. `router` → `service` → `repository`.
 

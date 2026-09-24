@@ -8,3 +8,9 @@ class LoginRequest(BaseModel):
 class LoginResult(BaseModel):
     token: str
     expires_in: int
+
+
+class UserProfile(BaseModel):
+    id: str
+    nickname: str | None
+    avatar_url: str | None

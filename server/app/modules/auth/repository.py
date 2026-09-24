@@ -26,3 +26,14 @@ class UserRepository:
         if existing is None:
             raise RuntimeError("user row missing after openid conflict")
         return existing
+
+    async def get_by_id(self, user_id: uuid.UUID) -> User | None:
+        return await self._session.get(User, user_id)
+
+    async def apply_profile(self, user: User, changes: dict[str, str | None]) -> User:
+        if "nickname" in changes:
+            user.nickname = changes["nickname"]
+        if "avatar_url" in changes:
+            user.avatar_url = changes["avatar_url"]
+        await self._session.flush()
+        return user

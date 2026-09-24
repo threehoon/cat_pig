@@ -46,3 +46,6 @@ project.private.config.json
 
 # Logs
 *.log
+
+# Local uploaded files (MEDIA_ROOT). Metadata stays in Postgres.
+server/var/media/

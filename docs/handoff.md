@@ -6,16 +6,14 @@
 
 ## 新对话从这里开始
 
-阶段 **F** 页面已点验，`useMock: true`。1a 切片 A–D 已通过（内核、登录、知识库、`/suggestion` 与 `/ask`）。小程序仍走 mock，不连 `127.0.0.1:8000`。不要关 `useMock`。不要重做视觉（除非用户点名某一页）。
-
-下一轮：关 `useMock` 之前先做 `GET/PATCH /api/v1/me` 和注册积分 +100，并在 `miniprogram/core/request.ts` 补 media multipart。不要接 LLM。不要建 `consult` / `experience`。阶段、已知风险只认 [progress.md](progress.md)。
+阶段 **F** 页面已点验，`useMock` 仍为 true。小程序不调 API。当前页面的后端已经在 Postgres（`/me`、注册积分、相册、广场、视频都已有，不要重做）。下一步只认 [progress.md](progress.md)（`miniprogram/core/request.ts` 的 media multipart，然后单独关 `useMock`）。不要重做视觉（除非用户点名某一页）。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 先做 `/me` 与注册积分；小程序保持 mock | 关 `useMock`、真 `wx.request` 打真实 API |
-| 保持 `useMock: true` 与合同里的 path / 字段 | 真出片、真审核 |
-| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token | 把 mock 写进页面；未点名就重做视觉 |
-| 页面只调本模块 `services/` | 每改一处就改文档 |
+| 保持 `useMock: true`；下一步只看 [progress.md](progress.md) | 现在关 `useMock`，或用真 `wx.request` 打 API |
+| 页面只调本模块 `services/` | 未点名就重做视觉 |
+| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token | 接 LLM；建 `consult` / `experience`；加视频 worker |
+| 改接口先改 [api/contract.md](api/contract.md) | 日常改代码就改 `docs/`；把 mock 写进页面 |
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -31,9 +29,9 @@
 | 检查 | `npm run typecheck`（typescript 5.6） |
 | 详情页 | `community/pages/detail/detail.ts` 保留 `Page({...})`，不要再抽 `detail-page.ts`；录音走 `recordSink` |
 
-**预留接口是阶段 F 的完成条件，不是后补。** 路径和字段只认 [api/contract.md](api/contract.md)。前端 mock 按它返回 JSON；后端按它写 FastAPI。禁止另起字段名。后端开工后只改 `useMock` / `request` 实现。
+路径和字段只认 [api/contract.md](api/contract.md)。前端 mock 按它返回 JSON；后端按它写 FastAPI。禁止另起字段名。小程序改打真 API 时只动 `useMock` 和 `core/request`，时机以 [progress.md](progress.md) 为准。
 
-前端先行允许先建小程序模块和页面，暂不建 `server/app/modules/<feature>/`。后端开工时必须用**同一套英文模块名**。
+加小程序页面可以先不建后端目录。已有模块的后端按 [framework/adding-a-module.md](framework/adding-a-module.md) 第 4 节写。前后端用**同一套英文模块名**。
 
 ## 已锁定的模块名（前后端同名）
 
@@ -107,7 +105,7 @@
 | 广场 `tab` | `recommend` 推荐；`following` 关注。六个 `board` 值仍接受，不作主路径 |
 | 帖子 `board` | 响应仍有；发帖可省略，默认 `daily`。界面不展示板块房间 |
 | 广场 `topic` | 列表 query 仍可带；广场界面不用话题芯片筛 |
-| 帖子 `status` | `draft` 草稿；`pending` 审核中；`published` 已发布；`rejected` 未通过 |
+| 帖子 `status` | `draft` 草稿；`published` 已发布；`rejected` 未通过。请求里的 `pending` 当前存成 `published` |
 | 帖子动作 | 点赞 / 评论 / 收藏 / 转发（转发走微信分享，无单独接口） |
 | 视频 `status` | `pending` 待执行；`running` 执行中；`success` 执行成功；`failed` 执行失败 |
 | 视频 `resolution` | `540p` `720p` `1080p` `2k` `4k` 原样展示 |
@@ -161,11 +159,11 @@
 |---|---|---|
 | 微信 `code` 换 `openid` | 负责，openid 只存库 | 只调 `wx.login` 拿 `code` |
 | 会话 | 签发与校验 JWT | `core/auth` 存 token |
-| 校验、写库、审核状态 | 负责（接真 API 之后） | UI 可做空态/格式提示，不做最终判定 |
-| 图生视频出片 | worker 异步；密钥只在服务端 | 只提交任务、查状态、播 `result_url` |
+| 校验、写库 | 服务端已负责。没有审核模块，见「Mock 约定」 | UI 可做空态/格式提示，不做最终判定 |
+| 图生视频出片 | 现在没有 worker，任务停在 `pending`；以后才异步出片，密钥只在服务端 | 只提交任务、查状态、播 `result_url` |
 | 字段名、错误码 | 始终以 [api/contract.md](api/contract.md) 为准；OpenAPI 必须对上合同 | 先行按合同写 `types/`；接真 API 后可用生成文件覆盖，但仍须等于合同 |
 | 页面、交互、选图 | 不出现页面文案 | 负责 |
-| 图片二进制 | 收文件、存对象存储、返回 URL | 先行阶段可用本地临时路径占位；接 API 后走 `media` |
+| 图片二进制 | 收文件，开发期存 `MEDIA_ROOT`，返回 URL | 先行阶段可用本地临时路径占位；接 API 后走 `media` |
 | mock 数据 | 不存在 | handlers 在各模块 `services/mock.ts`；种子在 `miniprogram/mocks/store.ts`；`core/mock.ts` 只注册。跨模块写走 community `mock-helpers` / points `mock-ledger` |
 
 ## 必须预留的 service（与接口一一对应）
@@ -204,7 +202,7 @@
 3. 模块 `services/` 只调 `core/request`。`useMock === true` 时，`request` 把 method+path 交给 `core/mock.ts`（只注册 / 匹配）。handlers 在各模块 `services/mock.ts`，种子在 `miniprogram/mocks/store.ts`。跨模块写操作走对方公开函数（community `mock-helpers.ts`、points `mock-ledger.ts`），不要直接改另一模块的数组。返回值符合 [api/contract.md](api/contract.md)。
 4. 成功 / 失败信封与真 API 相同，JSON 形状见 [api/contract.md](api/contract.md)。
 5. 假数据足够点通主路径即可：当前用户、若干相册、若干已发布帖（含别人的帖和一条带评论的帖）、一条视频任务、几条积分流水。不要做后台。
-6. 没有审核员：mock 里 `POST` 帖子若 `status` 为 `pending`，直接存成 `published`，否则广场列表看不到刚发的帖。接真 API 后再走审核。
+6. 没有审核模块。mock 和当前服务端一样：请求里的 `pending` 直接存成 `published`，否则广场列表看不到刚发的帖。审核模块是以后的事。
 7. mock 登录在 `core/auth` 启动时同步完成（`jwt-or-mock` + 写入当前用户 id），页面 `onShow` 时已有会话。
 
 接真 API：`useMock` 改为 `false`，确认 `apiBaseUrl`。页面和 service **方法名**不用改；`core/request` 必须能走 `POST /api/v1/media` 的 multipart（`wx.uploadFile`，字段名 `file`），见 [progress.md](progress.md) 已知风险。
@@ -217,7 +215,9 @@
 
 ## 本地怎么对上（后端落地之后）
 
-1a 已能在本机跑 Postgres、`GET /health`、`POST /api/v1/auth/login`、`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。Alembic head 为 `0004_assistant_conversation`。小程序仍走 mock，不连这台 API。
+FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个端口。Alembic head 是 `0010_video_task`。`useMock` 为 true 时，小程序仍不调用这台 API。
+
+已经挂上的路由族：`GET /health`；`POST /api/v1/auth/login`；`GET/PATCH /api/v1/me`；`GET /api/v1/points/summary`、`GET /api/v1/points/ledger`、`POST /api/v1/points/checkin`、`POST /api/v1/points/makeup`；`POST /api/v1/media`；`/api/v1/album`；`/api/v1/community`；`/api/v1/video`；`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。积分的本地日是 Asia/Shanghai（`server/app/core/clock.py`），合同没有时区字段。视频任务扣 50 分后存成 `pending`，没有出片程序。
 
 1. Docker Compose 只跑 PostgreSQL（`pgvector/pgvector:pg16`，库 `app_pet` 与 `app_pet_test`）。
 2. FastAPI：`http://127.0.0.1:8000`，`GET /health`。
@@ -239,7 +239,7 @@
 | `JWT_EXPIRE_SECONDS` | 会话时长 | 开发可用 7 天 |
 | `WECHAT_APPID` | 小程序 AppId | 与 `project.config.json` 一致：`wxe7c6ce42979250cd` |
 | `WECHAT_SECRET` | 小程序 AppSecret | 只放环境变量或未提交文件，不进 git |
-| `MEDIA_ROOT` | 开发期本地上传目录 | 例如 `server/var/media` |
+| `MEDIA_ROOT` | 开发期本地上传目录 | `server/var/media`（相对仓库根，见「媒体」） |
 | `API_PREFIX` | 固定。Settings 声明，路由前缀在 `main.py` 写死 | `/api/v1` |
 | `EMBEDDING_BASE_URL` | 嵌入服务根地址 | 空。C 起读取；三个嵌入项都空则走假向量 |
 | `EMBEDDING_API_KEY` | 嵌入密钥 | 空，不进 git |
@@ -262,15 +262,15 @@
 1. 小程序 `wx.login` → `code`。
 2. `POST /api/v1/auth/login`，`{ "code": "..." }`。
 3. 后端用 AppId + Secret 向微信换 `openid`。`session_key` 不准下发。
-4. upsert 用户，签发 JWT；首次登录写入注册积分。
+4. upsert 用户，签发 JWT。服务端登录已经写入注册积分：每个账号一条 `注册` +100（`users` 没有积分列）。响应仍只有 `token` 和 `expires_in`。
 5. `core/auth` 存 token；之后 `core/request` 自动带上。
 
 界面先行：启动可跳过真登录，mock 成已登录，直接进首页 tab。
 
 ## 媒体
 
-- 二进制不进 PostgreSQL。库中只存 URL、宽高、mime、所属模块与资源 id。
-- 开发期：`MEDIA_ROOT`；以后换 OSS 只改内核。
+- 二进制不进 PostgreSQL。`media_object` 只存 `stored_name`、mime、宽高和上传者，不存文件字节，也没有所属模块或资源 id 列。
+- 开发期 `POST /api/v1/media` 返回 `/media/{stored_name}`。`main.py` 从 `MEDIA_ROOT` 挂这个前缀。`.env.example` 的 `server/var/media` 相对仓库根目录，uvicorn 的工作目录必须是仓库根（`--app-dir server`）。`server/var/media/` 不进 git。以后换 OSS 只改内核。
 - 界面先行：选图后用 `wx` 临时路径展示即可，services 仍当作 `image_urls: string[]`。
 
 ## 类型同步
@@ -294,6 +294,6 @@
 7. 写代码时再读 [framework/code-standards.md](framework/code-standards.md)
 8. [product/benchmark.md](product/benchmark.md)（只做表里标「有」的）
 
-改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。下一刀按 [progress.md](progress.md) 的下一步：`/me`、注册积分、media multipart。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)。小程序改动不要顺手建后端业务目录。
+改观感才打开 [miniprogram/visual.md](miniprogram/visual.md)。下一刀只看 [progress.md](progress.md)（小程序上传适配是该文件里的门）。改接口先改合同。不要每改一处就改文档。新模块 / 新页走 [framework/adding-a-module.md](framework/adding-a-module.md)。小程序改动不要顺手建后端业务目录。
 
 开发走 `/app-pet`。静态检查：`npm run typecheck`。页面改动请人在开发者工具点一下。已知延后项（media multipart、mock 单用户点赞、种子仍一份 store）见 [progress.md](progress.md)，不要当阶段 F 缺口去「顺便做掉」。

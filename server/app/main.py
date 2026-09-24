@@ -2,11 +2,13 @@ import pkgutil
 from importlib import import_module, util
 
 from fastapi import APIRouter, FastAPI
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app import modules
 from app.core.envelope import DataEnvelope
 from app.core.exceptions import register_exception_handlers
+from app.core.settings import get_settings
 
 
 class HealthData(BaseModel):
@@ -41,6 +43,9 @@ def create_app() -> FastAPI:
         return DataEnvelope(data=HealthData(ok=True))
 
     include_module_routers(app)
+    media_root = get_settings().media_root
+    media_root.mkdir(parents=True, exist_ok=True)
+    app.mount("/media", StaticFiles(directory=media_root), name="media")
     return app
 
 

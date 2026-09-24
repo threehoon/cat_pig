@@ -43,9 +43,9 @@ bash scripts/sync-claude-skills.sh
 |---|---|
 | TypeScript | **可跑** `npm run typecheck`（typescript 5.6 已是 devDependency） |
 | 页面主路径 | 只有人能在微信开发者工具打开**仓库根目录**点验。你代跑不了；需要点验时明确请用户点 |
-| 后端测试 | **可跑** `cd server && uv run pytest tests/core -q`（需本机 Postgres；切片 A 已有 `server/tests/core/`） |
+| 后端测试 | **可跑** `cd server && uv run pytest -q`（需本机 Postgres：`app_pet` 与 `app_pet_test`） |
 
-所以当前的验证手段是：小程序 `npm run typecheck`，后端 `cd server && uv run pytest tests/core -q`（需 Postgres），再读 `git diff`、逐字对照 [docs/api/contract.md](docs/api/contract.md) 的 path 与字段、走 code-standards 的提交前自查。
+所以当前的验证手段是：小程序 `npm run typecheck`，后端 `cd server && uv run pytest -q`（需本机 Postgres：`app_pet` 与 `app_pet_test`），再读 `git diff`、逐字对照 [docs/api/contract.md](docs/api/contract.md) 的 path 与字段、走 code-standards 的提交前自查。
 
 ## 交接
 
@@ -53,4 +53,4 @@ bash scripts/sync-claude-skills.sh
 
 ## 最容易踩的坑
 
-细则见 [AGENTS.md](AGENTS.md) 硬规则。高频：页面写 `wx.request`；往 `core/mock.ts` 塞产品名词（种子在 `miniprogram/mocks/store.ts`）；改字段不先改合同；离开进度点名的当前切片去扩 FastAPI。Skyline 起不来时先查本机 `project.private.config.json` 的 `libVersion` 是否盖掉了公共的 3.7.0。
+细则见 [AGENTS.md](AGENTS.md) 硬规则。高频：页面写 `wx.request`；往 `core/mock.ts` 塞产品名词（种子在 `miniprogram/mocks/store.ts`）；改字段不先改合同；做 [docs/progress.md](docs/progress.md) 点名的事，产品服务端模块已经在仓库里，不要重建，也不要超前于进度。Skyline 起不来时先查本机 `project.private.config.json` 的 `libVersion` 是否盖掉了公共的 3.7.0。

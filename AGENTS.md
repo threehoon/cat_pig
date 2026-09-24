@@ -67,4 +67,4 @@ Grok、Codex、Claude Code、Hermes 共用本文件和 `docs/`，不各写一套
 
 ## 当前阶段
 
-以 [docs/progress.md](docs/progress.md) 为准。阶段 F 页面已点验。1a 切片 A–D 已通过，`useMock` 仍为 true。关 mock 前先做 `/me`、注册积分和 media multipart，下一步只看进度。日常改代码不要改 `docs/`，用户说「整理」「总结」「更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。
+以 [docs/progress.md](docs/progress.md) 为准：阶段和下一步只看那里。`useMock` 仍为 true。日常改代码不要改 `docs/`，用户说「整理」「总结」「更新对接文档」再集中改进度和对接；**改接口仍须先改** [docs/api/contract.md](docs/api/contract.md)。
