@@ -1,3 +1,5 @@
+import uuid
+
 from app.core.db import SessionFactory
 from app.modules.assistant.embeddings import hash_embed
 from app.modules.assistant.models import KnowledgeArticle, KnowledgeChunk
@@ -99,3 +101,48 @@ async def test_archived_article_is_left_out_of_similar_chunks() -> None:
 
         assert published.id in article_ids
         assert archived.id not in article_ids
+
+
+async def test_similar_chunks_orders_ties_by_index_then_id() -> None:
+    embedding = hash_embed(ALPHA, 1024)
+    low_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+    high_id = uuid.UUID("00000000-0000-0000-0000-000000000002")
+    async with SessionFactory() as session:
+        first = make_article("first.md", "published", "First")
+        second = make_article("second.md", "published", "Second")
+        session.add_all([first, second])
+        await session.flush()
+        later = KnowledgeChunk(
+            article_id=first.id,
+            chunk_index=1,
+            text=ALPHA,
+            embedding=embedding,
+            embedding_model="hash",
+        )
+        session.add_all(
+            [
+                KnowledgeChunk(
+                    id=low_id,
+                    article_id=first.id,
+                    chunk_index=0,
+                    text=ALPHA,
+                    embedding=embedding,
+                    embedding_model="hash",
+                ),
+                KnowledgeChunk(
+                    id=high_id,
+                    article_id=second.id,
+                    chunk_index=0,
+                    text=ALPHA,
+                    embedding=embedding,
+                    embedding_model="hash",
+                ),
+                later,
+            ]
+        )
+        await session.flush()
+
+        rows = await KnowledgeRepository(session).similar_chunks(embedding)
+
+    assert [chunk.id for chunk, _distance in rows] == [low_id, high_id, later.id]
+    assert [chunk.chunk_index for chunk, _distance in rows] == [0, 0, 1]

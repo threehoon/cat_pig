@@ -33,6 +33,13 @@ def _import_module_models() -> None:
 _import_module_models()
 
 
+def require_test_database(database_url: str) -> None:
+    database = make_url(database_url).database
+    if database == "app_pet_test":
+        return
+    raise RuntimeError(f"refusing database {database}")
+
+
 get_settings.cache_clear()
 
 
@@ -65,6 +72,7 @@ async def _ensure_vector_extension() -> None:
 @pytest_asyncio.fixture(autouse=True, loop_scope="function")
 async def prepare_database() -> AsyncIterator[None]:
     get_settings.cache_clear()
+    require_test_database(get_settings().database_url)
     await _ensure_vector_extension()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

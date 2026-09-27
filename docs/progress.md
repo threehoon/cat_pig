@@ -16,7 +16,7 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：小程序仍 `useMock: true`，不打 `127.0.0.1:8000`。当前页面要的后端已经在 Postgres（库 `app_pet`，Alembic head `0010_video_task`）。下一处代码只改 `miniprogram/core/request.ts`：`POST /api/v1/media` 用 `wx.uploadFile`，字段名 `file`。这条上传落地前保持 `useMock: true`。不要在同一次改动里把 `useMock` 改成 false。不要接 LLM，不要建 `consult` / `experience`，不要加视频 worker。不要重做 `/me`、积分、相册、广场、media、视频任务的表和路由。不要回头改 `navigateTo`。
+下一对话目标：小程序仍 `useMock: true`，不打 `127.0.0.1:8000`。当前页面要的后端已经在 Postgres（库 `app_pet`，Alembic head `0010_video_task`）。助手检索与切块已入库：过线仍是余弦距离，多块时 `answer` 拼过线块；没有 LLM。下一处代码只改 `miniprogram/core/request.ts`：`POST /api/v1/media` 用 `wx.uploadFile`，字段名 `file`。这条上传落地前保持 `useMock: true`。不要在同一次改动里把 `useMock` 改成 false。不要接 LLM，不要建 `consult` / `experience`，不要加视频 worker。不要重做 `/me`、积分、相册、广场、media、视频任务的表和路由，也不要重做助手切块。不要回头改 `navigateTo`。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -28,10 +28,10 @@
 
 | 项 | 值 |
 |---|---|
-| 阶段 | F 已点验。登录、`/me`、积分、media 元数据、相册、广场、视频任务已入库。阶段 2（小程序关 mock）未开始 |
+| 阶段 | F 已点验。登录、`/me`、积分、media 元数据、相册、广场、视频任务已入库。助手检索与切块已入库。阶段 2（小程序关 mock）未开始 |
 | 状态 | 阶段 F 已完成（页面已点验，`useMock` 仍为 true）。上列后端产品模块已在库。阶段 2 未开始 |
-| 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）已接 mock，见 [product/expansion.md](product/expansion.md) |
-| 最后更新 | 2026-09-24 |
+| 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）小程序仍 mock，服务端已做距离门检索和切块，见 [product/expansion.md](product/expansion.md) |
+| 最后更新 | 2026-09-27 |
 
 ## 阶段总览
 
@@ -40,7 +40,7 @@
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
 | F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 已完成（页面已点验；`useMock` 仍为 true） |
-| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres；1a 接到 `/ask` | 已完成（1a 切片 A–D：内核、登录、知识库、`/suggestion` 与 `/ask`） |
+| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres；1a 接到 `/ask` | 已完成（1a 切片 A–D，以及其后的助手检索与切块） |
 | 1b | 当前页面的服务端：登录、`/me`、积分、media 元数据、相册、广场、视频任务 | 已入库（`app_pet` head `0010_video_task`）。小程序仍读 mock |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 服务端已在 1b；小程序切真数据未开始 |
@@ -94,11 +94,12 @@
 - 1a 切片 B：登录模块 `server/app/modules/auth/`，迁移 `0002_auth_users`。`POST /api/v1/auth/login` upsert 用户并返回 `{data:{token, expires_in}}`。`app_pet` Alembic 在 `0002_auth_users`。`users` 列：`id` uuid PK，`openid` varchar(64) unique not null，`nickname` text null，`avatar_url` text null，`created_at` timestamptz not null；无积分列。`cd server && uv run pytest tests/core tests/modules/auth -q` → 31 passed。本机 curl `{"code":"test"}` 两次均 200，JWT `sub` 相同，`expires_in` 604800，一行 `openid` `local:test`。未写注册 +100。合同未改，`useMock` 保持 true，小程序零 diff。
 - 1a 切片 C：知识库 `server/app/modules/assistant/`，当时无 HTTP，迁移 `0003_assistant_knowledge`。表 `knowledge_article`、`knowledge_chunk`。一篇种子一块，`chunk.text` 为标题加换行再加 `body`。三个嵌入配置都空，`embedding_model` 为 `hash`。ingest 连续两次后三行都是 `published`（`summer-dog-cooling.md`、`leash-walk.md`、`cat-water.md`），每行一块。HNSW 索引 `ix_knowledge_chunk_embedding` 使用 `vector_cosine_ops`。`cd server && uv run pytest tests/modules/assistant -q` → 8 passed。`cd server && uv run pytest tests/core tests/modules/auth -q` → 31 passed。合同未改，`useMock` 保持 true，小程序零 diff。
 - 1a 切片 D：`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`，迁移 `0004_assistant_conversation`（`conversation`：`id`、`user_id` → `users.id`、`created_at`）。四条推荐问题写死并内存分页。拒答词先拦。过线条件 `distance <= 1 - EMBEDDING_MIN_COSINE`（默认 0.25）：`source=knowledge`，`answer` 为 `article.body`；否则短 generated。`related_posts` 恒 `[]`。没有 LLM，没有 `search`。`app_pet` Alembic 在 `0004_assistant_conversation`。`cd server && uv run pytest -q` → 66 passed。用户 curl「夏天怎么给狗降温」为 `knowledge`，正文与降温种子一致。同机 curl「猫咪发烧该吃什么药」为拒答原文，「今天上证指数多少」为短 generated。合同未改，`useMock` 保持 true，小程序零 diff。一次性 1a 文档已删。
-- 2026-09-24：当前页面的服务端已入库，未提交。`auth` 登录；`me` 的 `GET/PATCH /api/v1/me`；`points` 的 summary、ledger、checkin、makeup；`media` 的 `POST /api/v1/media`；`album`；`community`；`video`。助手未改（无 LLM，`related_posts` 仍 `[]`）。未建 `consult` / `experience`，未加视频 worker。`app_pet` Alembic head `0010_video_task`（`0005_points_entry` → `0006_points_checkin` → `0007_media_object` → `0008_community` → `0009_album` → `0010_video_task`）。`cd server && uv run pytest -q` → 145 passed。`useMock` 仍为 true，小程序无 diff。公开缝：points 的 `award_published_post` / `award_comment` / `award_like` / `spend`；community 的 `profile_counts` / `publish_album_show`；`me` 读这些计数。
+- 2026-09-24：当前页面的服务端已入库，提交于 `0057d0c`。`auth` 登录；`me` 的 `GET/PATCH /api/v1/me`；`points` 的 summary、ledger、checkin、makeup；`media` 的 `POST /api/v1/media`；`album`；`community`；`video`。当时助手未改（无 LLM，`related_posts` 仍 `[]`）。未建 `consult` / `experience`，未加视频 worker。`app_pet` Alembic head `0010_video_task`（`0005_points_entry` → `0006_points_checkin` → `0007_media_object` → `0008_community` → `0009_album` → `0010_video_task`）。`cd server && uv run pytest -q` → 145 passed。`useMock` 仍为 true，小程序无 diff。公开缝：points 的 `award_published_post` / `award_comment` / `award_like` / `spend`；community 的 `profile_counts` / `publish_album_show`；`me` 读这些计数。
+- 2026-09-27：助手检索与切块。过线仍是 `distance <= 1 - embedding_min_cosine`（默认 0.25）。`similar_chunks` 按距离、`chunk_index`、块 id 排序，`k=8` 是块。多块过线时，`answer` 只拼排名第一块那篇文章里的过线块（`text.split("\n", 1)` 的后半段，一个 `\n` 连接）。短文结果仍等于 `article.body`。正文超过 400 字按空行切块；不超过 400 仍是一块。跳过要正文哈希、文章 `embedding_model`、块文本三项一致，否则重嵌。无新迁移，种子未改，合同未改，`useMock` 仍为 true，小程序无 diff。没有 LLM，`related_posts` 仍 `[]`。`cd server && uv run pytest -q` → 156 passed。一次性施工说明已删。够用 / 含糊 / 不行、问法改写、LLM 未做。
 
 ## 进行中
 
-- 无。未提交的服务端是上述模块和迁移（`0005_points_entry` 至 `0010_video_task`，含登录入账）。这次后端工作的小程序 diff 为空。阶段 2 未开始。
+- 无。阶段 2 未开始。
 
 ## 已知风险
 
@@ -191,6 +192,7 @@
 | 2026-09-24 | 请求里的 `pending` 存成 `published`，直到有审核模块。草稿保持草稿 | 与小程序 mock 一致。不要另建审核 |
 | 2026-09-24 | 视频 worker 不做。创建只扣 50 并插入 `pending`，`result_url` 保持空 | 阶段 3c 再出片 |
 | 2026-09-24 | 开发期 media 的 `url` 是 `/media/{stored_name}`。API 进程的 cwd 是仓库根，`MEDIA_ROOT=server/var/media` 才落到 `server/var/media` | 相对路径按进程 cwd 解析。`main.py` 用 StaticFiles 挂 `/media` |
+| 2026-09-27 | 助手这一刀只做余弦距离门和切块。多块过线时 `answer` 拼排名第一篇文章的过线块。跳过要哈希、模型名、块文本三项一致。不新增迁移 | 够用 / 含糊 / 不行、问法改写、LLM 仍按 [product/expansion.md](product/expansion.md) 另开。`useMock` 仍为 true。三篇种子重跑入库只说明跳过，切块只认 pytest |
 
 ## 未决（不阻塞阶段 F）
 

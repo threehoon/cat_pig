@@ -10,6 +10,12 @@ from app.core.db import SessionFactory
 from app.core.security import create_access_token
 from app.main import create_app
 from app.modules.assistant.ingest import SEED_DIR, ingest_directory
+from tests.modules.assistant.test_ingest import (
+    ASK_TITLE,
+    MARKER,
+    long_marker_body,
+    write_article,
+)
 
 
 COOLING_TITLE = "夏天给狗降温"
@@ -321,3 +327,31 @@ async def test_missing_conversation_is_not_found() -> None:
         "code": "NOT_FOUND",
         "message": "Conversation not found",
     }
+
+
+async def test_passing_chunks_of_top_article_are_joined(tmp_path: Path) -> None:
+    write_article(tmp_path, "long.md", ASK_TITLE, "长文摘要", long_marker_body())
+    write_article(tmp_path, "short.md", ASK_TITLE, "短文摘要", f"{MARKER}x")
+    async with SessionFactory() as session:
+        await ingest_directory(session, tmp_path)
+        await session.commit()
+
+    async with assistant_app() as client:
+        token = await login(client, "long-marker")
+        response = await ask(
+            client,
+            token,
+            {"question": MARKER, "conversation_id": None},
+        )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert set(data) == ASK_FIELDS
+    assert data["source"] == "knowledge"
+    assert data["answer"] == f"{MARKER}\n{MARKER}"
+    assert data["related_posts"] == []
+    assert [item["snippet"] for item in data["citations"]] == ["长文摘要", "短文摘要"]
+    assert [item["title"] for item in data["citations"]] == [ASK_TITLE, ASK_TITLE]
+    for item in data["citations"]:
+        assert set(item) == {"id", "title", "snippet"}
+        uuid.UUID(item["id"])

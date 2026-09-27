@@ -21,7 +21,11 @@ class KnowledgeRepository:
             select(KnowledgeChunk, distance)
             .where(KnowledgeChunk.article.has(KnowledgeArticle.status == "published"))
             .options(joinedload(KnowledgeChunk.article))
-            .order_by(distance.asc())
+            .order_by(
+                distance.asc(),
+                KnowledgeChunk.chunk_index.asc(),
+                KnowledgeChunk.id.asc(),
+            )
             .limit(k)
         )
         rows = (await self._session.execute(statement)).unique().all()
@@ -40,10 +44,7 @@ class KnowledgeRepository:
         snippet: str,
         body: str,
         content_hash: str,
-        embed_text: str,
-        embedding: list[float],
-        embedding_model: str,
-    ) -> None:
+    ) -> KnowledgeArticle:
         article = KnowledgeArticle(
             title=title,
             body=body,
@@ -51,16 +52,11 @@ class KnowledgeRepository:
             status="published",
             source_uri=source_uri,
             content_hash=content_hash,
-            embedding_model=embedding_model,
+            embedding_model="",
         )
         self._session.add(article)
         await self._session.flush()
-        await self.insert_chunk(
-            article_id=article.id,
-            embed_text=embed_text,
-            embedding=embedding,
-            embedding_model=embedding_model,
-        )
+        return article
 
     async def update_article(
         self,
@@ -70,14 +66,16 @@ class KnowledgeRepository:
         snippet: str,
         body: str,
         content_hash: str,
-        embedding_model: str,
     ) -> None:
         article.title = title
         article.snippet = snippet
         article.body = body
         article.content_hash = content_hash
-        article.embedding_model = embedding_model
         article.status = "published"
+        await self._session.flush()
+
+    async def set_embedding_model(self, article: KnowledgeArticle, embedding_model: str) -> None:
+        article.embedding_model = embedding_model
         await self._session.flush()
 
     async def delete_chunks(self, article_id: uuid.UUID) -> None:
@@ -86,10 +84,19 @@ class KnowledgeRepository:
         )
         await self._session.flush()
 
+    async def list_chunks(self, article_id: uuid.UUID) -> list[KnowledgeChunk]:
+        rows = await self._session.scalars(
+            select(KnowledgeChunk)
+            .where(KnowledgeChunk.article_id == article_id)
+            .order_by(KnowledgeChunk.chunk_index.asc())
+        )
+        return list(rows)
+
     async def insert_chunk(
         self,
         *,
         article_id: uuid.UUID,
+        chunk_index: int,
         embed_text: str,
         embedding: list[float],
         embedding_model: str,
@@ -97,7 +104,7 @@ class KnowledgeRepository:
         self._session.add(
             KnowledgeChunk(
                 article_id=article_id,
-                chunk_index=0,
+                chunk_index=chunk_index,
                 text=embed_text,
                 embedding=embedding,
                 embedding_model=embedding_model,

@@ -8,7 +8,7 @@
 
 | 英文目录 / API feature | 用户看见 | 何时 | 和谁分开 |
 |---|---|---|---|
-| `assistant` | 底栏中间「小x」，进对话页；站内 AI 助手 | mock 已接；向量库 / RAG 后接 | 对话不进广场帖 |
+| `assistant` | 底栏中间「小x」，进对话页；站内 AI 助手 | mock 已接；服务端距离门和切块已接；回答流水第 2 步起未做 | 对话不进广场帖 |
 | `consult` | 问诊（结构化症状 → 建议） | 后期 | 不是助手里的一种聊天；不是广场帖 |
 | `experience` | 用户分享养宠经验 | 后期 | 不是 `Post.board`，不是动态流的一种分类 |
 
@@ -75,7 +75,8 @@
 
 - 底栏中间 C 位「小x」→ `modules/assistant/pages/chat/chat`（tab）。广场不加入口。文案用「小x」，不用「问问」「养宠问答」。
 - 对话页：空态问候 + 推荐问题；对话气泡；来源芯片；命中说明书时挂引用；下面最多 2 条相近广场帖。
-- 阶段 F：mock 用关键词假装 `knowledge` / `search` / `generated`。不接真向量库、不接搜索工具、不搭 FastAPI、不建 `consult` / `experience`。
+- 阶段 F：mock 用关键词假装 `knowledge` / `search` / `generated`。当时不接真向量库、不接搜索工具、不建 `consult` / `experience`。
+- 服务端距离门和切块已接：过线仍是余弦距离，`answer` 由过线块拼出。回答流水第 2 步起（够用 / 含糊 / 不行、改写、LLM）未做。小程序仍 mock。进度见 [progress.md](../progress.md)。
 - 助手是站内通用问答，不限于宠物百科。回答可写「仅供参考」。开药、下诊断留给 `consult`，第一刀不做问诊表单。
 - 图生视频不占底栏，从首页四入口进创作页。
 

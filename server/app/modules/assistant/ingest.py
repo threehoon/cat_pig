@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import SessionFactory
 from app.modules.assistant.embeddings import HttpEmbedder, get_embedder
+from app.modules.assistant.models import KnowledgeArticle
 from app.modules.assistant.repository import KnowledgeRepository
 
 SEED_DIR = Path(__file__).parent / "seed"
@@ -15,6 +16,16 @@ _FRONTMATTER_END = "\n---\n"
 def content_hash(title: str, snippet: str, body: str) -> str:
     payload = f"{title}|{snippet}|{body}"
     return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def chunk_article(title: str, body: str) -> tuple[str, list[str]]:
+    normalized = body.replace("\r\n", "\n")
+    if len(normalized) <= 400:
+        segments = [normalized]
+    else:
+        segments = [part.strip() for part in normalized.split("\n\n")]
+        segments = [part for part in segments if part]
+    return normalized, [f"{title}\n{segment}" for segment in segments]
 
 
 def parse_article(raw: str) -> tuple[str, str, str]:
@@ -37,46 +48,64 @@ def parse_article(raw: str) -> tuple[str, str, str]:
     return title, snippet, body
 
 
+async def _chunks_match(
+    repository: KnowledgeRepository,
+    article: KnowledgeArticle,
+    digest: str,
+    model_name: str,
+    texts: list[str],
+) -> bool:
+    if article.content_hash != digest or article.embedding_model != model_name:
+        return False
+    stored = await repository.list_chunks(article.id)
+    return [chunk.text for chunk in stored] == texts
+
+
 async def ingest_directory(session: AsyncSession, directory: Path) -> None:
     repository = KnowledgeRepository(session)
     embedder = get_embedder()
     model_name = embedder.model if isinstance(embedder, HttpEmbedder) else "hash"
     for path in sorted(directory.glob("*.md")):
-        title, snippet, body = parse_article(path.read_text(encoding="utf-8"))
-        digest = content_hash(title, snippet, body)
+        title, snippet, raw_body = parse_article(path.read_text(encoding="utf-8"))
+        normalized, texts = chunk_article(title, raw_body)
+        digest = content_hash(title, snippet, normalized)
         existing = await repository.find_by_source_uri(path.name)
-        if existing is not None and existing.content_hash == digest:
+        if existing is not None and await _chunks_match(
+            repository,
+            existing,
+            digest,
+            model_name,
+            texts,
+        ):
             continue
-        embed_text = f"{title}\n{body}"
+        embeddings = [await embedder.embed(text) for text in texts]
         if existing is None:
-            embedding = await embedder.embed(embed_text)
-            await repository.insert_published(
+            article = await repository.insert_published(
                 source_uri=path.name,
                 title=title,
                 snippet=snippet,
-                body=body,
+                body=normalized,
                 content_hash=digest,
-                embed_text=embed_text,
+            )
+        else:
+            await repository.update_article(
+                existing,
+                title=title,
+                snippet=snippet,
+                body=normalized,
+                content_hash=digest,
+            )
+            await repository.delete_chunks(existing.id)
+            article = existing
+        for index, (text, embedding) in enumerate(zip(texts, embeddings, strict=True)):
+            await repository.insert_chunk(
+                article_id=article.id,
+                chunk_index=index,
+                embed_text=text,
                 embedding=embedding,
                 embedding_model=model_name,
             )
-            continue
-        await repository.update_article(
-            existing,
-            title=title,
-            snippet=snippet,
-            body=body,
-            content_hash=digest,
-            embedding_model=model_name,
-        )
-        await repository.delete_chunks(existing.id)
-        embedding = await embedder.embed(embed_text)
-        await repository.insert_chunk(
-            article_id=existing.id,
-            embed_text=embed_text,
-            embedding=embedding,
-            embedding_model=model_name,
-        )
+        await repository.set_embedding_model(article, model_name)
 
 
 async def _main() -> None:

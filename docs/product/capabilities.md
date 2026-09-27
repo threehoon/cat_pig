@@ -55,7 +55,7 @@ P0 主路径（必须能演示）：
 
 | 能力簇 | 要做到 | 模块目录 | 何时 |
 |---|---|---|---|
-| 站内助手 | 底栏「小x」；对话；`source` 分流；相近帖摘要 | `assistant` | mock 已接；真 RAG 按 [expansion.md](expansion.md) 回答流水 |
+| 站内助手 | 底栏「小x」；对话；`source` 分流；相近帖摘要 | `assistant` | mock 已接；服务端已做距离门检索和切块。够用 / 含糊 / 不行、改写、LLM 仍按 [expansion.md](expansion.md) 回答流水，未做 |
 | 问诊 | 结构化问诊单、建议、免责 | `consult` | 后期；需要生成时调 assistant 公开 service |
 | 养宠经验 | 用户分享经验的列表 / 详情 / 发布 | `experience` | 后期；不是广场动态分类 |
 

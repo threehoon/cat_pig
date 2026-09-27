@@ -44,7 +44,7 @@
 | `community` | 首页门户、广场动态、帖子 | 有 |
 | `video` | 图生视频任务 | 有（创作页不是 tab） |
 | `points` | 积分流水、签到 | 有 |
-| `assistant` | 站内助手「小x」；以后向量库 / RAG | 有（底栏中间 tab） |
+| `assistant` | 站内助手「小x」。服务端已做距离门检索和切块；小程序仍 mock。够用 / 含糊 / 不行、改写、LLM 未做 | 有（底栏中间 tab） |
 
 禁止再用 `pet`、`journal`、`ledger`、`reminder`、`user`、`diary`、`forum`、`plaza`、`bill`、`ai`、`rag`、`doctor` 当模块目录名。广场是 `community` 的页面，不是独立模块。任务管理是 `video` 的列表页，不是独立模块。
 
@@ -217,7 +217,7 @@
 
 FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个端口。Alembic head 是 `0010_video_task`。`useMock` 为 true 时，小程序仍不调用这台 API。
 
-已经挂上的路由族：`GET /health`；`POST /api/v1/auth/login`；`GET/PATCH /api/v1/me`；`GET /api/v1/points/summary`、`GET /api/v1/points/ledger`、`POST /api/v1/points/checkin`、`POST /api/v1/points/makeup`；`POST /api/v1/media`；`/api/v1/album`；`/api/v1/community`；`/api/v1/video`；`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。积分的本地日是 Asia/Shanghai（`server/app/core/clock.py`），合同没有时区字段。视频任务扣 50 分后存成 `pending`，没有出片程序。
+已经挂上的路由族：`GET /health`；`POST /api/v1/auth/login`；`GET/PATCH /api/v1/me`；`GET /api/v1/points/summary`、`GET /api/v1/points/ledger`、`POST /api/v1/points/checkin`、`POST /api/v1/points/makeup`；`POST /api/v1/media`；`/api/v1/album`；`/api/v1/community`；`/api/v1/video`；`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。积分的本地日是 Asia/Shanghai（`server/app/core/clock.py`），合同没有时区字段。视频任务扣 50 分后存成 `pending`，没有出片程序。`/ask` 没有 LLM，`related_posts` 仍是 `[]`；过线后按知识块拼 `answer`。小程序在 `useMock: true` 时仍不打这台 API。
 
 1. Docker Compose 只跑 PostgreSQL（`pgvector/pgvector:pg16`，库 `app_pet` 与 `app_pet_test`）。
 2. FastAPI：`http://127.0.0.1:8000`，`GET /health`。
