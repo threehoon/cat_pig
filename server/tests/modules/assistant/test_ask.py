@@ -32,8 +32,8 @@ REFUSE_ANSWER = (
 GENERATED_ANSWER = "我是小x。这是常识说明，仅供参考，不能代替专业意见。"
 SUGGESTIONS = (
     ("e1111111-1111-1111-1111-111111111111", "夏天怎么给狗降温"),
-    ("e2222222-2222-2222-2222-222222222222", "附近有没有靠谱的宠物医院"),
-    ("e3333333-3333-3333-3333-333333333333", "为什么天空是蓝的"),
+    ("e2222222-2222-2222-2222-222222222222", "出门遛狗先系好牵引绳吗"),
+    ("e3333333-3333-3333-3333-333333333333", "猫咪每天都要喝到干净的水吗"),
     ("e4444444-4444-4444-4444-444444444444", "猫咪发烧该吃什么药"),
 )
 REFUSE_WORDS = ("发烧", "吃药", "用药", "开药", "剂量", "诊断", "拉肚子", "什么药")
@@ -245,6 +245,52 @@ async def test_cooling_question_returns_seed_body(published_seeds: None) -> None
     assert citation["snippet"] == COOLING_SNIPPET
 
 
+HANDBOOK = (
+    ("夏天怎么给狗降温", "夏天给狗降温"),
+    ("出门遛狗先系好牵引绳吗", "出门给狗拴绳"),
+    ("猫咪每天都要喝到干净的水吗", "猫咪日常饮水"),
+    ("狗每天喝多少水", "狗的日常饮水"),
+    ("狗怎么喂食和换粮", "狗的喂食和换粮"),
+    ("狗多久洗一次澡", "狗的洗澡"),
+    ("狗的指甲怎么剪", "狗的指甲"),
+    ("狗独自在家要注意什么", "狗独自在家"),
+    ("狗可以留在车里吗", "狗和车"),
+    ("天冷怎么给狗保暖", "天冷给狗保暖"),
+    ("狗新到家第一周做什么", "狗新到家第一周"),
+    ("猫砂盆怎么收拾", "猫砂盆"),
+    ("猫怎么喂食", "猫怎么喂食"),
+    ("猫抓家具怎么办", "猫抓家具"),
+    ("猫在室内要注意什么", "猫的室内安全"),
+    ("猫怎么梳毛", "猫怎么梳毛"),
+    ("新来的猫第一周怎么安排", "新来的猫第一周"),
+    ("两只猫怎么相处", "两只猫相处"),
+    ("什么情况要尽快带去医院", "尽快去医院的信号"),
+    ("寄养要交代什么", "寄养要交代的事"),
+    ("宠物误食了先做什么", "误食后先做什么"),
+)
+
+
+@pytest.mark.parametrize(("question", "title"), HANDBOOK)
+async def test_spoken_question_hits_its_article(
+    published_seeds: None,
+    question: str,
+    title: str,
+) -> None:
+    async with assistant_app() as client:
+        token = await login(client, f"handbook-{question}")
+        response = await ask(
+            client,
+            token,
+            {"question": question, "conversation_id": None},
+        )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["source"] == "knowledge"
+    assert data["citations"][0]["title"] == title
+    assert data["related_posts"] == []
+
+
 @pytest.mark.parametrize(
     "question",
     ["今天上证指数多少", "附近有没有靠谱的宠物医院", "为什么天空是蓝的"],
@@ -355,3 +401,49 @@ async def test_passing_chunks_of_top_article_are_joined(tmp_path: Path) -> None:
     for item in data["citations"]:
         assert set(item) == {"id", "title", "snippet"}
         uuid.UUID(item["id"])
+
+
+class RecordingCompleter:
+    def __init__(self, answer: str) -> None:
+        self.answer = answer
+        self.questions: list[str] = []
+
+    async def complete(self, question: str) -> str:
+        self.questions.append(question)
+        return self.answer
+
+
+async def test_miss_uses_completer_text(monkeypatch: pytest.MonkeyPatch) -> None:
+    completer = RecordingCompleter("你好呀，想聊养猫还是养狗？")
+    monkeypatch.setattr("app.modules.assistant.deps.get_completer", lambda: completer)
+    async with assistant_app() as client:
+        token = await login(client, "hello-user")
+        response = await ask(
+            client,
+            token,
+            {"question": "你好", "conversation_id": None},
+        )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["source"] == "generated"
+    assert data["answer"] == completer.answer
+    assert data["citations"] == []
+    assert data["related_posts"] == []
+    assert completer.questions == ["你好"]
+
+
+async def test_refusal_does_not_call_completer(monkeypatch: pytest.MonkeyPatch) -> None:
+    completer = RecordingCompleter("不该出现")
+    monkeypatch.setattr("app.modules.assistant.deps.get_completer", lambda: completer)
+    async with assistant_app() as client:
+        token = await login(client, "refuse-model")
+        response = await ask(
+            client,
+            token,
+            {"question": "猫咪发烧该吃什么药", "conversation_id": None},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["data"]["answer"] == REFUSE_ANSWER
+    assert completer.questions == []

@@ -205,8 +205,6 @@ filter/backdrop-filter 不支持 `url()` 和 `drop-shadow()`，也**不支持多
 |------|----------|------|
 | Skyline JSON 配置 | `skyline-config` | rendererOptions 影响默认 display/flex-direction/align-items/box-sizing |
 | 组件使用 | `skyline-components` | scroll-view 替代 overflow:auto |
-| Worklet 动画 | `skyline-worklet` | transform/opacity 动画最佳实践 |
-| Skyline 概览 | `skyline-overview` | 渲染引擎概览与迁移指南 |
 
 
 ## References 目录结构

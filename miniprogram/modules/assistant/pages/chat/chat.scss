@@ -72,6 +72,10 @@ page {
   font-size: var(--font-body);
 }
 
+.bubble__text--pending {
+  color: var(--color-text-muted);
+}
+
 .bubble__source {
   margin-top: 16rpx;
   align-self: flex-start;

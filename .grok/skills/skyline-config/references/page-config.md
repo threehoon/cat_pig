@@ -65,7 +65,7 @@ Skyline 不支持页面级全局滚动，建议配置 `"disableScroll": true` �
 |------|------|--------|------|
 | backgroundColorContent | HexColor | #RRGGBBAA | 页面容器背景色 |
 
-用于设置页面容器的背景色，支持带透明度的颜色值。常用于自定义路由中设置页面透明背景：
+用于设置页面容器的背景色，支持带透明度的颜色值。页面需要透明底时写成 `#00000000`：
 
 ```json
 {
@@ -73,8 +73,6 @@ Skyline 不支持页面级全局滚动，建议配置 `"disableScroll": true` �
   "backgroundColorContent": "#00000000"
 }
 ```
-
-> 📌 透明页面背景详情请参阅：[skyline-route](../../skyline-route/SKILL.md) - 自定义路由
 
 ## renderer（页面级覆盖）
 

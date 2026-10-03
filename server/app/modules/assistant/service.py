@@ -3,6 +3,7 @@ import uuid
 from app.core.exceptions import AppError, ErrorCode
 from app.core.pagination import PageQuery
 from app.core.settings import get_settings
+from app.modules.assistant.completion import Completer
 from app.modules.assistant.embeddings import Embedder
 from app.modules.assistant.models import Conversation, KnowledgeChunk
 from app.modules.assistant.repository import ConversationRepository, KnowledgeRepository
@@ -37,10 +38,12 @@ class AssistantService:
         knowledge: KnowledgeRepository,
         conversations: ConversationRepository,
         embedder: Embedder,
+        completer: Completer,
     ) -> None:
         self._knowledge = knowledge
         self._conversations = conversations
         self._embedder = embedder
+        self._completer = completer
 
     def list_suggestions(self, page: PageQuery) -> SuggestionPage:
         start = (page.page - 1) * page.page_size
@@ -71,7 +74,8 @@ class AssistantService:
 
         passing = await self.passing_chunks(stripped)
         if not passing:
-            return self._generated(conversation, GENERATED_ANSWER)
+            answer = await self._completer.complete(stripped)
+            return self._generated(conversation, answer)
 
         citations: list[AssistantCitation] = []
         seen: set[uuid.UUID] = set()

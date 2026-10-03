@@ -25,10 +25,11 @@ This skill is shared by Grok, Codex, Claude Code and Hermes. The one real copy i
 | Task | Invoke |
 |---|---|
 | New feature / unclear UX | `grill-with-docs` then `to-spec` |
-| Page or visual UI | `frontend-design` + matching `skyline-*` |
-| List / scroll / form / swiper | `skyline-components`, `skyline-scroll-api` |
+| Page that ships | `frontend-design` + the skyline skill that matches the surface |
+| List / scroll / form / swiper / image | `skyline-components` |
 | WXSS / layout bugs | `skyline-wxss` |
 | `app.json` / page json / Skyline flags | `skyline-config` |
+| Throwaway check of a state model, before a real page | `prototype` (HTML stays outside `miniprogram/`) |
 | Mock / services / FastAPI schema | none of the UI skills; follow the contract |
 | FastAPI (phase 1+) | `fastapi` |
 | Tests | `tdd` |
@@ -42,7 +43,7 @@ This skill is shared by Grok, Codex, Claude Code and Hermes. The one real copy i
 - Units: `rpx`. Custom nav already on. Palette and illustration rules: [docs/miniprogram/visual.md](../../../docs/miniprogram/visual.md)（暖米色 + 橙色；不要在页面写死 hex）。
 - Copy: original; never the benchmark brand name or its illustration/copy.
 - Pages live in `miniprogram/modules/<feature>/pages/`. Register by **appending** `app.json` `pages`.
-- Throwaway HTML from `prototype` stays outside `miniprogram/`.
+- A page that ships is WXML. `prototype` is only for a throwaway check the user asked for; its HTML stays outside `miniprogram/`.
 
 ## Data
 

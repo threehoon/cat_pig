@@ -43,12 +43,6 @@
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
     },
-    "grill-me": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/productivity/grill-me/SKILL.md",
-      "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
-    },
     "grill-with-docs": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -91,12 +85,6 @@
       "skillPath": "skills/engineering/research/SKILL.md",
       "computedHash": "c8c1cba327a6f824b554cd978079a3dadd7406d73174f8fb9bfef58824691970"
     },
-    "resolving-merge-conflicts": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/engineering/resolving-merge-conflicts/SKILL.md",
-      "computedHash": "63b2dcadbe9124caeb3448f1378286fe18dcefb2494f60e136831b8b4986ca27"
-    },
     "setup-matt-pocock-skills": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -114,30 +102,6 @@
       "sourceType": "github",
       "skillPath": "skills/skyline-config/SKILL.md",
       "computedHash": "9e52ad2d0d10e5ffc0fff117a6adc7e829885297dd92e7d9d4599cf0bfb45a8e"
-    },
-    "skyline-overview": {
-      "source": "wechat-miniprogram/skyline-skills",
-      "sourceType": "github",
-      "skillPath": "skills/skyline-overview/SKILL.md",
-      "computedHash": "94b88b7bc42e080f1d1e2d22fa5fb811beef837804d8cfbf342162c09e738773"
-    },
-    "skyline-route": {
-      "source": "wechat-miniprogram/skyline-skills",
-      "sourceType": "github",
-      "skillPath": "skills/skyline-route/SKILL.md",
-      "computedHash": "8eb704469231b144bb8607eab37d4ec7d6d4c04d72af9d486eb0dc2c6f59ae90"
-    },
-    "skyline-scroll-api": {
-      "source": "wechat-miniprogram/skyline-skills",
-      "sourceType": "github",
-      "skillPath": "skills/skyline-scroll-api/SKILL.md",
-      "computedHash": "8a794fe67e6b7ce7e8bce6dc61434e280c0e816ab53451f4067fe57b3f0969a3"
-    },
-    "skyline-worklet": {
-      "source": "wechat-miniprogram/skyline-skills",
-      "sourceType": "github",
-      "skillPath": "skills/skyline-worklet/SKILL.md",
-      "computedHash": "0ee75be4c721756d0e9d4ff9f8a693332938352c4e5678bde8b4d80f7a8ce9fd"
     },
     "skyline-wxss": {
       "source": "wechat-miniprogram/skyline-skills",
@@ -168,12 +132,6 @@
       "sourceType": "github",
       "skillPath": "skills/engineering/triage/SKILL.md",
       "computedHash": "b954d74c219c805bf353d6642251a713c9b2e9cfdb11babfe588bcfe7dfd16d5"
-    },
-    "wait-what": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "skillPath": "skills/productivity/wait-what/SKILL.md",
-      "computedHash": "71a9a1f1773d4b1ff70a9d496db63855ef83a7fe906c72b70cdebf4815a2c4c1"
     },
     "wayfinder": {
       "source": "mattpocock/skills",

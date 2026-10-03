@@ -38,8 +38,6 @@
 }
 ```
 
-> 📌 glass-easel 迁移详情请参阅：[skyline-glass-easel](../../skyline-glass-easel/SKILL.md)
-
 ## lazyCodeLoading
 
 > 基础库 2.11.1+

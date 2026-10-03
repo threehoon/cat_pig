@@ -16,7 +16,7 @@
 
 ## 新对话请从这里开始
 
-下一对话目标：小程序仍 `useMock: true`，不打 `127.0.0.1:8000`。当前页面要的后端已经在 Postgres（库 `app_pet`，Alembic head `0010_video_task`）。助手检索与切块已入库：过线仍是余弦距离，多块时 `answer` 拼过线块；没有 LLM。下一处代码只改 `miniprogram/core/request.ts`：`POST /api/v1/media` 用 `wx.uploadFile`，字段名 `file`。这条上传落地前保持 `useMock: true`。不要在同一次改动里把 `useMock` 改成 false。不要接 LLM，不要建 `consult` / `experience`，不要加视频 worker。不要重做 `/me`、积分、相册、广场、media、视频任务的表和路由，也不要重做助手切块。不要回头改 `navigateTo`。
+下一对话目标：阶段 F 已完成，`useMock` 仍为 true。只有小x 的 `GET /api/v1/assistant/suggestion` 和 `POST /api/v1/assistant/ask` 打 `http://127.0.0.1:8000`（登录 code 固定 `xiaox-devtools`，token 在 `assistant_live_token`，不替换 mock 会话）。其余接口仍走 mock。说明书 21 篇在 `server/app/modules/assistant/seed/`。嵌入仍是哈希向量。没有问法改写，没有工具，`related_posts` 仍是 `[]`。看病用药仍是固定拒答。命中说明书仍是原文拼接。2026-10-04 已接上没命中时可选一个模型，代码在 `server/app/modules/assistant/`（`llm_config.py`、`completion.py`、`providers/xai.py`、`providers/openai_chat.py`、`deps.py` 的 `get_completer`）。合同未改。小程序未改。内核 `server/app/core/settings.py` 不记厂商名。开关 `ASSISTANT_LLM` 写在 gitignore 的 `server/.env`，`server/.env.example` 只有空值。`off` 或空：没命中仍回固定句「我是小x。这是常识说明，仅供参考，不能代替专业意见。」`xai`：官方 `POST {XAI_BASE_URL}/responses`，默认模型 `grok-4.7`，`store` false，`reasoning.effort` low；变量 `XAI_API_KEY`、`XAI_BASE_URL`、`XAI_MODEL`。`openai`：OpenAI 兼容 `POST {OPENAI_BASE_URL}/chat/completions`，官方 OpenAI 和中转站都走这一档，地址按对方文档写成 `https://主机/v1`；变量 `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`OPENAI_MODEL`。密钥只用 `SecretStr`。日志和接口错误不回密钥、不回上游正文。选了 `xai` 或 `openai` 但密钥、地址或模型为空：不发请求，接口 502，`message` 为「请稍后再试」，日志写缺少密钥或缺少地址或缺少模型。本机当前 `ASSISTANT_LLM=off`，`XAI_API_KEY` 为空。`127.0.0.1:8000` 上的 uvicorn 是改代码之前启动的（无 `--reload`），新代码要重启才生效。用户正在自己申请 xAI 官方密钥。`https://console.x.ai/team/default/api-keys` 会报错，因为团队是 three's team，没有 default。正确入口是打开 `https://console.x.ai`，确认团队是 three's team，从侧边栏进 API Keys。用户把密钥发来后：只写入 `server/.env` 的 `XAI_API_KEY`，把 `ASSISTANT_LLM` 设为 `xai`，在仓库根目录重启 uvicorn（`app.main:app --host 127.0.0.1 --port 8000 --app-dir server`）。回复里不要复述密钥。然后请用户在微信开发者工具（打开仓库根目录）给小x发「你好」。密钥写入并重启之前，页面上仍是那句固定说明。不要关 `useMock`。不要接 `consult` / `experience`。不要做视频 worker。不要重做检索切块。以后换不兼容协议时，只在 assistant 模块加一个适配文件并给 `ASSISTANT_LLM` 加一个取值。`cd server && uv run pytest -q` 为 227 passed。`npm run typecheck` 通过。这些改动还没提交。
 
 日常改代码**不要改** `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 [handoff.md](handoff.md)。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
@@ -28,10 +28,10 @@
 
 | 项 | 值 |
 |---|---|
-| 阶段 | F 已点验。登录、`/me`、积分、media 元数据、相册、广场、视频任务已入库。助手检索与切块已入库。阶段 2（小程序关 mock）未开始 |
-| 状态 | 阶段 F 已完成（页面已点验，`useMock` 仍为 true）。上列后端产品模块已在库。阶段 2 未开始 |
-| 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）小程序仍 mock，服务端已做距离门检索和切块，见 [product/expansion.md](product/expansion.md) |
-| 最后更新 | 2026-09-27 |
+| 阶段 | F 已完成。登录、`/me`、积分、media 元数据、相册、广场、视频任务已入库。助手检索、切块、没命中时的可选模型已写完（还没提交）。本机 `ASSISTANT_LLM=off`。阶段 2（小程序关 mock）未开始 |
+| 状态 | 阶段 F 已完成（页面已点验，`useMock` 仍为 true）。上列后端产品模块已在库。可选模型已测过，本机未开、进程未重启。阶段 2 未开始 |
+| 产品功能 | 对标「萌爪日记」同类：相册、图生视频、广场、积分；自身加的助手 `assistant`（底栏「小x」）suggestion 和 ask 打本机 API，其余页面仍 mock。说明书 21 篇，哈希嵌入，没命中可选模型。范围见 [product/expansion.md](product/expansion.md)；开关以本文件 2026-10-04 为准 |
+| 最后更新 | 2026-10-04 |
 
 ## 阶段总览
 
@@ -40,7 +40,7 @@
 | 0 | 锁定技术栈、仓库骨架、模块边界、文档体系 | 已完成 |
 | 0b | 产品改向：内容小程序（相册 / 视频 / 广场 / 积分） | 已完成（文档） |
 | F | 前端界面先行：core 空壳 + P0/P1 页面 + mock，微信开发者工具可点可跳 | 已完成（页面已点验；`useMock` 仍为 true） |
-| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres；1a 接到 `/ask` | 已完成（1a 切片 A–D，以及其后的助手检索与切块） |
+| 1 | 后端内核：FastAPI 启动、配置、DB 会话、健康检查 + Docker Postgres；1a 接到 `/ask` | 已完成（1a 切片 A–D，以及其后的助手检索与切块）。没命中时的可选模型已测过，还没提交 |
 | 1b | 当前页面的服务端：登录、`/me`、积分、media 元数据、相册、广场、视频任务 | 已入库（`app_pet` head `0010_video_task`）。小程序仍读 mock |
 | 2 | 小程序 `core/request` 切到真 API，关掉 `useMock` | 未开始 |
 | 3 | P0 接真数据：登录 → 相册 → 广场发帖 | 服务端已在 1b；小程序切真数据未开始 |
@@ -96,10 +96,13 @@
 - 1a 切片 D：`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`，迁移 `0004_assistant_conversation`（`conversation`：`id`、`user_id` → `users.id`、`created_at`）。四条推荐问题写死并内存分页。拒答词先拦。过线条件 `distance <= 1 - EMBEDDING_MIN_COSINE`（默认 0.25）：`source=knowledge`，`answer` 为 `article.body`；否则短 generated。`related_posts` 恒 `[]`。没有 LLM，没有 `search`。`app_pet` Alembic 在 `0004_assistant_conversation`。`cd server && uv run pytest -q` → 66 passed。用户 curl「夏天怎么给狗降温」为 `knowledge`，正文与降温种子一致。同机 curl「猫咪发烧该吃什么药」为拒答原文，「今天上证指数多少」为短 generated。合同未改，`useMock` 保持 true，小程序零 diff。一次性 1a 文档已删。
 - 2026-09-24：当前页面的服务端已入库，提交于 `0057d0c`。`auth` 登录；`me` 的 `GET/PATCH /api/v1/me`；`points` 的 summary、ledger、checkin、makeup；`media` 的 `POST /api/v1/media`；`album`；`community`；`video`。当时助手未改（无 LLM，`related_posts` 仍 `[]`）。未建 `consult` / `experience`，未加视频 worker。`app_pet` Alembic head `0010_video_task`（`0005_points_entry` → `0006_points_checkin` → `0007_media_object` → `0008_community` → `0009_album` → `0010_video_task`）。`cd server && uv run pytest -q` → 145 passed。`useMock` 仍为 true，小程序无 diff。公开缝：points 的 `award_published_post` / `award_comment` / `award_like` / `spend`；community 的 `profile_counts` / `publish_album_show`；`me` 读这些计数。
 - 2026-09-27：助手检索与切块。过线仍是 `distance <= 1 - embedding_min_cosine`（默认 0.25）。`similar_chunks` 按距离、`chunk_index`、块 id 排序，`k=8` 是块。多块过线时，`answer` 只拼排名第一块那篇文章里的过线块（`text.split("\n", 1)` 的后半段，一个 `\n` 连接）。短文结果仍等于 `article.body`。正文超过 400 字按空行切块；不超过 400 仍是一块。跳过要正文哈希、文章 `embedding_model`、块文本三项一致，否则重嵌。无新迁移，种子未改，合同未改，`useMock` 仍为 true，小程序无 diff。没有 LLM，`related_posts` 仍 `[]`。`cd server && uv run pytest -q` → 156 passed。一次性施工说明已删。够用 / 含糊 / 不行、问法改写、LLM 未做。
+- 2026-09-28：助手说明书扩到 21 篇（`server/app/modules/assistant/seed/`）。`useMock` 仍为 true；只有小x 的 suggestion 和 ask 打 `127.0.0.1:8000`。嵌入仍是哈希。没有 LLM，`related_posts` 仍 `[]`。合同未改。`cd server && uv run pytest -q` → 211 passed。`npm run typecheck` 通过。本机 curl：降温与「狗每天喝多少水」为 knowledge，发烧为拒答，「附近有没有靠谱的宠物医院」为短 generated。
+- 2026-10-04：项目 skill 从 33 个收到 26 个。唯一副本仍是 `.grok/skills/`。拿掉 `grill-me`、`wait-what`、`resolving-merge-conflicts`、`skyline-overview`、`skyline-worklet`、`skyline-route`、`skyline-scroll-api`。清单在 [framework/skills.md](framework/skills.md)。
+- 2026-10-04：没命中说明书时可选一个模型。代码在 `server/app/modules/assistant/`（`llm_config.py`、`completion.py`、`providers/xai.py`、`providers/openai_chat.py`、`deps.py` 的 `get_completer`）。内核 `server/app/core/settings.py` 不记厂商名。开关 `ASSISTANT_LLM` 在 gitignore 的 `server/.env`；`server/.env.example` 只有空值。`off` 或空仍回固定句「我是小x。这是常识说明，仅供参考，不能代替专业意见。」`xai` 为官方 `POST {XAI_BASE_URL}/responses`，默认模型 `grok-4.7`，`store` false，`reasoning.effort` low（`XAI_API_KEY`、`XAI_BASE_URL`、`XAI_MODEL`）。`openai` 为 OpenAI 兼容 `POST {OPENAI_BASE_URL}/chat/completions`，官方和中转站同一档，地址写成 `https://主机/v1`（`OPENAI_API_KEY`、`OPENAI_BASE_URL`、`OPENAI_MODEL`）。密钥只用 `SecretStr`。日志和接口错误不回密钥、不回上游正文。选了 `xai` 或 `openai` 但密钥、地址或模型为空：不发请求，接口 502，`message`「请稍后再试」，日志写缺少密钥或缺少地址或缺少模型。合同未改，小程序未改。`useMock` 仍为 true。没有问法改写，没有工具，`related_posts` 仍 `[]`。看病用药仍是固定拒答。命中仍是原文拼接。说明书仍 21 篇，嵌入仍是哈希。本机 `ASSISTANT_LLM=off`，`XAI_API_KEY` 为空；`127.0.0.1:8000` 的 uvicorn 无 `--reload`，新代码要重启才生效。`cd server && uv run pytest -q` → 227 passed。`npm run typecheck` 通过。还没提交。
 
 ## 进行中
 
-- 无。阶段 2 未开始。
+- 没命中时的可选模型已写完并测过，还没提交。本机 `ASSISTANT_LLM=off`，`XAI_API_KEY` 为空；`127.0.0.1:8000` 的 uvicorn 无 `--reload`，要重启才生效。阶段 2 未开始。
 
 ## 已知风险
 
@@ -107,7 +110,7 @@
 
 | 项 | 状态 | 何时处理 |
 |---|---|---|
-| `POST /api/v1/media` | 服务端已收 `file`，字节在 `settings.media_root`，`url` 为 `/media/{stored_name}`。缺口只剩 `miniprogram/core/request.ts` 的 `wx.uploadFile`。没有这条之前不能把 `useMock` 改成 false | 下一处代码。同一次改动不要关 mock |
+| `POST /api/v1/media` | 服务端已收 `file`，字节在 `settings.media_root`，`url` 为 `/media/{stored_name}`。缺口只剩 `miniprogram/core/request.ts` 的 `wx.uploadFile`。没有这条之前不能把 `useMock` 改成 false | 关 `useMock` 之前。同一次改动不要关 mock |
 | 点赞 / 收藏 / 关注 | 服务端是每用户一行。小程序 mock 的点赞和收藏仍是帖子上的一个共享布尔 | 关 `useMock` 时以服务端为准。这个 mock 限制还在 |
 | 发帖 `pending` | 创建，或草稿改为 `pending`，存成 `published`，并只调用一次 `award_published_post`。草稿保持草稿。没有审核模块 | 有审核模块之前保持这样，与 mock 一致 |
 | 视频任务不出片 | 创建扣 50（标题 `图生视频`），`video_task.status` 为 `pending`，`result_url` 为空。没有 worker，没有外部渲染 | 阶段 3c。现在不要加 worker |
@@ -117,10 +120,12 @@
 
 ## 下一步（给新对话，按此顺序）
 
-1. 只改 `miniprogram/core/request.ts`：`POST /api/v1/media` 走 `wx.uploadFile`，字段名 `file`。字段以 [api/contract.md](api/contract.md) 为准。这次保持 `useMock: true`。
-2. 上传路径单独落地之后，再另一次改动关掉 `useMock`。不要和上传写在同一次改动里。
-3. 不要接 LLM。不要建 `consult` / `experience`。不要加视频 worker。不要重做 `/me`、积分、相册、广场、media、视频任务的表和路由。
-4. 日常改代码不要改本文件。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
+1. 等用户把 xAI 官方密钥发来。还没到时，入口是打开 `https://console.x.ai`，确认团队是 three's team，从侧边栏进 API Keys。不要打开 `https://console.x.ai/team/default/api-keys`（没有名为 default 的团队，会报错）。
+2. 密钥发来后，只写入 `server/.env` 的 `XAI_API_KEY`，把 `ASSISTANT_LLM` 设为 `xai`。回复里不要复述密钥。`server/.env` 已 gitignore。
+3. 在仓库根目录重启 uvicorn：`app.main:app --host 127.0.0.1 --port 8000 --app-dir server`。现进程无 `--reload`。不重启则页面仍是固定句「我是小x。这是常识说明，仅供参考，不能代替专业意见。」
+4. 然后请用户在微信开发者工具（打开仓库根目录）给小x发「你好」。
+5. 不要关 `useMock`。不要接 `consult` / `experience`。不要做视频 worker。不要重做检索切块。以后换不兼容协议时，只在 `server/app/modules/assistant/` 加一个适配文件，并给 `ASSISTANT_LLM` 加一个取值。
+6. 日常改代码不要改本文件。用户说整理 / 总结 / 更新对接文档再改本文件和 handoff。**改接口仍须先改** [api/contract.md](api/contract.md)。
 
 写后端时：router/schema 必须对同一份 [api/contract.md](api/contract.md)，禁止另起字段名。
 
@@ -192,7 +197,9 @@
 | 2026-09-24 | 请求里的 `pending` 存成 `published`，直到有审核模块。草稿保持草稿 | 与小程序 mock 一致。不要另建审核 |
 | 2026-09-24 | 视频 worker 不做。创建只扣 50 并插入 `pending`，`result_url` 保持空 | 阶段 3c 再出片 |
 | 2026-09-24 | 开发期 media 的 `url` 是 `/media/{stored_name}`。API 进程的 cwd 是仓库根，`MEDIA_ROOT=server/var/media` 才落到 `server/var/media` | 相对路径按进程 cwd 解析。`main.py` 用 StaticFiles 挂 `/media` |
-| 2026-09-27 | 助手这一刀只做余弦距离门和切块。多块过线时 `answer` 拼排名第一篇文章的过线块。跳过要哈希、模型名、块文本三项一致。不新增迁移 | 够用 / 含糊 / 不行、问法改写、LLM 仍按 [product/expansion.md](product/expansion.md) 另开。`useMock` 仍为 true。三篇种子重跑入库只说明跳过，切块只认 pytest |
+| 2026-09-27 | 助手这一刀只做余弦距离门和切块。多块过线时 `answer` 拼排名第一篇文章的过线块。跳过要哈希、模型名、块文本三项一致。不新增迁移 | 够用 / 含糊 / 不行、问法改写、LLM 仍按 [product/expansion.md](product/expansion.md) 另开。`useMock` 仍为 true。三篇种子重跑入库只说明跳过，切块只认 pytest。**没命中可选模型已被 2026-10-04 覆盖**；问法改写和工具仍不做 |
+| 2026-10-04 | 项目 skill 以 mattpocock 工程流程为主，辅助只留这份小程序用得到的 | 拿掉与 `/grill-with-docs` 重复的 `grill-me`、不参与做功能的 `wait-what`、上游已删除的 `resolving-merge-conflicts`，以及用不上的 `skyline-overview` / `skyline-worklet` / `skyline-route` / `skyline-scroll-api`。四个 CLI 仍读 `.grok/skills/` 这一份。清单 [framework/skills.md](framework/skills.md) |
+| 2026-10-04 | 没命中说明书才可选模型。开关 `ASSISTANT_LLM`（gitignore 的 `server/.env`；`.env.example` 只有空值）：`off` 或空为固定句；`xai` 走官方 `POST {XAI_BASE_URL}/responses`（默认 `grok-4.7`，`store` false，`reasoning.effort` low）；`openai` 走 OpenAI 兼容 `POST {OPENAI_BASE_URL}/chat/completions`，官方和中转站同一档，地址写成 `https://主机/v1`。密钥只用 `SecretStr`，不进仓库、不进日志、不进接口错误。厂商名不进 `server/app/core/settings.py`。空密钥、空地址或空模型不发请求，接口 502，`message`「请稍后再试」。合同未改，小程序未改。换不兼容协议时只在 assistant 模块加一个适配文件，并给 `ASSISTANT_LLM` 加一个取值 | 密钥留在服务端，换模型或中转站只动助手模块。这只覆盖「不要接 LLM」；问法改写、工具、`consult` / `experience` 仍不做。命中仍是原文拼接，看病用药仍是固定拒答。本机仍是 `off`、密钥为空，`127.0.0.1:8000` 无 `--reload`，要重启才生效。还没提交 |
 
 ## 未决（不阻塞阶段 F）
 

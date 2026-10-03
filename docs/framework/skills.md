@@ -4,7 +4,7 @@
 
 开发本产品时先走 **`/app-pet`**。其它 skill 是它点名才加载的同伴，不是第二套规范。规范正文仍在 `docs/`，skill 只负责触发和约束输出形态。
 
-安装来源记在仓库根目录 `skills-lock.json`。更新第三方 skill：`npx skills update`，更新完按下表重新接一次 Claude Code。
+安装来源记在仓库根目录 `skills-lock.json`。更新第三方 skill：`npx skills update`，更新完按下表重新接一次 Claude Code。`ask-matt`、`skyline-components`、`skyline-wxss`、`skyline-config` 的正文里有本仓库的裁剪说明（相关技能只指向还装着的名字）。更新会用上游覆盖这几处，覆盖后对照本文件「明确不装」再改回来。
 
 ## 各 CLI 怎么接上同一份
 
@@ -30,7 +30,7 @@ Claude Code 的会话入口与专属机制在根目录 [CLAUDE.md](../../CLAUDE.
 | 按 spec / 票实现 | `/implement` |
 | 先写失败测试再写实现 | `/tdd` |
 | 页面观感 | `/frontend-design`（输出必须是 WXML + Sass，见 `/app-pet`） |
-| Skyline 组件 / 样式 / 配置 | `/skyline-components` `/skyline-wxss` `/skyline-config` 等 |
+| Skyline 列表、轮播、表单、样式、配置 | `/skyline-components` `/skyline-wxss` `/skyline-config` |
 | 阶段 1 以后写 FastAPI | `/fastapi` |
 | 不知道该调哪个流程 | `/ask-matt` |
 
@@ -46,17 +46,23 @@ mattpocock 工程 skill 第一次在本仓库落地前，需要跑一次 **`/set
 
 ### 小程序 / 界面 / 后端
 
+辅助 skill。只留这份小程序真正会碰到的。
+
 | Skill | 来源 |
 |---|---|
 | `frontend-design` | Anthropic |
-| `skyline-overview` `skyline-config` `skyline-components` `skyline-wxss` `skyline-worklet` `skyline-route` `skyline-scroll-api` | 微信官方 `wechat-miniprogram/skyline-skills` |
+| `skyline-components` `skyline-wxss` `skyline-config` | 微信官方 `wechat-miniprogram/skyline-skills` |
 | `fastapi` | FastAPI 官方 |
 
-### 工程流程（mattpocock/skills，已筛选）
+### 工程流程（mattpocock/skills）
 
-`setup-matt-pocock-skills` `ask-matt` `grill-me` `grilling` `grill-with-docs` `to-spec` `to-tickets` `implement` `tdd` `diagnosing-bugs` `codebase-design` `code-review` `domain-modeling` `prototype` `improve-codebase-architecture` `wayfinder` `research` `resolving-merge-conflicts` `writing-for-agents` `handoff` `wait-what` `triage` `wizard`
+主流程：`/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement`（内部走 `/tdd`，收尾 `/code-review`）。
 
-未装（和本仓库无关或会抢上下文）：`teach` `to-questionnaire`、写作三件套、`setup-ts-deep-modules`、`git-guardrails-claude-code`、`migrate-to-shoehorn`、`setup-pre-commit`、`scaffold-exercises`、`claude-handoff`、`implement-spec`、`loop-me`、`retro`。
+你打斜杠才进来：`setup-matt-pocock-skills` `ask-matt` `grill-with-docs` `to-spec` `to-tickets` `implement` `triage` `improve-codebase-architecture` `wayfinder` `handoff`
+
+模型也可以自己调用，或被上面的流程拉进来：`grilling` `domain-modeling` `tdd` `code-review` `codebase-design` `diagnosing-bugs` `prototype` `research` `wizard` `writing-for-agents`
+
+`grilling` 和 `domain-modeling` 不是第二套追问。`/grill-with-docs` 会同时调用它们：一个负责把问题问完，一个负责把术语写进 glossary / ADR。`/triage`、`/wayfinder`、`/improve-codebase-architecture` 也会调用 `grilling`。
 
 ## 重名
 
@@ -69,6 +75,17 @@ mattpocock 工程 skill 第一次在本仓库落地前，需要跑一次 **`/set
 
 ## 明确不装
 
+从已装清单里拿掉的：
+
+- `grill-me`：和 `/grill-with-docs` 是同一套追问，但不记术语。本仓库始终在工作目录里，只留会写术语的那一个。
+- `wait-what`：把上一句换种说法重讲，不参与做功能。
+- `resolving-merge-conflicts`：上游 [mattpocock/skills](https://github.com/mattpocock/skills) 已经删除。
+- `skyline-overview`：项目已经在 Skyline 上，迁移介绍不再占每次会话的描述。
+- `skyline-worklet`、`skyline-route`、`skyline-scroll-api`：仓库里没有 worklet 动画、自定义路由、程序化滚动。列表滚动写在 `skyline-components`。以后真要做手势动画或自定义转场，再从 `wechat-miniprogram/skyline-skills` 装回对应的一个。
+
+一直不装：
+
 - 腾讯云开发整包（本仓库不做微信云开发当主后端）
 - `ui-ux-pro-max`（与 `frontend-design` 叠装；安全扫描有 Fail）
 - React / Next / Prisma / Supabase 专用 skill
+- 上游有、和本仓库无关或会抢上下文：`teach` `to-questionnaire`、写作三件套、`setup-ts-deep-modules`、`git-guardrails-claude-code`、`migrate-to-shoehorn`、`setup-pre-commit`、`scaffold-exercises`、`claude-handoff`、`implement-spec`、`loop-me`、`retro`、`pr`

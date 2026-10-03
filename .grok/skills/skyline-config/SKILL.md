@@ -167,10 +167,7 @@ description: Skyline 小程序 JSON 配置规范技能。涵盖 app.json 全局�
 | 场景 | 推荐技能 | 说明 |
 |------|----------|------|
 | WXSS 样式兼容 | `skyline-wxss` | rendererOptions 影响的默认值详解（display/flex-direction/align-items/box-sizing） |
-| glass-easel 框架 | `skyline-glass-easel` | componentFramework 详细迁移指南 |
-| Skyline 概览与迁移 | `skyline-overview` | 渲染引擎概览、迁移步骤 |
 | 组件使用 | `skyline-components` | scroll-view 等组件配置 |
-| 路由配置 | `skyline-route` | 自定义路由与页面转场 |
 
 
 ## References 目录结构

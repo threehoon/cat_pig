@@ -1,6 +1,7 @@
 import { getToken } from './session'
 import { config } from './config'
 import { handleMock } from './mock'
+import { clearLiveToken, ensureLiveToken, isAssistantLivePath } from './live-session'
 
 export type ListResult<T> = {
   items: T[]
@@ -52,16 +53,7 @@ export function toastRequestError(err: unknown): void {
   wx.showToast({ title: error.message || error.code || '失败', icon: 'none' })
 }
 
-export function request<T>(options: RequestOptions): Promise<T> {
-  if (config.useMock) {
-    const result = handleMock(options)
-    if (result.error) {
-      return rejectError(result.error.code, result.error.message)
-    }
-    return Promise.resolve(result.data as T)
-  }
-
-  const token = getToken()
+function send<T>(options: RequestOptions, token: string | null, retryLive: boolean): Promise<T> {
   const header: Record<string, string> = {
     'Content-Type': 'application/json',
   }
@@ -77,6 +69,16 @@ export function request<T>(options: RequestOptions): Promise<T> {
       header,
       success(res) {
         const body = res.data as { data?: T; error?: RequestError }
+        const unauthorized =
+          res.statusCode === 401 || (body && body.error && body.error.code === 'UNAUTHORIZED')
+        if (retryLive && unauthorized) {
+          clearLiveToken()
+          ensureLiveToken()
+            .then((next) => send<T>(options, next, false))
+            .then(resolve)
+            .catch(reject)
+          return
+        }
         if (body && body.error) {
           reject({ code: body.error.code, message: body.error.message })
           return
@@ -92,4 +94,18 @@ export function request<T>(options: RequestOptions): Promise<T> {
       },
     })
   })
+}
+
+export function request<T>(options: RequestOptions): Promise<T> {
+  if (config.useMock && isAssistantLivePath(options.method, options.path)) {
+    return ensureLiveToken().then((token) => send<T>(options, token, true))
+  }
+  if (config.useMock) {
+    const result = handleMock(options)
+    if (result.error) {
+      return rejectError(result.error.code, result.error.message)
+    }
+    return Promise.resolve(result.data as T)
+  }
+  return send<T>(options, getToken(), false)
 }

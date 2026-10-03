@@ -101,7 +101,7 @@ Page({
       inputFocus: false,
       seq,
       messages: this.data.messages.concat([user]),
-      scrollInto: `m-${userId}`,
+      scrollInto: 'm-pending',
     })
     askAssistant(question, this.data.conversationId)
       .then((ask) => {

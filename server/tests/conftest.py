@@ -15,9 +15,15 @@ from app import modules
 os.environ["DATABASE_URL"] = (
     "postgresql+asyncpg://app_pet:app_pet@127.0.0.1:5432/app_pet_test"
 )
+os.environ["ASSISTANT_LLM"] = "off"
+os.environ["XAI_API_KEY"] = ""
+os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENAI_BASE_URL"] = ""
+os.environ["OPENAI_MODEL"] = ""
 
 from app.core.db import Base, engine  # noqa: E402
 from app.core.settings import get_settings  # noqa: E402
+from app.modules.assistant.llm_config import get_llm_config  # noqa: E402
 
 
 def _import_module_models() -> None:
@@ -47,6 +53,7 @@ get_settings.cache_clear()
 def clear_settings_cache() -> None:
     yield
     get_settings.cache_clear()
+    get_llm_config.cache_clear()
 
 
 async def _ensure_vector_extension() -> None:
@@ -72,6 +79,7 @@ async def _ensure_vector_extension() -> None:
 @pytest_asyncio.fixture(autouse=True, loop_scope="function")
 async def prepare_database() -> AsyncIterator[None]:
     get_settings.cache_clear()
+    get_llm_config.cache_clear()
     require_test_database(get_settings().database_url)
     await _ensure_vector_extension()
     async with engine.begin() as conn:
@@ -82,3 +90,4 @@ async def prepare_database() -> AsyncIterator[None]:
         await conn.execute(text(f"TRUNCATE TABLE {names} CASCADE"))
     await engine.dispose()
     get_settings.cache_clear()
+    get_llm_config.cache_clear()
