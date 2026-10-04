@@ -2,13 +2,13 @@
 
 对标截图里没有这些。已批准要做，但**不是现在的主路径**。对标仍以 [benchmark.md](benchmark.md) 上表为准；这三块的模块边界、预约名、产品接口只认本文件。
 
-阶段 F 已接「小x」的页面和 mock。真向量库、问诊、养宠经验仍等各自开工。回答流水没有做完；没命中时的 generated 可以切到一个模型，默认关闭。**不预建 `consult` / `experience` 空目录。**
+阶段 F 已接「小x」的页面和 mock。真向量库、问诊、养宠经验仍等各自开工。回答流水没有做完；没命中且不是拒答时走服务端补全，开关见 [handoff.md](../handoff.md)。**不预建 `consult` / `experience` 空目录。**
 
 ## 三块三模块
 
 | 英文目录 / API feature | 用户看见 | 何时 | 和谁分开 |
 |---|---|---|---|
-| `assistant` | 底栏中间「小x」，进对话页；站内 AI 助手 | mock 已接；服务端距离门和切块已接；第 2 步三档、改写、工具仍未做；没命中时的 generated 已能切到一个模型，默认关闭 | 对话不进广场帖 |
+| `assistant` | 底栏中间「小x」，进对话页；站内 AI 助手 | mock 已接；服务端距离门和切块已接；第 2 步三档、改写、工具仍未做；没命中且不是拒答时走服务端补全，当前取值见 [handoff.md](../handoff.md) | 对话不进广场帖 |
 | `consult` | 问诊（结构化症状 → 建议） | 后期 | 不是助手里的一种聊天；不是广场帖 |
 | `experience` | 用户分享养宠经验 | 后期 | 不是 `Post.board`，不是动态流的一种分类 |
 
@@ -59,7 +59,7 @@
 
 问诊若要生成文字，只调助手这一条流水，不另接一套模型。
 
-上面是要做成的流水，现在没有做完。小程序仍只 `POST /api/v1/assistant/ask`，用户只看到一条回答。合同字段未改。`source` 仍是 `knowledge` / `search` / `generated`。看病用药在检索前固定拒答，`source` 仍为 `generated`（不新增第四档）。命中说明书（余弦距离门过线）仍把过线块拼成 `answer`，`source = knowledge`，不用模型润色。第 2 步三档、问法改写、工具调用、联网搜索未做；`related_posts` 仍是 `[]`。没命中、且不是拒答时，`generated` 已能切到一个模型，默认关闭。`ASSISTANT_LLM` 为 `off` 或未配时仍是固定短句「我是小x。这是常识说明，仅供参考，不能代替专业意见。」
+上面是要做成的流水，现在没有做完。小程序仍只 `POST /api/v1/assistant/ask`，用户只看到一条回答。合同字段未改。`source` 仍是 `knowledge` / `search` / `generated`。看病用药在检索前固定拒答，`source` 仍为 `generated`（不新增第四档）。余弦距离门过线的块仍拼成说明书正文，`source = knowledge`，不调模型。第 2 步三档、问法改写、工具都未做，运行时不会走出 `search`。`related_posts` 仍是 `[]`。没命中、且不是拒答时才走补全。`ASSISTANT_LLM` 为 `off` 或未配时仍是固定短句「我是小x。这是常识说明，仅供参考，不能代替专业意见。」当前取值、地址和进程见 [handoff.md](../handoff.md)。说明书 21 篇，嵌入是哈希；现有种子正文都不超过 400 字，所以一篇一块。`knowledge_answer` 仍只拼排名第一篇文章里的过线块；以这批种子来说，那就是整篇。
 
 ### consult（后期）
 
@@ -76,8 +76,8 @@
 - 底栏中间 C 位「小x」→ `modules/assistant/pages/chat/chat`（tab）。广场不加入口。文案用「小x」，不用「问问」「养宠问答」。
 - 对话页：空态问候 + 推荐问题；对话气泡；来源芯片；命中说明书时挂引用；下面最多 2 条相近广场帖（接口里 `related_posts` 仍是 `[]`）。
 - 阶段 F：mock 用关键词假装 `knowledge` / `search` / `generated`。当时不接真向量库、不接搜索工具、不建 `consult` / `experience`。
-- 服务端距离门和切块已接：过线仍是余弦距离，`answer` 由过线块拼出。第 2 步三档、改写、工具仍未做；没命中时的 generated 已能切到一个模型，默认关闭。小程序的 suggestion 和 ask 打本机 API，其余仍 mock。进度见 [progress.md](../progress.md)。
-- 唯一步已接上的模型行为：检索没有过线块、且不是拒答时，可以由一个模型写 `generated` 回答。开关是服务端 `ASSISTANT_LLM`（`off` | `xai` | `openai`），只活在 `assistant` 模块。小程序不接模型。`off` 或未配时仍是固定短句「我是小x。这是常识说明，仅供参考，不能代替专业意见。」`xai` 走官方 Responses API。`openai` 走 OpenAI 兼容 `chat/completions`，中转站和官方兼容接口都用这一档。密钥只在 `server/.env`。选了提供方但密钥、地址或模型为空时，接口回「请稍后再试」，不假装已经答了。当前本机 `ASSISTANT_LLM=off`，开发者工具里仍会看到那句固定说明，直到密钥写入并重启 API。
+- 服务端距离门和切块已接：过线仍是余弦距离，`answer` 由过线块拼出，不调模型。第 2 步三档、改写、工具仍未做。没命中且不是拒答才走补全。小程序的 suggestion 和 ask 打本机 API，进程不在听就打不出去，其余仍 mock。开关和启动见 [handoff.md](../handoff.md)。
+- 唯一步已接上的模型行为：检索没有过线块、且不是拒答时，由补全写 `generated`。过线直接回说明书正文，不调模型。看病用药在检索前就固定拒答，到不了补全。开关是服务端 `ASSISTANT_LLM`（`off` | `xai` | `openai`），只活在 `assistant` 模块。小程序不选模型、不持密钥。`off` 或未配时仍是上面那句固定短句。`xai` 仍是官方 Responses API，不是当前取值。`openai` 走 OpenAI 兼容 `chat/completions`。取值、地址、模型名、超时和启动命令只写在 [handoff.md](../handoff.md)。密钥只在 gitignore 的 `server/.env`。选了提供方但密钥、地址或模型为空时，接口回「请稍后再试」，不假装已经答了。
 - 助手是站内通用问答，不限于宠物百科。界面上的「仅供参考」芯片还在；回答仍可写「仅供参考」。模型人设要口语、两三句，不要用那句固定开场。开药、下诊断留给 `consult`，第一刀不做问诊表单。
 - 图生视频不占底栏，从首页四入口进创作页。
 

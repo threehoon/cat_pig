@@ -1,1 +1,1 @@
-"""Adapters selected by ASSISTANT_LLM. Callers use Completer, not these types."""
+"""Adapters selected by ASSISTANT_LLM in deps.get_completer; other callers depend on Completer."""

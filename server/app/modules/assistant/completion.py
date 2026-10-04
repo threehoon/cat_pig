@@ -16,6 +16,10 @@ INSTRUCTIONS = (
     "界面已经标了仅供参考，正文里不要再写这四个字。"
 )
 BUSY_MESSAGE = "请稍后再试"
+# 一个 float 同时是 connect / read / write / pool 的上限，四段各自计时，没有总时长。
+# read 按下一块数据到来前的等待重计。非流式时首字节不来，大约在这个秒数断开。
+# 页面 fail 的 toast 是字面 NETWORK，不保证晚于「请稍后再试」。
+# 以后若拆开，把 read 留给模型等待，另外三段另设更短的上限。这次不改这个数字。
 TIMEOUT_SECONDS = 45.0
 
 
@@ -58,6 +62,7 @@ async def post_json(
 
 
 def reject_upstream(provider: str, status: str) -> AppError:
+    # status 只进这行日志，不进 AppError。
     logger.warning("assistant llm %s failed status=%s", provider, status)
     return _busy()
 

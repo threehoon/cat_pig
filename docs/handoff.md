@@ -6,13 +6,13 @@
 
 ## 新对话从这里开始
 
-阶段 **F** 页面已点验，`useMock` 仍为 true。只有小x 的 `GET /api/v1/assistant/suggestion` 和 `POST /api/v1/assistant/ask` 打 `http://127.0.0.1:8000`（登录 code 固定 `xiaox-devtools`，token 键 `assistant_live_token`，不替换 mock 会话）。其余接口走 mock。当前页面的后端已经在 Postgres（`/me`、注册积分、相册、广场、视频都已有，不要重做）。下一步只认 [progress.md](progress.md)：用户发来 xAI 密钥后写入 `server/.env` 并重启本机 API。关 `useMock` 仍要先做 `miniprogram/core/request.ts` 的 media multipart，那不是这一步。不要重做视觉（除非用户点名某一页）。
+阶段 **F** 页面已点验，`useMock` 仍为 true。只有小x 的 `GET /api/v1/assistant/suggestion` 和 `POST /api/v1/assistant/ask` 打 `http://127.0.0.1:8000`（登录 code 固定 `xiaox-devtools`，token 键 `assistant_live_token`，不替换 mock 会话）。其余接口走 mock。小程序不选模型、不持密钥。当前页面的后端已经在 Postgres（`/me`、注册积分、相册、广场、视频都已有，不要重做）。没命中时的模型已经是 gitignore 的 `server/.env` 里的 `ASSISTANT_LLM=openai`，不要再写成「用户发来 xAI 密钥后设成 `xai`」。本机 `127.0.0.1:8000` 已停；小x 真调用要这进程在听，启动命令见「本地怎么对上」。关 `useMock` 仍要先做 `miniprogram/core/request.ts` 的 media multipart，那不是这一步。不要重做视觉（除非用户点名某一页）。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 保持 `useMock: true`；小x 的两条助手接口走真 API，其余仍 mock。下一步只看 [progress.md](progress.md) | 现在关 `useMock`，或在页面里写 `wx.request` |
+| 保持 `useMock: true`；小x 的两条助手接口走真 API，其余仍 mock。模型开关以本文环境变量为准 | 现在关 `useMock`，或在页面里写 `wx.request` |
 | 页面只调本模块 `services/` | 未点名就重做视觉 |
-| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token。用户发来 xAI 密钥后，只改 `server/.env` 并重启本机 API | 在小程序里选模型或持密钥；建 `consult` / `experience`；加视频 worker |
+| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token。换小x 的模型只改 gitignore 的 `server/.env`，再重启本机 API | 在小程序里选模型或持密钥；建 `consult` / `experience`；加视频 worker |
 | 改接口先改 [api/contract.md](api/contract.md) | 日常改代码就改 `docs/`；把 mock 写进页面 |
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
@@ -215,7 +215,7 @@
 
 ## 本地怎么对上（后端落地之后）
 
-FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个端口。Alembic head 是 `0010_video_task`。`useMock` 为 true 时，只有小x 的 suggestion 和 ask 调用这台 API（登录 code 固定 `xiaox-devtools`，token 键 `assistant_live_token`，不替换 mock 会话）。其余接口走 mock。
+FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个端口。该进程已停。小x 的 suggestion 和 ask 要它在听，启动命令只有这一条，工作目录必须是 `server/`，不要 `--reload`，不要 `--app-dir`：`cd /Users/x_hoon/app_pet/server && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000`。Alembic head 是 `0010_video_task`。`useMock` 为 true 时，只有小x 的 suggestion 和 ask 调用这台 API（登录 code 固定 `xiaox-devtools`，token 键 `assistant_live_token`，不替换 mock 会话）。其余接口走 mock。
 
 已经挂上的路由族：`GET /health`；`POST /api/v1/auth/login`；`GET/PATCH /api/v1/me`；`GET /api/v1/points/summary`、`GET /api/v1/points/ledger`、`POST /api/v1/points/checkin`、`POST /api/v1/points/makeup`；`POST /api/v1/media`；`/api/v1/album`；`/api/v1/community`；`/api/v1/video`；`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。积分的本地日是 Asia/Shanghai（`server/app/core/clock.py`），合同没有时区字段。视频任务扣 50 分后存成 `pending`，没有出片程序。`POST /api/v1/assistant/ask` 的字段没有变。过线后仍按知识块拼 `answer`；没命中说明书且 `ASSISTANT_LLM` 为 `off` 或空时用固定短句，为 `xai` 或 `openai` 时由服务端补全。`related_posts` 仍是 `[]`。小程序在 `useMock: true` 时，只有这两条助手接口打这台 API。
 
@@ -246,18 +246,18 @@ FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个
 | `EMBEDDING_MODEL` | 嵌入模型名 | 空 |
 | `EMBEDDING_DIM` | 向量维度 | `1024` |
 | `EMBEDDING_MIN_COSINE` | 余弦下限 | `0.25` |
-| `ASSISTANT_LLM` | `off` / `xai` / `openai`。`off` 或空：没命中说明书时仍用固定短句。同一时间只启用一个 | 当前本机 `off` |
-| `XAI_API_KEY` | xAI 官方密钥 | 空，不进 git |
-| `XAI_BASE_URL` | xAI 官方 Responses API 根地址 | 默认 `https://api.x.ai/v1` |
-| `XAI_MODEL` | xAI 模型 | 默认 `grok-4.7` |
-| `OPENAI_API_KEY` | OpenAI 兼容密钥（官方 OpenAI 或中转站） | 空，不进 git |
-| `OPENAI_BASE_URL` | chat/completions 根地址，写成 `https://主机/v1` | 空 |
-| `OPENAI_MODEL` | OpenAI 兼容模型名 | 空 |
+| `ASSISTANT_LLM` | `off` / `xai` / `openai`。`off` 或空：没命中说明书时仍用固定短句。同一时间只启用一个。`xai` 不是当前取值 | `openai` |
+| `XAI_API_KEY` | xAI 官方密钥。留下的另一条路，不是这次切换 | 空，不进 git |
+| `XAI_BASE_URL` | xAI 官方 Responses API 根地址。不是当前开关 | `https://api.x.ai/v1` |
+| `XAI_MODEL` | xAI 模型。不是当前开关 | `grok-4.7` |
+| `OPENAI_API_KEY` | OpenAI 兼容密钥（官方或中转站）。只在 gitignore 的 `server/.env`，不要写入 `.env.example` | 已配置，不进 git，本文不写值 |
+| `OPENAI_BASE_URL` | 客户端在这个根后面接 `/chat/completions`，所以必须带 `/v1` | `https://ai.yhgs.cloud/v1` |
+| `OPENAI_MODEL` | 当前启用的那一个兼容模型名 | `deepseek-v4.1-flash` |
 | 视频出片密钥 | 只放服务端 `.env` | 接 P2 真出片时再登记，不进小程序 |
 
-`xai` 是 xAI 官方 Responses API。`openai` 是 OpenAI 兼容 chat/completions，官方 OpenAI 和中转站共用。换模型只改变量并重启本机 uvicorn，不改小程序，不改合同。`POST /api/v1/assistant/ask` 的字段没有变。`EMBEDDING_*` 维持可为空，空则哈希向量。
+`openai` 这一档是 `POST {OPENAI_BASE_URL}/chat/completions`（路径由客户端追加，所以上表根地址必须带 `/v1`）。同一把密钥还能调 `deepseek-flash` 和 `muse-spark-1.3`，同时只启用 `OPENAI_MODEL` 那一个；换模型只改 gitignore 的 `server/.env`，再重启「本地怎么对上」里的进程，不改小程序，不改合同。`xai` 仍是官方 Responses API，不是当前取值。`server/.env.example` 故意保持空，不要把真密钥抄进示例文件。`POST /api/v1/assistant/ask` 的字段没有变。`EMBEDDING_*` 维持可为空，空则哈希向量。补全超时 `TIMEOUT_SECONDS` 是 `45.0`：这一个 httpx 浮点数分别套在 connect、read、write、pool 上，不是整次请求的总时限。不要写成客户端总会在 `NETWORK` 之前先看到「请稍后再试」。
 
-当前本机是 `ASSISTANT_LLM=off`，密钥为空。用户接下来会自己把 xAI 密钥发来，由下一对话写入 `XAI_API_KEY`，把 `ASSISTANT_LLM` 设为 `xai`，然后重启 `127.0.0.1:8000`。控制台不要用 `/team/default/api-keys`。团队是 three's team，从 `https://console.x.ai` 侧边栏 API Keys 创建。
+xAI 控制台只是留下的另一条路，不是这次切换：不要用 `/team/default/api-keys`。团队是 three's team，从 `https://console.x.ai` 侧边栏 API Keys 创建。现在不要把 `ASSISTANT_LLM` 改成 `xai`。
 
 ## HTTP 契约
 
@@ -281,7 +281,7 @@ FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个
 ## 媒体
 
 - 二进制不进 PostgreSQL。`media_object` 只存 `stored_name`、mime、宽高和上传者，不存文件字节，也没有所属模块或资源 id 列。
-- 开发期 `POST /api/v1/media` 返回 `/media/{stored_name}`。`main.py` 从 `MEDIA_ROOT` 挂这个前缀。`.env.example` 的 `server/var/media` 相对仓库根目录，uvicorn 的工作目录必须是仓库根（`--app-dir server`）。`server/var/media/` 不进 git。以后换 OSS 只改内核。
+- 开发期 `POST /api/v1/media` 返回 `/media/{stored_name}`。`main.py` 从 `MEDIA_ROOT` 挂这个前缀。`.env.example` 的 `server/var/media` 按仓库根来写，示例文件这次不改。小x 进程不要改成仓库根加 `--app-dir`，启动命令以「本地怎么对上」为准。`server/var/media/` 不进 git。以后换 OSS 只改内核。
 - 界面先行：选图后用 `wx` 临时路径展示即可，services 仍当作 `image_urls: string[]`。
 
 ## 类型同步
