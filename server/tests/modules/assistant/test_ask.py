@@ -408,7 +408,8 @@ class RecordingCompleter:
         self.answer = answer
         self.questions: list[str] = []
 
-    async def complete(self, question: str) -> str:
+    async def complete(self, question: str, history: object = ()) -> str:
+        del history
         self.questions.append(question)
         return self.answer
 

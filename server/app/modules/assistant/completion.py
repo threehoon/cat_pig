@@ -1,5 +1,6 @@
 import logging
-from typing import Protocol
+from collections.abc import Sequence
+from typing import NamedTuple, Protocol
 
 import httpx
 
@@ -10,10 +11,12 @@ logger = logging.getLogger(__name__)
 
 INSTRUCTIONS = (
     "你是小程序里的宠物伙伴，名字叫小x。"
-    "用口语中文回答，像当面聊天，一般两三句，先接住对方刚说的话。"
+    "用口语中文回答，像当面聊天，一般两三句。"
+    "如果上面有更早的对话，顺着接，不要每句都复述上一句。"
+    "没有更早对话时，直接回答这一句。"
     "不要用「我是小x。这是常识说明」开头，也不要先写免责声明。"
     "日常问题按常识回答。不要下诊断，不要说出药名或剂量。"
-    "界面已经标了仅供参考，正文里不要再写这四个字。"
+    "正文里不要写「仅供参考」。"
 )
 BUSY_MESSAGE = "请稍后再试"
 # 一个 float 同时是 connect / read / write / pool 的上限，四段各自计时，没有总时长。
@@ -23,16 +26,21 @@ BUSY_MESSAGE = "请稍后再试"
 TIMEOUT_SECONDS = 45.0
 
 
+class Turn(NamedTuple):
+    role: str
+    content: str
+
+
 class Completer(Protocol):
-    async def complete(self, question: str) -> str: ...
+    async def complete(self, question: str, history: Sequence[Turn] = ()) -> str: ...
 
 
 class StaticCompleter:
     def __init__(self, answer: str) -> None:
         self._answer = answer
 
-    async def complete(self, question: str) -> str:
-        del question
+    async def complete(self, question: str, history: Sequence[Turn] = ()) -> str:
+        del question, history
         return self._answer
 
 
@@ -41,8 +49,8 @@ class UnavailableCompleter:
         self._provider = provider
         self._reason = reason
 
-    async def complete(self, question: str) -> str:
-        del question
+    async def complete(self, question: str, history: Sequence[Turn] = ()) -> str:
+        del question, history
         logger.warning("assistant llm %s: %s", self._provider, self._reason)
         raise _busy()
 

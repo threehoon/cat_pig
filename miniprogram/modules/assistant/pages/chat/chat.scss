@@ -3,6 +3,16 @@ page {
   background: var(--color-bg);
 }
 
+.chat-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.chat-nav .nav-action {
+  margin-left: 20rpx;
+}
+
 .chat-wrap {
   height: 100%;
   display: flex;

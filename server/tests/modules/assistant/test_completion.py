@@ -5,7 +5,7 @@ import httpx
 import pytest
 
 from app.core.exceptions import AppError
-from app.modules.assistant.completion import INSTRUCTIONS, StaticCompleter
+from app.modules.assistant.completion import INSTRUCTIONS, StaticCompleter, Turn
 from app.modules.assistant.deps import get_completer
 from app.modules.assistant.llm_config import get_llm_config
 from app.modules.assistant.providers.openai_chat import OpenAIChatCompleter, chat_text
@@ -77,6 +77,80 @@ async def test_xai_completer_posts_responses() -> None:
         "reasoning": {"effort": "low"},
         "instructions": INSTRUCTIONS,
         "input": "你好",
+    }
+
+
+async def test_openai_completer_sends_prior_turns() -> None:
+    seen: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={"choices": [{"message": {"role": "assistant", "content": "猫也喝水"}}]},
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    completer = OpenAIChatCompleter(
+        "test-key",
+        "https://relay.example/v1/",
+        "demo-model",
+        client=client,
+    )
+    answer = await completer.complete(
+        "那猫呢",
+        [Turn("user", "你好"), Turn("assistant", "你好呀")],
+    )
+    await client.aclose()
+
+    assert answer == "猫也喝水"
+    assert seen["body"] == {
+        "model": "demo-model",
+        "messages": [
+            {"role": "system", "content": INSTRUCTIONS},
+            {"role": "user", "content": "你好"},
+            {"role": "assistant", "content": "你好呀"},
+            {"role": "user", "content": "那猫呢"},
+        ],
+    }
+
+
+async def test_xai_completer_sends_prior_turns_as_input_items() -> None:
+    seen: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["body"] = json.loads(request.content)
+        return httpx.Response(
+            200,
+            json={
+                "output": [
+                    {
+                        "type": "message",
+                        "content": [{"type": "output_text", "text": "猫也喝水"}],
+                    }
+                ]
+            },
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    completer = XaiCompleter("test-key", "https://api.x.ai/v1/", "grok-4.7", client=client)
+    answer = await completer.complete(
+        "那猫呢",
+        [Turn("user", "你好"), Turn("assistant", "你好呀")],
+    )
+    await client.aclose()
+
+    assert answer == "猫也喝水"
+    assert seen["body"] == {
+        "model": "grok-4.7",
+        "store": False,
+        "reasoning": {"effort": "low"},
+        "instructions": INSTRUCTIONS,
+        "input": [
+            {"role": "user", "content": "你好"},
+            {"role": "assistant", "content": "你好呀"},
+            {"role": "user", "content": "那猫呢"},
+        ],
     }
 
 

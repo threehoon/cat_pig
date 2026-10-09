@@ -9,12 +9,36 @@ const ASSISTANT_LIVE = [
   { method: 'POST', path: '/api/v1/assistant/ask' },
 ]
 
+const CONVERSATION_LIST = '/api/v1/assistant/conversation'
+const MESSAGE_PREFIX = '/api/v1/assistant/conversation/'
+const MESSAGE_SUFFIX = '/message'
+
 type LoginBody = {
   data?: { token?: string }
   error?: { code: string; message: string }
 }
 
+function isConversationMessagePath(path: string): boolean {
+  if (path.indexOf(MESSAGE_PREFIX) !== 0) {
+    return false
+  }
+  if (path.slice(-MESSAGE_SUFFIX.length) !== MESSAGE_SUFFIX) {
+    return false
+  }
+  const middle = path.slice(MESSAGE_PREFIX.length, path.length - MESSAGE_SUFFIX.length)
+  if (!middle || middle.indexOf('/') !== -1) {
+    return false
+  }
+  return true
+}
+
 export function isAssistantLivePath(method: string, path: string): boolean {
+  if (method === 'GET' && path === CONVERSATION_LIST) {
+    return true
+  }
+  if (method === 'GET' && isConversationMessagePath(path)) {
+    return true
+  }
   let i = 0
   while (i < ASSISTANT_LIVE.length) {
     const item = ASSISTANT_LIVE[i]

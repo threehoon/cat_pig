@@ -6,13 +6,13 @@
 
 ## 新对话从这里开始
 
-阶段 **F** 页面已点验，`useMock` 仍为 true。只有小x 的 `GET /api/v1/assistant/suggestion` 和 `POST /api/v1/assistant/ask` 打 `http://127.0.0.1:8000`（登录 code 固定 `xiaox-devtools`，token 键 `assistant_live_token`，不替换 mock 会话）。其余接口走 mock。小程序不选模型、不持密钥。当前页面的后端已经在 Postgres（`/me`、注册积分、相册、广场、视频都已有，不要重做）。没命中时的模型已经是 gitignore 的 `server/.env` 里的 `ASSISTANT_LLM=openai`，不要再写成「用户发来 xAI 密钥后设成 `xai`」。本机 `127.0.0.1:8000` 已停；小x 真调用要这进程在听，启动命令见「本地怎么对上」。关 `useMock` 仍要先做 `miniprogram/core/request.ts` 的 media multipart，那不是这一步。不要重做视觉（除非用户点名某一页）。
+阶段 **F** 页面已点验，`useMock` 仍为 true。小x 历史对话的微信点验还没做。直连 `http://127.0.0.1:8000` 的助手接口现在是四条，没有 mock handler：`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`、`GET /api/v1/assistant/conversation`（路径全等）、`GET /api/v1/assistant/conversation/{id}/message`（前缀 + 正好一段 id + `/message`）。登录 code 仍是 `xiaox-devtools`，token 键仍是 `assistant_live_token`，不替换 mock 会话。其余接口仍 mock。小程序不选模型、不持密钥。当前页面的后端已经在 Postgres（`/me`、注册积分、相册、广场、视频、小x 会话都已有，不要重做）。没命中时的模型已经是 gitignore 的 `server/.env` 里的 `ASSISTANT_LLM=openai`，不要再写成「用户发来 xAI 密钥后设成 `xai`」，也不要把模型改回 `deepseek`。2026-10-09 核对时 `127.0.0.1:8000` 在听。这次核对后接口已从 `server/` 无 `--reload` 重启，`GET /health` 为 `{"data":{"ok":true}}`。下次对话先看端口，不要假定还在听。小x 真调用要这进程在听，启动命令见「本地怎么对上」。关 `useMock` 仍要先做 `miniprogram/core/request.ts` 的 media multipart，那不是这一步。不要重做视觉（除非用户点名某一页）。
 
 | 现在做 | 现在不做 |
 |---|---|
-| 保持 `useMock: true`；小x 的两条助手接口走真 API，其余仍 mock。模型开关以本文环境变量为准 | 现在关 `useMock`，或在页面里写 `wx.request` |
+| 保持 `useMock: true`；小x 的四条助手接口走真 API，没有 mock handler，其余仍 mock。模型开关以本文环境变量为准 | 现在关 `useMock`，或在页面里写 `wx.request`。不做问法改写、工具、`related_posts`、自动摘要、按天或按话题切段、删除或重命名对话 |
 | 页面只调本模块 `services/` | 未点名就重做视觉 |
-| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token。换小x 的模型只改 gitignore 的 `server/.env`，再重启本机 API | 在小程序里选模型或持密钥；建 `consult` / `experience`；加视频 worker |
+| 保持五个 tab（首页 / 相册 / 小x / 广场 / 我的）和视觉 token。换小x 的模型只改 gitignore 的 `server/.env`，再重启本机 API | 在小程序里选模型或持密钥；建 `consult` / `experience`；加视频 worker；把 `ASSISTANT_LLM` 改成 `xai`；把模型改回 `deepseek` |
 | 改接口先改 [api/contract.md](api/contract.md) | 日常改代码就改 `docs/`；把 mock 写进页面 |
 
 日常改代码不要改 `docs/`。用户说「整理」「总结」「更新对接文档」再改本文件和 progress。**改接口仍须先改** [api/contract.md](api/contract.md)。
@@ -24,7 +24,7 @@
 | 模块 | `auth` `me` `media` `album` `community` `video` `points` `assistant`（`auth` / `media` 无独立页） |
 | 业务 service | 7 个（`me` `media` `album` `community` `video` `points` `assistant`）；登录在 `core/auth` |
 | mock | 各模块 `services/mock.ts`；community 另有 `mock-helpers.ts`；points 另有 `mock-ledger.ts`；assistant 另有 `mock-knowledge.ts`；种子 `miniprogram/mocks/store.ts`；入口 `core/mock.ts`（只注册 / 匹配） |
-| 页面 | `app.json` 23 项：21 个模块页 + `pages/index` + `pages/logs`（残留，不当入口） |
+| 页面 | `app.json` 24 项：22 个模块页 + `pages/index` + `pages/logs`（残留，不当入口）。历史页已追加，不是 tab |
 | 渲染 | `"renderer": "skyline"`；公共 `libVersion` `3.7.0` |
 | 检查 | `npm run typecheck`（typescript 5.6） |
 | 详情页 | `community/pages/detail/detail.ts` 保留 `Page({...})`，不要再抽 `detail-page.ts`；录音走 `recordSink` |
@@ -44,7 +44,7 @@
 | `community` | 首页门户、广场动态、帖子 | 有 |
 | `video` | 图生视频任务 | 有（创作页不是 tab） |
 | `points` | 积分流水、签到 | 有 |
-| `assistant` | 站内助手「小x」。服务端已做距离门检索和切块；没命中说明书时由 `ASSISTANT_LLM` 决定固定短句或服务端补全。小程序的 suggestion 和 ask 打本机 API，其余页面仍 mock。小程序不选模型、不持密钥。够用 / 含糊 / 不行、改写未做 | 有（底栏中间 tab） |
+| `assistant` | 站内助手「小x」。服务端已做距离门检索和切块；没命中说明书时由 `ASSISTANT_LLM` 决定固定短句或服务端补全。小程序的 suggestion、ask、`GET /api/v1/assistant/conversation`、`GET /api/v1/assistant/conversation/{id}/message` 打本机 API，没有 mock handler，其余页面仍 mock。一段对话只在点「新对话」时结束；冷启动空白，不自动打开最近一段。小程序不选模型、不持密钥。够用 / 含糊 / 不行、改写未做 | 有（底栏中间 tab；历史页不是 tab） |
 
 禁止再用 `pet`、`journal`、`ledger`、`reminder`、`user`、`diary`、`forum`、`plaza`、`bill`、`ai`、`rag`、`doctor` 当模块目录名。广场是 `community` 的页面，不是独立模块。任务管理是 `video` 的列表页，不是独立模块。
 
@@ -87,6 +87,7 @@
 | album | `modules/album/pages/detail/detail` | 相册详情 |
 | me | `modules/me/pages/profile/profile` | 编辑资料（头像 / 昵称） |
 | me | `modules/me/pages/settings/settings` | 设置（关于 + 注销占位） |
+| assistant | `modules/assistant/pages/history/history` | 历史对话。已追加进 `app.json`，不是 tab。合同里的 UTC（带 Z）按手机本地时区显示成 `YYYY-MM-DD HH:MM:SS`，合同时间不改。微信里还没点验 |
 
 `pages/index`、`pages/logs`：界面接入后，把 `app.json` 的 `pages` 第一项改成社区首页，这两页不再当入口。不要在它们里面写产品 UI。
 
@@ -115,7 +116,7 @@
 - 首页四个入口：图生视频 → `navigateTo` `modules/video/pages/create/create`；相册 → 相册 tab；广场 → 广场 tab；签到 → `modules/points/pages/checkin/checkin`。禁止首页 import `points` service。带着 `?checkin=1` 进积分明细不会自动签到。
 - 首页下方动态：`GET /api/v1/community/post?tab=recommend`。点「更多」切到广场 tab。
 - 广场 tab：搜索走 query `q`；顶部分栏 `tab`（推荐 / 关注，下划线不是芯片）。「大家都在看」横滑封面进详情，数据来自 `tab=recommend` 且带图的帖。不在广场用话题芯片筛选。发动态不传 `board`。
-- 小x tab：底栏中间进 `modules/assistant/pages/chat/chat`。广场不加助手入口。相近帖点进已有详情，不 import community service。
+- 小x tab：底栏中间进 `modules/assistant/pages/chat/chat`。广场不加助手入口。相近帖点进已有详情，不 import community service。生成回答不显示「仅供参考」芯片。固定短句未改。`knowledge` 仍显示「说明书」，`search` 仍显示「检索」。等待气泡原文是「正在思考...」。导航右侧始终有「历史」（`navigateTo` `modules/assistant/pages/history/history`）；有气泡才有「新对话」。一段对话只在用户点「新对话」时结束。冷启动是空白，不自动打开最近一段。同一次使用里切 tab 再回来，这段还在。点「新对话」不建空行，下一句 `conversation_id` 为 null。点一条历史：写入存储键 `assistant_open_conversation`，`switchTab` 回聊天页，`onShow` 拉完全部消息后清掉该键。人设：有更早对话就顺着接，不要用「我是小x。这是常识说明」开头。微信里的历史对话点验还没做。
 - 创作页打开即为图生视频表单，不是发动态，也不是 tab。发动态从广场 / 我的发布进入。
 - 相册 tab：只列当前用户相册；右下或空态「上传」进 upload 页。
 - 「我的」：头像昵称和四计数走 `GET /api/v1/me`。点头像/昵称进编辑资料页；点「动态 / 获赞」进我的发布；点「关注 / 粉丝」进对应列表。菜单分组：我的发布 / 我的收藏 / 我的相册（`switchTab` 相册 tab）/ 生成记录；我的关注 / 粉丝；积分明细 / 积分任务；设置。没有「每日签到」菜单（签到只从首页进）。编辑资料：头像只走 `chooseAvatar`（含微信头像 / 相册 / 相机）；昵称普通输入，1–16 字，不用 `type="nickname"`；点保存才 `POST /api/v1/media`（若换了头像）+ `PATCH /api/v1/me`。未保存返回有改动则确认。`page-shell` / `navigation-bar` 的 `catch-back` 默认关，仅本页开启。设置页无接口：关于写「宠物记录 / 开发版」；注销只提示「开发期不能注销」。关注 / 粉丝行不进作者页。
@@ -179,7 +180,9 @@
 | `modules/community/services/` | 广场、发帖、详情、我的发布、收藏列表、点赞、收藏、评论、关注、粉丝 | `GET/POST /api/v1/community/post`，`GET /api/v1/community/post/mine`，`GET /api/v1/community/post/favorite`，`GET/PATCH/DELETE /api/v1/community/post/{id}`，`POST .../like`，`POST .../favorite`，`GET/POST .../comment`，`DELETE .../comment/{comment_id}`，`POST .../comment/{comment_id}/like`，`POST .../comment/{comment_id}/report`，`GET/POST/DELETE /api/v1/community/follow`，`GET /api/v1/community/follower` |
 | `modules/video/services/` | 创建任务、列表、详情、删 | `GET/POST /api/v1/video`，`GET/DELETE /api/v1/video/{id}` |
 | `modules/points/services/` | 汇总、流水、签到、补签 | `GET /api/v1/points/summary`，`GET /api/v1/points/ledger`，`POST /api/v1/points/checkin`，`POST /api/v1/points/makeup` |
-| `modules/assistant/services/` | 推荐问题、提问 | `GET /api/v1/assistant/suggestion`，`POST /api/v1/assistant/ask` |
+| `modules/assistant/services/` | 推荐问题、提问、历史列表、一段的消息 | `GET /api/v1/assistant/suggestion`，`POST /api/v1/assistant/ask`，`GET /api/v1/assistant/conversation`，`GET /api/v1/assistant/conversation/{id}/message` |
+
+`POST /api/v1/assistant/ask` 的请求和响应字段没有变。合同已增加会话列表和消息两条 GET，正文在 [api/contract.md](api/contract.md)，本文件不重写。`GET /api/v1/assistant/conversation` 路径全等；`GET /api/v1/assistant/conversation/{id}/message` 是前缀 + 正好一段 id + `/message`。这四条没有 mock handler。
 
 页面事件处理里只出现 `xxxService.list()` 这类调用。字段名用下划线：`image_urls`、`sync_to_forum`、`points_balance`，不要在页面层再映射一套驼峰再丢掉。
 
@@ -199,7 +202,7 @@
 
 1. `miniprogram/core/config.ts` 提供 `useMock: true`（先行默认）和 `apiBaseUrl`。
 2. 页面 **不准** `wx.request`，不准写死主机名，不准直接 import 一份「页面专用假数据」。
-3. 模块 `services/` 只调 `core/request`。`useMock === true` 时，`request` 把 method+path 交给 `core/mock.ts`（只注册 / 匹配）。handlers 在各模块 `services/mock.ts`，种子在 `miniprogram/mocks/store.ts`。跨模块写操作走对方公开函数（community `mock-helpers.ts`、points `mock-ledger.ts`），不要直接改另一模块的数组。返回值符合 [api/contract.md](api/contract.md)。
+3. 模块 `services/` 只调 `core/request`。`useMock === true` 时，`request` 把 method+path 交给 `core/mock.ts`（只注册 / 匹配）。handlers 在各模块 `services/mock.ts`，种子在 `miniprogram/mocks/store.ts`。跨模块写操作走对方公开函数（community `mock-helpers.ts`、points `mock-ledger.ts`），不要直接改另一模块的数组。返回值符合 [api/contract.md](api/contract.md)。小x 的四条助手接口没有 mock handler，仍打 `http://127.0.0.1:8000`；其余接口仍 mock。
 4. 成功 / 失败信封与真 API 相同，JSON 形状见 [api/contract.md](api/contract.md)。
 5. 假数据足够点通主路径即可：当前用户、若干相册、若干已发布帖（含别人的帖和一条带评论的帖）、一条视频任务、几条积分流水。不要做后台。
 6. 没有审核模块。mock 和当前服务端一样：请求里的 `pending` 直接存成 `published`，否则广场列表看不到刚发的帖。审核模块是以后的事。
@@ -215,14 +218,14 @@
 
 ## 本地怎么对上（后端落地之后）
 
-FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个端口。该进程已停。小x 的 suggestion 和 ask 要它在听，启动命令只有这一条，工作目录必须是 `server/`，不要 `--reload`，不要 `--app-dir`：`cd /Users/x_hoon/app_pet/server && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000`。Alembic head 是 `0010_video_task`。`useMock` 为 true 时，只有小x 的 suggestion 和 ask 调用这台 API（登录 code 固定 `xiaox-devtools`，token 键 `assistant_live_token`，不替换 mock 会话）。其余接口走 mock。
+FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个端口。2026-10-09 核对时 `127.0.0.1:8000` 在听。这次核对后接口已从 `server/` 无 `--reload` 重启，`GET /health` 为 `{"data":{"ok":true}}`。下次对话先看端口，不要假定还在听。小x 的四条助手接口要它在听，启动命令只有这一条，工作目录必须是 `server/`，不要 `--reload`，不要 `--app-dir`：`cd /Users/x_hoon/app_pet/server && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000`。本机 `app_pet` 的 Alembic head 现在是 `0011_conversation_message`（上接 `0010_video_task`）。已在本机 upgrade、`downgrade -1`、再 upgrade。原有 69 条 `conversation` 还在。`title` 可空；`updated_at` 是 `timestamptz` NOT NULL、server default `now()`。新表 `conversation_message`。没有消息的旧会话不进列表。`useMock` 为 true 时，只有小x 的四条助手接口调用这台 API，没有 mock handler（登录 code 仍是 `xiaox-devtools`，token 键仍是 `assistant_live_token`，不替换 mock 会话）。其余接口仍 mock。
 
-已经挂上的路由族：`GET /health`；`POST /api/v1/auth/login`；`GET/PATCH /api/v1/me`；`GET /api/v1/points/summary`、`GET /api/v1/points/ledger`、`POST /api/v1/points/checkin`、`POST /api/v1/points/makeup`；`POST /api/v1/media`；`/api/v1/album`；`/api/v1/community`；`/api/v1/video`；`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`。积分的本地日是 Asia/Shanghai（`server/app/core/clock.py`），合同没有时区字段。视频任务扣 50 分后存成 `pending`，没有出片程序。`POST /api/v1/assistant/ask` 的字段没有变。过线后仍按知识块拼 `answer`；没命中说明书且 `ASSISTANT_LLM` 为 `off` 或空时用固定短句，为 `xai` 或 `openai` 时由服务端补全。`related_posts` 仍是 `[]`。小程序在 `useMock: true` 时，只有这两条助手接口打这台 API。
+已经挂上的路由族：`GET /health`；`POST /api/v1/auth/login`；`GET/PATCH /api/v1/me`；`GET /api/v1/points/summary`、`GET /api/v1/points/ledger`、`POST /api/v1/points/checkin`、`POST /api/v1/points/makeup`；`POST /api/v1/media`；`/api/v1/album`；`/api/v1/community`；`/api/v1/video`；`GET /api/v1/assistant/suggestion`、`POST /api/v1/assistant/ask`、`GET /api/v1/assistant/conversation`（路径全等）、`GET /api/v1/assistant/conversation/{id}/message`（前缀 + 正好一段 id + `/message`）。积分的本地日是 Asia/Shanghai（`server/app/core/clock.py`），合同没有时区字段。视频任务扣 50 分后存成 `pending`，没有出片程序。`POST /api/v1/assistant/ask` 的请求和响应字段没有变。合同已增加上面两条 GET，正文在 [api/contract.md](api/contract.md)，本文件不重写。过线后仍按知识块拼 `answer`；没命中说明书且 `ASSISTANT_LLM` 为 `off` 或空时仍是 HTTP 200 的固定短句，会落库；为 `xai` 或 `openai` 时由服务端补全。说明书命中和拒答不调模型，但两轮都落库。502（补全失败，或选了提供方但密钥/地址/模型为空）不写库。别人的或不存在的 conversation id：ask 和消息 GET 都是 `NOT_FOUND`。列表没有记录是 200 和空 `items`，不是 404。消息响应字段是 `text`，表列是 `body`。重放气泡的 `related_posts` 当 `[]`，响应不加这个字段。`related_posts` 运行时仍是 `[]`。模型看这一整段（从旧到新再加当前问题）。保险丝只作用于送进模型的副本：最新 60 条或约 8000 字。屏幕不截。检索仍只用当前这句。小程序在 `useMock: true` 时，这四条助手接口打这台 API，没有 mock handler。`cd server && uv run pytest tests/modules/assistant -q` 曾 95 passed。其后补了一条「随机 uuid 的消息 GET 为 404」，并删了 `test_provider_without_key_returns_busy` 里重复的落库计数。随后 `test_completion.py` 与 `test_conversation.py` 25 passed。`npm run typecheck` 通过。
 
 1. Docker Compose 只跑 PostgreSQL（`pgvector/pgvector:pg16`，库 `app_pet` 与 `app_pet_test`）。
 2. FastAPI：`http://127.0.0.1:8000`，`GET /health`。
 3. 微信开发者工具打开本仓库根目录；开发期关闭「校验合法域名」。
-4. 小x 在 `useMock: true` 时已经用 `apiBaseUrl`（`http://127.0.0.1:8000`）。其余接口要等关掉 `useMock` 才走这个地址（真机预览改为电脑局域网 IP）。
+4. 小x 在 `useMock: true` 时已经用 `apiBaseUrl`（`http://127.0.0.1:8000`）打这四条助手接口，没有 mock handler。其余接口要等关掉 `useMock` 才走这个地址（真机预览改为电脑局域网 IP）。
 
 `wx.request` 不是浏览器，没有 CORS。正式版要配微信公众平台 request / uploadFile 合法域名。
 
@@ -252,10 +255,10 @@ FastAPI 的本机地址是 `http://127.0.0.1:8000`，有人启动后才听这个
 | `XAI_MODEL` | xAI 模型。不是当前开关 | `grok-4.7` |
 | `OPENAI_API_KEY` | OpenAI 兼容密钥（官方或中转站）。只在 gitignore 的 `server/.env`，不要写入 `.env.example` | 已配置，不进 git，本文不写值 |
 | `OPENAI_BASE_URL` | 客户端在这个根后面接 `/chat/completions`，所以必须带 `/v1` | `https://ai.yhgs.cloud/v1` |
-| `OPENAI_MODEL` | 当前启用的那一个兼容模型名 | `deepseek-v4.1-flash` |
+| `OPENAI_MODEL` | 当前启用的那一个兼容模型名 | `qwen3.8-27b` |
 | 视频出片密钥 | 只放服务端 `.env` | 接 P2 真出片时再登记，不进小程序 |
 
-`openai` 这一档是 `POST {OPENAI_BASE_URL}/chat/completions`（路径由客户端追加，所以上表根地址必须带 `/v1`）。同一把密钥还能调 `deepseek-flash` 和 `muse-spark-1.3`，同时只启用 `OPENAI_MODEL` 那一个；换模型只改 gitignore 的 `server/.env`，再重启「本地怎么对上」里的进程，不改小程序，不改合同。`xai` 仍是官方 Responses API，不是当前取值。`server/.env.example` 故意保持空，不要把真密钥抄进示例文件。`POST /api/v1/assistant/ask` 的字段没有变。`EMBEDDING_*` 维持可为空，空则哈希向量。补全超时 `TIMEOUT_SECONDS` 是 `45.0`：这一个 httpx 浮点数分别套在 connect、read、write、pool 上，不是整次请求的总时限。不要写成客户端总会在 `NETWORK` 之前先看到「请稍后再试」。
+`openai` 这一档是 `POST {OPENAI_BASE_URL}/chat/completions`（路径由客户端追加，所以上表根地址必须带 `/v1`）。当前密钥的模型列表是 `deepseek-v4.1-flash`、`glm-5.3-flash`、`mimo-v2.6-flash`、`muse-spark-1.3`、`qwen3.8-27b`，没有 `deepseek-flash`。同时只启用 `OPENAI_MODEL` 那一个，现为 `qwen3.8-27b`（`qwen` 与 `3.8` 之间没有连字符）。换模型只改 gitignore 的 `server/.env`，再重启「本地怎么对上」里的进程，不改小程序，不改合同。2026-10-09 换过密钥，本文不写密钥值。上一把对 `GET /v1/models` 返回 403 `GROUP_NOT_ALLOWED`（API Key 所属专属分组不再允许当前用户使用）：密钥还能被认出，所属专属分组不再允许该用户。用 `qwen3.8-27b` 打过一次短 `chat/completions`，HTTP 200，正文是「好」。微信开发者工具里也看到了模型回复。`xai` 仍是官方 Responses API，不是当前取值。`server/.env.example` 故意保持空，不要把真密钥或中转地址抄进示例文件。`POST /api/v1/assistant/ask` 的字段没有变。`EMBEDDING_*` 维持可为空，空则哈希向量。补全超时 `TIMEOUT_SECONDS` 是 `45.0`：这一个 httpx 浮点数分别套在 connect、read、write、pool 上，不是整次请求的总时限。不要写成客户端总会在 `NETWORK` 之前先看到「请稍后再试」。生成回答不显示「仅供参考」芯片。`knowledge` 仍显示「说明书」，`search` 仍显示「检索」。等待气泡原文是「正在思考...」。`completion.py` 的人设要求正文不要写「仅供参考」，不要写成界面已经标了这四个字。有更早对话就顺着接，不要用「我是小x。这是常识说明」开头。`off` 或空时的固定短句未改，正文仍有「仅供参考」。不要把模型改回 `deepseek`。`xai` 不是当前取值。
 
 xAI 控制台只是留下的另一条路，不是这次切换：不要用 `/team/default/api-keys`。团队是 three's team，从 `https://console.x.ai` 侧边栏 API Keys 创建。现在不要把 `ASSISTANT_LLM` 改成 `xai`。
 

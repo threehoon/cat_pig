@@ -1,0 +1,19 @@
+<page-shell title="历史对话" back="{{true}}">
+  <scroll-view class="page-scroll" type="list" scroll-y bindscrolltolower="onMore">
+    <view class="page-pad" wx:if="{{items.length === 0 && !loading}}">
+      <empty-state image="{{emptyPlaza}}" title="还没有对话" hint="问过小x之后，会留在这里" />
+    </view>
+    <view wx:else class="page-pad">
+      <view
+        wx:for="{{items}}"
+        wx:key="id"
+        class="history-row"
+        data-id="{{item.id}}"
+        bindtap="onOpen"
+      >
+        <text class="history-row__title" max-lines="1">{{item.title}}</text>
+        <text class="history-row__time">{{item.time}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</page-shell>

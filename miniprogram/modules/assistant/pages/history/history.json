@@ -1,0 +1,7 @@
+{
+  "disableScroll": true,
+  "usingComponents": {
+    "page-shell": "/components/page-shell/page-shell",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

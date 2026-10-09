@@ -1,7 +1,9 @@
 import { toastRequestError } from '../../../../core/request'
-import { askAssistant, listSuggestions } from '../../services/assistant'
+import { askAssistant, listMessages, listSuggestions } from '../../services/assistant'
+import { takeOpenConversation } from '../../services/open-conversation'
 import {
   AssistantCitation,
+  AssistantMessage,
   AssistantRelatedPost,
   AssistantSource,
   AssistantSuggestion,
@@ -28,6 +30,8 @@ function takeTwo<T>(items: T[]): T[] {
   return out
 }
 
+const MESSAGE_PAGE = 50
+
 function sourceLabel(source: AssistantSource): string {
   if (source === 'knowledge') {
     return '说明书'
@@ -35,7 +39,38 @@ function sourceLabel(source: AssistantSource): string {
   if (source === 'search') {
     return '检索'
   }
-  return '仅供参考'
+  return ''
+}
+
+function bubbleSource(message: AssistantMessage): '' | AssistantSource {
+  if (message.role !== 'assistant' || !message.source) {
+    return ''
+  }
+  return message.source
+}
+
+function toBubble(message: AssistantMessage): ChatBubble {
+  const source = bubbleSource(message)
+  return {
+    id: message.id,
+    anchor: `m-${message.id}`,
+    role: message.role,
+    text: message.text,
+    source,
+    sourceLabel: source ? sourceLabel(source) : '',
+    citations: message.citations,
+    related_posts: [],
+  }
+}
+
+function loadThread(id: string, page: number, collected: AssistantMessage[]): Promise<AssistantMessage[]> {
+  return listMessages(id, page, MESSAGE_PAGE).then((result) => {
+    const items = collected.concat(result.items)
+    if (result.items.length === 0 || items.length >= result.total) {
+      return items
+    }
+    return loadThread(id, page + 1, items)
+  })
 }
 
 Page({
@@ -47,6 +82,7 @@ Page({
     conversationId: null as string | null,
     sending: false,
     seq: 0,
+    epoch: 0,
     scrollInto: '',
   },
   onLoad() {
@@ -55,6 +91,56 @@ Page({
         this.setData({ suggestions: result.items })
       })
       .catch(toastRequestError)
+  },
+  onShow() {
+    const pending = takeOpenConversation()
+    if (!pending) {
+      return
+    }
+    this.openConversation(pending)
+  },
+  openConversation(id: string) {
+    const epoch = this.data.epoch + 1
+    this.setData({
+      epoch,
+      sending: false,
+      conversationId: id,
+      messages: [],
+      scrollInto: '',
+    })
+    loadThread(id, 1, [])
+      .then((items) => {
+        if (this.data.epoch !== epoch) {
+          return
+        }
+        const messages = items.map((item) => toBubble(item))
+        const last = messages[messages.length - 1]
+        this.setData({
+          messages,
+          scrollInto: last ? last.anchor : '',
+        })
+      })
+      .catch((err: unknown) => {
+        if (this.data.epoch !== epoch) {
+          return
+        }
+        this.setData({ conversationId: null })
+        toastRequestError(err)
+      })
+  },
+  onHistory() {
+    wx.navigateTo({ url: '/modules/assistant/pages/history/history' })
+  },
+  onNew() {
+    this.setData({
+      epoch: this.data.epoch + 1,
+      messages: [],
+      conversationId: null,
+      draft: '',
+      sending: false,
+      scrollInto: '',
+      inputFocus: false,
+    })
   },
   onInput(e: WechatMiniprogram.Input) {
     this.setData({ draft: e.detail.value })
@@ -83,6 +169,8 @@ Page({
     if (this.data.sending) {
       return
     }
+    const epoch = this.data.epoch
+    const sentId = this.data.conversationId
     const seq = this.data.seq + 1
     const userId = `u${seq}`
     const user: ChatBubble = {
@@ -103,8 +191,11 @@ Page({
       messages: this.data.messages.concat([user]),
       scrollInto: 'm-pending',
     })
-    askAssistant(question, this.data.conversationId)
+    askAssistant(question, sentId)
       .then((ask) => {
+        if (this.data.epoch !== epoch) {
+          return
+        }
         const next = this.data.seq + 1
         const aid = `a${next}`
         const assistant: ChatBubble = {
@@ -126,6 +217,9 @@ Page({
         })
       })
       .catch((err: unknown) => {
+        if (this.data.epoch !== epoch) {
+          return
+        }
         this.setData({ sending: false })
         toastRequestError(err)
       })

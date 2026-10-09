@@ -1,10 +1,17 @@
 import uuid
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.modules.assistant.models import Conversation, KnowledgeArticle, KnowledgeChunk
+from app.core.clock import now_utc
+from app.modules.assistant.completion import Turn
+from app.modules.assistant.models import (
+    Conversation,
+    ConversationMessage,
+    KnowledgeArticle,
+    KnowledgeChunk,
+)
 
 
 class KnowledgeRepository:
@@ -117,11 +124,113 @@ class ConversationRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
+    async def commit(self) -> None:
+        if self._session.in_transaction():
+            await self._session.commit()
+
     async def get(self, conversation_id: uuid.UUID) -> Conversation | None:
         return await self._session.get(Conversation, conversation_id)
 
-    async def add(self, user_id: uuid.UUID) -> Conversation:
-        conversation = Conversation(user_id=user_id)
-        self._session.add(conversation)
+    async def prior_turns(self, conversation_id: uuid.UUID) -> list[Turn]:
+        rows = await self._session.scalars(
+            select(ConversationMessage)
+            .where(ConversationMessage.conversation_id == conversation_id)
+            .order_by(ConversationMessage.seq.asc())
+        )
+        return [Turn(row.role, row.body) for row in rows]
+
+    async def list_for_user(
+        self,
+        user_id: uuid.UUID,
+        page: int,
+        page_size: int,
+    ) -> tuple[list[Conversation], int]:
+        has_message = (
+            select(ConversationMessage.id)
+            .where(ConversationMessage.conversation_id == Conversation.id)
+            .exists()
+        )
+        filters = (Conversation.user_id == user_id, has_message)
+        total = await self._session.scalar(
+            select(func.count()).select_from(Conversation).where(*filters)
+        )
+        statement = (
+            select(Conversation)
+            .where(*filters)
+            .order_by(Conversation.updated_at.desc(), Conversation.id.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        rows = list(await self._session.scalars(statement))
+        return rows, int(total or 0)
+
+    async def list_messages(
+        self,
+        conversation_id: uuid.UUID,
+        page: int,
+        page_size: int,
+    ) -> tuple[list[ConversationMessage], int]:
+        filters = (ConversationMessage.conversation_id == conversation_id,)
+        total = await self._session.scalar(
+            select(func.count()).select_from(ConversationMessage).where(*filters)
+        )
+        statement = (
+            select(ConversationMessage)
+            .where(*filters)
+            .order_by(ConversationMessage.seq.asc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        rows = list(await self._session.scalars(statement))
+        return rows, int(total or 0)
+
+    async def append_exchange(
+        self,
+        *,
+        user_id: uuid.UUID,
+        conversation_id: uuid.UUID | None,
+        question: str,
+        answer: str,
+        source: str,
+        citations: list[dict[str, str]],
+    ) -> uuid.UUID | None:
+        if conversation_id is None:
+            conversation = Conversation(user_id=user_id, title=question, updated_at=now_utc())
+            self._session.add(conversation)
+            await self._session.flush()
+            next_seq = 1
+        else:
+            conversation = await self._session.get(Conversation, conversation_id)
+            if conversation is None or conversation.user_id != user_id:
+                return None
+            if conversation.title is None:
+                conversation.title = question
+            conversation.updated_at = now_utc()
+            current = await self._session.scalar(
+                select(func.max(ConversationMessage.seq)).where(
+                    ConversationMessage.conversation_id == conversation.id
+                )
+            )
+            next_seq = int(current or 0) + 1
+        self._session.add(
+            ConversationMessage(
+                conversation_id=conversation.id,
+                seq=next_seq,
+                role="user",
+                body=question,
+                source=None,
+                citations=[],
+            )
+        )
+        self._session.add(
+            ConversationMessage(
+                conversation_id=conversation.id,
+                seq=next_seq + 1,
+                role="assistant",
+                body=answer,
+                source=source,
+                citations=citations,
+            )
+        )
         await self._session.flush()
-        return conversation
+        return conversation.id

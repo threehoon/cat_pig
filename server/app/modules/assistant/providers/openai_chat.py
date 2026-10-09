@@ -1,7 +1,10 @@
+from collections.abc import Sequence
+
 import httpx
 
 from app.modules.assistant.completion import (
     INSTRUCTIONS,
+    Turn,
     post_json,
     reject_upstream,
 )
@@ -23,13 +26,14 @@ class OpenAIChatCompleter:
         self._model = model
         self._client = client
 
-    async def complete(self, question: str) -> str:
+    async def complete(self, question: str, history: Sequence[Turn] = ()) -> str:
+        messages: list[dict[str, str]] = [{"role": "system", "content": INSTRUCTIONS}]
+        for turn in history:
+            messages.append({"role": turn.role, "content": turn.content})
+        messages.append({"role": "user", "content": question})
         payload = {
             "model": self._model,
-            "messages": [
-                {"role": "system", "content": INSTRUCTIONS},
-                {"role": "user", "content": question},
-            ],
+            "messages": messages,
         }
         try:
             response = await post_json(

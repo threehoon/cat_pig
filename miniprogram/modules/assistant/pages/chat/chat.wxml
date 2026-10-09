@@ -1,4 +1,8 @@
 <page-shell title="小x">
+  <view slot="right" class="chat-nav">
+    <view class="nav-action" bindtap="onHistory">历史</view>
+    <view wx:if="{{messages.length}}" class="nav-action" bindtap="onNew">新对话</view>
+  </view>
   <view class="chat-wrap">
     <scroll-view
       class="page-scroll page-scroll--docked"
@@ -65,7 +69,7 @@
         </view>
         <view wx:if="{{sending}}" id="m-pending" class="bubble-row">
           <view class="bubble bubble--assistant">
-            <text class="bubble__text bubble__text--pending">正在想</text>
+            <text class="bubble__text bubble__text--pending">正在思考...</text>
           </view>
         </view>
       </view>

@@ -40,3 +40,31 @@ class AssistantAsk(BaseModel):
     source: Literal["knowledge", "search", "generated"]
     citations: list[AssistantCitation]
     related_posts: list[RelatedPost]
+
+
+class AssistantConversation(BaseModel):
+    id: str
+    title: str
+    updated_at: str
+
+
+class ConversationPage(BaseModel):
+    items: list[AssistantConversation]
+    total: int
+    page: int
+    page_size: int
+
+
+class AssistantMessage(BaseModel):
+    id: str
+    role: Literal["user", "assistant"]
+    text: str
+    source: Literal["knowledge", "search", "generated"] | None
+    citations: list[AssistantCitation]
+
+
+class MessagePage(BaseModel):
+    items: list[AssistantMessage]
+    total: int
+    page: int
+    page_size: int

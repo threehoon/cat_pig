@@ -1,7 +1,10 @@
+from collections.abc import Sequence
+
 import httpx
 
 from app.modules.assistant.completion import (
     INSTRUCTIONS,
+    Turn,
     post_json,
     reject_upstream,
 )
@@ -23,13 +26,17 @@ class XaiCompleter:
         self._model = model
         self._client = client
 
-    async def complete(self, question: str) -> str:
+    async def complete(self, question: str, history: Sequence[Turn] = ()) -> str:
+        model_input: str | list[dict[str, str]] = question
+        if history:
+            model_input = [{"role": turn.role, "content": turn.content} for turn in history]
+            model_input.append({"role": "user", "content": question})
         payload = {
             "model": self._model,
             "store": False,
             "reasoning": {"effort": "low"},
             "instructions": INSTRUCTIONS,
-            "input": question,
+            "input": model_input,
         }
         try:
             response = await post_json(

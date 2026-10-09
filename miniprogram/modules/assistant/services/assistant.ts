@@ -1,5 +1,10 @@
 import { ListResult, request } from '../../../core/request'
-import { AssistantAsk, AssistantSuggestion } from '../types/assistant'
+import {
+  AssistantAsk,
+  AssistantConversation,
+  AssistantMessage,
+  AssistantSuggestion,
+} from '../types/assistant'
 
 export function listSuggestions(page = 1, pageSize = 20) {
   return request<ListResult<AssistantSuggestion>>({
@@ -14,5 +19,21 @@ export function askAssistant(question: string, conversationId: string | null) {
     method: 'POST',
     path: '/api/v1/assistant/ask',
     data: { question, conversation_id: conversationId },
+  })
+}
+
+export function listConversations(page = 1, pageSize = 20) {
+  return request<ListResult<AssistantConversation>>({
+    method: 'GET',
+    path: '/api/v1/assistant/conversation',
+    query: { page, page_size: pageSize },
+  })
+}
+
+export function listMessages(conversationId: string, page = 1, pageSize = 50) {
+  return request<ListResult<AssistantMessage>>({
+    method: 'GET',
+    path: `/api/v1/assistant/conversation/${conversationId}/message`,
+    query: { page, page_size: pageSize },
   })
 }

@@ -25,3 +25,17 @@ export type AssistantAsk = {
   citations: AssistantCitation[]
   related_posts: AssistantRelatedPost[]
 }
+
+export type AssistantConversation = {
+  id: string
+  title: string
+  updated_at: string
+}
+
+export type AssistantMessage = {
+  id: string
+  role: 'user' | 'assistant'
+  text: string
+  source: AssistantSource | null
+  citations: AssistantCitation[]
+}

@@ -285,6 +285,38 @@
 `related_posts` 是已发布帖摘要，不当回答证据；`cover_url` 无图时为 `null`；`title` 可空字符串。  
 响应里的 `conversation_id` 始终是字符串。请求里可 `null`（新开对话）；之后把上次响应的 id 原样传回。
 
+### AssistantConversation
+
+```json
+{
+  "id": "f1111111-1111-1111-1111-111111111111",
+  "title": "夏天怎么给狗降温",
+  "updated_at": "2026-08-24T10:00:00Z"
+}
+```
+
+一段对话的列表项。`title` 是该段第一句问话。`updated_at` 为最近一次成功回答的时间。
+
+### AssistantMessage
+
+```json
+{
+  "id": "a1111111-1111-1111-1111-111111111111",
+  "role": "assistant",
+  "text": "避开正午出门，给足阴凉饮水。",
+  "source": "knowledge",
+  "citations": [
+    {
+      "id": "k1111111-1111-1111-1111-111111111111",
+      "title": "夏天给狗降温",
+      "snippet": "避开正午出门，室内通风，提供阴凉饮水。"
+    }
+  ]
+}
+```
+
+`role`：`user` | `assistant`。`text` 是问句或回答全文。用户消息的 `source` 为 `null`，`citations` 为 `[]`。助手的 `source` 与 `AssistantAsk` 相同。`citations` 始终是数组。这条记录不带 `related_posts`。
+
 ---
 
 ## 接口清单
@@ -427,6 +459,16 @@ mock：可直接返回占位 `url`（微信临时路径也可当字符串）。
 请求：`{ "question", "conversation_id" }`  
 `conversation_id` 可 `null`。`question` 去空白后为空 → `VALIDATION`。  
 响应：`{ "data": AssistantAsk }`
+
+`GET /api/v1/assistant/conversation?page=1&page_size=20`  
+响应：`{ "data": { "items": [AssistantConversation], "total", "page", "page_size" } }`  
+只返回当前用户的、至少有一条消息的会话。`updated_at` 新的在前。没有记录时 `items` 为 `[]`，HTTP 200，不返回 404。
+
+`GET /api/v1/assistant/conversation/{id}/message?page=1&page_size=20`  
+响应：`{ "data": { "items": [AssistantMessage], "total", "page", "page_size" } }`  
+按写入顺序从旧到新。别人的 id、或不存在的 id → `NOT_FOUND`。
+
+这两条 GET 与 suggestion、ask 一样，小程序在 `useMock: true` 时直连本机 API，不另写 mock handler。
 
 ---
 
